@@ -8,11 +8,21 @@ echo "$(tput setaf 6)Installing required dependencies. This may take some time (
 #Install all apt requirements using aptfile
 sudo scripts/aptfile apt-requirements
 
+echo "$(tput setaf 4)Creating python virtual environment...$(tput setaf 9)"
 # Update pip3 to latest version
 python3 -m pip install --upgrade pip
 
-#Install all pip3 requirements using the requirements.txt filer
-sudo pip3 install -r requirements.txt
+# Install virtual enviroment, required for upcoming bookworm release
+python3 -m venv $HOME/nhlsb-venv
+
+# Activate the virtrual environment
+
+source $HOME/nhlsb-venv/bin/activate
+#Install all pip3 requirements using the requirements.txt file
+#This will install into the virtual environment
+
+pip3 install -r requirements.txt
+
 
 # Pull submodule and ignore changes from script
 git submodule update --init --recursive
@@ -31,7 +41,7 @@ echo "$(tput setaf 4)Running rgbmatrix installation...$(tput setaf 9)"
 cd ../../../ || exit
 
 make build-python PYTHON="$(command -v python3)"
-sudo make install-python PYTHON="$(command -v python3)"
+make install-python PYTHON="$(command -v python3)"
 
 cd ../../../ || exit
 
