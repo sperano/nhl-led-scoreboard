@@ -73,7 +73,7 @@ for my work?
 
 ## Requirements
 
-Installation in a python virtual enviroment is now the preferred way of installation due to the upcoming Raspberry Pi OS Bookworm and Python 3.11.  The install.sh script will handle this for you (the venv will be installed in nhlsb_venv inthe home directory of the user doing the install).  This will change how the scoreboard is launched as you now need to reference the venv python and not the global python install. 
+Installation in a python virtual enviroment is now the preferred way of installation due to the upcoming Raspberry Pi OS Bookworm and Python 3.11.  The install.sh script will handle this for you (the venv will be installed in the directory ``nhlsb_venv`` in the home directory of the user doing the install).  This will change how the scoreboard is launched as you now need to reference the venv python and not the global python install. 
 
 **Previous way with everything globally install as root user**
 
