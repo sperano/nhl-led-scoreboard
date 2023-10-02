@@ -4,11 +4,11 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "${DIR}/.." || exit
 
-echo "$(tput setaf 6)Installing required dependencies. This may take some time (10-20 minutes-ish)...$(tput setaf 9)"
+echo "$(tput setaf 6)Installing required OS dependencies. This may take some time (10-20 minutes-ish)...$(tput setaf 9)"
 #Install all apt requirements using aptfile
 sudo scripts/aptfile apt-requirements
 
-echo "$(tput setaf 4)Creating python virtual environment...$(tput setaf 9)"
+echo "$(tput setaf 6)Creating python virtual environment...$(tput setaf 9)"
 # Update pip3 to latest version
 python3 -m pip install --upgrade pip
 
@@ -16,21 +16,24 @@ python3 -m pip install --upgrade pip
 python3 -m venv $HOME/nhlsb-venv
 
 # Activate the virtrual environment
+echo "$(tput setaf 6)Activating python virtual environment...$(tput setaf 9)"
 
 source $HOME/nhlsb-venv/bin/activate
 
+echo "$(tput setaf 6)Updating pip in virtual environment...$(tput setaf 9)"
 # Update pip in the virtual enviroment
 python3 -m pip install --upgrade pip
 #Install all pip3 requirements using the requirements.txt file
 #This will install into the virtual environment
 
+echo "$(tput setaf 6)Installing python libraries for scoreboard...$(tput setaf 9)"
 pip3 install -r requirements.txt
 
 # Pull submodule and ignore changes from script
 git submodule update --init --recursive
 git config submodule.matrix.ignore all
 
-echo "$(tput setaf 4)Running rgbmatrix installation...$(tput setaf 9)"
+echo "$(tput setaf 6)Running rgbmatrix installation...$(tput setaf 9)"
 
 # No longer needed for newer version of the rgb matric repo as of Dec 2021
 # Recompile the cpp files to build library with newest cython.  See https://github.com/hzeller/rpi-rgb-led-matrix/issues/1298
