@@ -23,7 +23,6 @@ source $HOME/nhlsb-venv/bin/activate
 
 pip3 install -r requirements.txt
 
-
 # Pull submodule and ignore changes from script
 git submodule update --init --recursive
 git config submodule.matrix.ignore all
