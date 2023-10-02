@@ -18,6 +18,9 @@ python3 -m venv $HOME/nhlsb-venv
 # Activate the virtrual environment
 
 source $HOME/nhlsb-venv/bin/activate
+
+# Update pip in the virtual enviroment
+python3 -m pip install --upgrade pip
 #Install all pip3 requirements using the requirements.txt file
 #This will install into the virtual environment
 
