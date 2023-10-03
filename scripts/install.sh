@@ -11,6 +11,9 @@ sudo scripts/aptfile apt-requirements
 
 tput bold; echo "$(tput setaf 2)Creating python virtual environment...$(tput setaf 9)" ; tput sgr0
 
+#Install all apt requirements using aptfile
+sudo scripts/aptfile apt-requirements
+
 # Update pip3 to latest version
 python3 -m pip install --upgrade pip
 
@@ -28,6 +31,11 @@ echo "export VIRTUAL_ENV=~/nhlsb-venv" >> .envrc
 echo "layout python" >> .envrc
 direnv allow .
 
+echo "$(tput setaf 6)Activating python virtual environment...$(tput setaf 9)"
+
+source $HOME/nhlsb-venv/bin/activate
+
+echo "$(tput setaf 6)Updating pip in virtual environment...$(tput setaf 9)"
 # Update pip in the virtual enviroment
 python3 -m pip install --upgrade pip
 #Install all pip3 requirements using the requirements.txt file
