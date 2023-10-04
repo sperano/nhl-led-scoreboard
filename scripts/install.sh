@@ -20,10 +20,6 @@ python3 -m pip install --upgrade pip
 # Install virtual enviroment, required for upcoming bookworm release
 python3 -m venv $HOME/nhlsb-venv
 
-# Activate the virtrual environment
-tput bold; echo "$(tput setaf 2)Activating python virtual environment...$(tput setaf 9)" ; tput sgr0
-source $HOME/nhlsb-venv/bin/activate
-
 # Activate the direnv to allow for automatic activate and deactivate of venv
 tput bold; echo "$(tput setaf 2)Activating direnv for python venv...$(tput setaf 9)" ; tput sgr0
 
@@ -41,7 +37,7 @@ python3 -m pip install --upgrade pip
 #Install all pip3 requirements using the requirements.txt file
 #This will install into the virtual environment
 
-tput bold; echo "$(tput setaf 2)Installing python requirements in virtual environment...$(tput setaf 9)" ; tput sgr0
+tput bold; echo "$(tput setaf 2)Installing scoreboard python requirements in virtual environment...$(tput setaf 9)" ; tput sgr0
 pip3 install -r requirements.txt
 
 # Pull submodule and ignore changes from script
@@ -69,6 +65,5 @@ git reset --hard
 git fetch origin --prune
 git pull
 
-make
 tput bold; echo "$(tput setaf 6)If you didn't see any errors above, everything should be installed!"; tput sgr0
 echo "$(tput bold)$(tput smso)$(tput setaf 2)Installation complete!$(tput sgr0) Play around with the examples in nhl-led-scoreboard/submodules/matrix/bindings/python/samples to make sure your matrix is working."
