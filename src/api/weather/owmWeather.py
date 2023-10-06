@@ -3,6 +3,7 @@ import debug
 import geocoder
 import datetime
 from time import sleep
+from utils import sb_cache
 from api.weather.wx_utils import wind_chill, get_csv, degrees_to_direction, dew_point, wind_kmph, usaheatindex, temp_f
 
 class owmWxWorker(object):
@@ -42,7 +43,8 @@ class owmWxWorker(object):
         try:
             debug.info("Refreshing OWM current observations weather")
 
-            obs = self.owm_manager.weather_at_coords(lat,lon)
+            #obs = self.owm_manager.weather_at_coords(lat,lon)
+            obs = self.owm_manager.one_call(lat=lat,lon=lon,exclude='daily,minutely,hourly,alerts')
             self.network_issues = False
             self.data.wx_updated = True
 

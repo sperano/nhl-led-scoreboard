@@ -20,3 +20,4 @@ paho-mqtt
 rich
 RGBMatrixEmulator
 tk
+diskcache

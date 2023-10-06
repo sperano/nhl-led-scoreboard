@@ -3,10 +3,11 @@ import time
 import driver
 from datetime import datetime, timedelta
 
+
 from apscheduler.events import EVENT_ALL, EVENT_JOB_ERROR, EVENT_JOB_MISSED
 from data.scoreboard_config import ScoreboardConfig
 from renderer.main import MainRenderer
-from utils import args, led_matrix_options, scheduler_event_listener
+from utils import args, led_matrix_options, scheduler_event_listener, sb_cache
 from data.data import Data
 import queue
 import threading
@@ -198,4 +199,5 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("Exiting NHL-LED-SCOREBOARD\n")
+        sb_cache.close()
         sys.exit(0)
