@@ -43,14 +43,14 @@ def get_lat_lng(location):
 
     j = {}  
     
-    j = sb_cache.get("location")
-    if j is not None:
+    j_cache, expiration_time = sb_cache.get("location",expire_time=True)
+    if j_cache is not None:
+        j = json.loads(j_cache)
         # Get the time that the cache was created
-        expiration_time = sb_cache.mtime("location")
-        current_time = time.time()
+        current_time = datetime.now().timestamp()
         # Calculate the remaining time in seconds
-        remaining_time_seconds = max(0, expiration_time - current_time)
-        remaining_days =  remaining_time_seconds/86400
+        remaining_time_seconds = max(0, current_time - int(expiration_time))
+        remaining_days =  int(remaining_time_seconds/86400)
         
         latlng = [j["lat"],j["lng"]]
         if len(location) > 0:
