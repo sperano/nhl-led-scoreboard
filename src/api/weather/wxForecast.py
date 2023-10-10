@@ -39,6 +39,10 @@ class wxForecast(object):
 
         #Set up units [temp, wind speed,precip, storm distance]
         #Use these eventhough some are included in data feed
+        if self.data.config.weather_units.lower() not in ("metric", "imperial"):
+            debug.info("Weather units not set correctly, defaulting to imperial")
+            self.data.config.weather_units="imperial"
+            
         if self.data.config.weather_units == "metric":
             self.data.wx_units = ["C","kph","mm","miles","hPa","ca"]
         else:

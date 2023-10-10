@@ -63,6 +63,10 @@ class wxForecast:
         
     def WxDrawForecast(self,display_loop,forecast_day=1):
 
+        if not self.data.config.weather_forecast_enabled or not self.data.config.weather_enabled:
+            debug.info("Weather forecast not enabled, skipping display of Forecast board")
+            return
+        
         x=0
         pos = self.matrix.width
         # If the summary is to scroll, change size of display loop

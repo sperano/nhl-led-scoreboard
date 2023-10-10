@@ -19,6 +19,11 @@ class ecWxWorker(object):
         #scheduler.add_job(self.CheckForUpdate, 'cron', minute='*/5')
 
         #Get initial obs
+        # Make sure the weather units have a default if user makes a mistake in the config
+        if self.data.weather_units.lower() not in ("metric", "imperial"):
+            debug.info("Weather units not set correctly, defaulting to imperial")
+            self.data.weather_units="imperial"
+            
         self.getWeather()
         
 
