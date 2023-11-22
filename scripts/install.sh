@@ -12,10 +12,10 @@ sudo scripts/aptfile apt-requirements
 tput bold; echo "$(tput setaf 2)Creating python virtual environment...$(tput setaf 9)" ; tput sgr0
 
 #Install all apt requirements using aptfile
-sudo scripts/aptfile apt-requirements
+#sudo scripts/aptfile apt-requirements
 
 # Update pip3 to latest version
-python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade pip --break-system-packages
 
 # Install virtual enviroment, required for upcoming bookworm release
 python3 -m venv $HOME/nhlsb-venv
@@ -49,17 +49,17 @@ tput bold; echo "$(tput setaf 4)Running rgbmatrix installation...$(tput setaf 9)
 # No longer needed for newer version of the rgb matric repo as of Dec 2021
 # Recompile the cpp files to build library with newest cython.  See https://github.com/hzeller/rpi-rgb-led-matrix/issues/1298
 
-# cd submodules/matrix/bindings/python/rgbmatrix/ || exit
+cd submodules/matrix/ || exit
 
 # python3 -m pip install --no-cache-dir cython
 # python3 -m cython -2 --cplus *.pyx
 
-cd ../../../ || exit
+# cd ../../ || exit
 
 make build-python PYTHON="$(command -v python3)"
 make install-python PYTHON="$(command -v python3)"
 
-cd ../../../ || exit
+cd ../../ || exit
 
 git reset --hard
 git fetch origin --prune

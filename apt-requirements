@@ -23,6 +23,9 @@ package "neofetch"
 package "zsh"
 #For dietpi users without dbus
 package "dbus"
+package "libdbus-glib-1-dev"
+package "libgirepository1.0-dev" 
+pacakge "libdbus-1-dev"
 #For RGBMatrixEmulator
 package "python3-tk"
 package "libsixel-bin"
