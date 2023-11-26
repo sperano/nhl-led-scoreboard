@@ -22,10 +22,11 @@ cd submodules/matrix || exit
 make build-python PYTHON="$(which python3)"
 sudo make install-python PYTHON="$(which python3)"
 
-cd bindings || exit 
-sudo pip3 install --force-reinstall -e python/
+#cd bindings || exit 
+#sudo pip3 install --force-reinstall -e python/
 
-cd ../../../ || exit
+#cd ../../../ || exit
+cd ../../ || exit
 
 git reset --hard
 git fetch origin --prune
