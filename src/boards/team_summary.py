@@ -63,8 +63,8 @@ class TeamSummary:
             else:
                 prev_game_scoreboard = False
                 self.data.network_issues = True
-            except (TypeError, KeyError):
-                prev_game_scoreboard = False
+            #except (TypeError, KeyError):
+            #    prev_game_scoreboard = False
 
 
             self.data.network_issues = False
@@ -82,13 +82,13 @@ class TeamSummary:
                 next_game_scoreboard = False
 
                 self.data.network_issues = False
-            except ValueError:
-                next_game_scoreboard = False
-                self.data.network_issues = True
-            except (TypeError, KeyError):
-                next_game_scoreboard = False
+            # except ValueError:
+            #     next_game_scoreboard = False
+            #     self.data.network_issues = True
+            # except (TypeError, KeyError):
+            #     next_game_scoreboard = False
                 
-            stats = team.stats
+            #stats = team.stats
             im_height = 67
             # team_abbrev = team.short_name
 

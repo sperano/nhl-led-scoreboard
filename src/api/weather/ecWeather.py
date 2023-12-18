@@ -20,7 +20,7 @@ class ecWxWorker(object):
 
         #Get initial obs
         # Make sure the weather units have a default if user makes a mistake in the config
-        if self.data.weather_units.lower() not in ("metric", "imperial"):
+        if self.data.config.weather_units.lower() not in ("metric", "imperial"):
             debug.info("Weather units not set correctly, defaulting to imperial")
             self.data.weather_units="imperial"
             
