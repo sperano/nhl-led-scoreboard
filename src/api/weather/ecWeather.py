@@ -22,7 +22,7 @@ class ecWxWorker(object):
         # Make sure the weather units have a default if user makes a mistake in the config
         if self.data.config.weather_units.lower() not in ("metric", "imperial"):
             debug.info("Weather units not set correctly, defaulting to imperial")
-            self.data.weather_units="imperial"
+            self.data.config.weather_units="imperial"
             
         self.getWeather()
         
