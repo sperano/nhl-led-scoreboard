@@ -1,69 +1,105 @@
-#!/bin/bash
+#! /bin/bash
 
 # Make script work regardless of where it is run from
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "${DIR}/.." || exit
 
-tput bold; echo "$(tput setaf 2)Installing required OS dependencies. This may take some time (10-20 minutes-ish)...$(tput setaf 9)" ; tput sgr0
+# Don't run as root user
+if [ $(id -u) -eq 0 ]; then
+  tput bold; echo "$(tput setaf 9)You do not need to run this script using sudo, it will handle sudo as required$(tput setaf 9)" ; tput sgr0
+  exit 1
+fi
 
-#Install all apt requirements using aptfile
-sudo scripts/aptfile apt-requirements
+deb_ver () {
+  ver=$(cut -d . -f 1 < /etc/debian_version)
+  echo $ver
+}
 
-tput bold; echo "$(tput setaf 2)Creating python virtual environment...$(tput setaf 9)" ; tput sgr0
+deb_name () {
+    . /etc/os-release; echo "$PRETTY_NAME"
+}	
 
-#Install all apt requirements using aptfile
-#sudo scripts/aptfile apt-requirements
+py_ver () {
+  pyver="$(command -p python3 -V | sed 's/Python //g')"
+  echo $pyver
+}
 
-# Update pip3 to latest version
-python3 -m pip install --upgrade pip --break-system-packages
+show_virtual_env() {
+  if [ -n "$VIRTUAL_ENV" ]; then
+    echo "VENV name: $(basename $VIRTUAL_ENV)"
+  else
+    echo "No VENV installed"
+  fi
+}
 
-# Install virtual enviroment, required for upcoming bookworm release
-python3 -m venv $HOME/nhlsb-venv
+py_loc () {
+  pyloc="$(command -v python3)"
+  echo $pyloc
+}
 
-# Activate the direnv to allow for automatic activate and deactivate of venv
-tput bold; echo "$(tput setaf 2)Activating direnv for python venv...$(tput setaf 9)" ; tput sgr0
+get_model() {
+	pimodel=$(tr -d '\0' </proc/device-tree/model)
+	echo $pimodel
+}
 
-echo "export VIRTUAL_ENV=~/nhlsb-venv" >> .envrc
-echo "layout python" >> .envrc
-direnv allow .
+calc_wt_size() {
+  # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
+  # output from tput. However in this case, tput detects neither stdout or
+  # stderr is a tty and so only gives default 80, 24 values
+  WT_HEIGHT=18
+  WT_WIDTH=$(tput cols)
 
-echo "$(tput setaf 6)Activating python virtual environment...$(tput setaf 9)"
+  if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 60 ]; then
+    WT_WIDTH=80
+  fi
+  if [ "$WT_WIDTH" -gt 178 ]; then
+    WT_WIDTH=120
+  fi
+  WT_MENU_HEIGHT=$((WT_HEIGHT - 7))
+}
 
-source $HOME/nhlsb-venv/bin/activate
+do_install() {
+	scripts/sbtools/sb-init
+  exit 0
+}
 
-echo "$(tput setaf 6)Updating pip in virtual environment...$(tput setaf 9)"
-# Update pip in the virtual enviroment
-python3 -m pip install --upgrade pip
-#Install all pip3 requirements using the requirements.txt file
-#This will install into the virtual environment
+do_upgrade() {
+  scripts/sbtools/sb-upgrade
+  exit 0
+}
 
-tput bold; echo "$(tput setaf 2)Installing scoreboard python requirements in virtual environment...$(tput setaf 9)" ; tput sgr0
-pip3 install -r requirements.txt
+do_help() {
+ whiptail --msgbox "\
+This tool provides a straightforward way of doing initial
+install of the NHL LED Scoreboard or an Upgrade of an existing installation\
+" 20 70 1
+  return 0
+}
 
-# Pull submodule and ignore changes from script
-git submodule update --init --recursive
-git config submodule.matrix.ignore all
+calc_wt_size
 
-tput bold; echo "$(tput setaf 4)Running rgbmatrix installation...$(tput setaf 9)" ; tput sgr0
+backtitle="$(get_model) [$(deb_name)] [Python: $(py_loc) V$(py_ver) $(show_virtual_env)]"
 
-# No longer needed for newer version of the rgb matric repo as of Dec 2021
-# Recompile the cpp files to build library with newest cython.  See https://github.com/hzeller/rpi-rgb-led-matrix/issues/1298
+while true; do
 
-cd submodules/matrix/ || exit
+        FUN=$(whiptail --title "NHL LED Scoreboard Install/Upgrade Tool" --backtitle "$backtitle" --menu "Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
+        "1 New Install" "Use this if this is your first time installing" \
+        "2 Upgrade" "Use this if you are upgrading" \
+        "3 Help" "Show help for this tool" \
+        3>&1 1>&2 2>&3)
 
-# python3 -m pip install --no-cache-dir cython
-# python3 -m cython -2 --cplus *.pyx
+	RET=$?
 
-# cd ../../ || exit
-
-make build-python PYTHON="$(command -v python3)"
-make install-python PYTHON="$(command -v python3)"
-
-cd ../../ || exit
-
-git reset --hard
-git fetch origin --prune
-git pull
-
-tput bold; echo "$(tput setaf 6)If you didn't see any errors above, everything should be installed!"; tput sgr0
-echo "$(tput bold)$(tput smso)$(tput setaf 2)Installation complete!$(tput sgr0) Play around with the examples in nhl-led-scoreboard/submodules/matrix/bindings/python/samples to make sure your matrix is working."
+	if [ $RET -eq 1 ]; then
+           exit 0
+        elif [ $RET -eq 0 ]; then
+          case "$FUN" in
+            1\ *) do_install ;;
+            2\ *) do_upgrade ;;
+            3\ *) do_help ;;
+            *) whiptail --msgbox "Programmer error: unrecognized option" 20 60 1 ;;
+          esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
+        else
+      exit 1
+    fi
+done

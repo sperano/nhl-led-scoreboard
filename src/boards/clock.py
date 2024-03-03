@@ -12,7 +12,7 @@ import re
 import debug
 from time import sleep
 from utils import center_text
-
+import traceback
 
 class Clock:
     def __init__(self, data, matrix, sleepEvent ,duration=None):

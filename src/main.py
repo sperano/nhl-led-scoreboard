@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 from apscheduler.events import EVENT_ALL, EVENT_JOB_ERROR, EVENT_JOB_MISSED
 from data.scoreboard_config import ScoreboardConfig
 from renderer.main import MainRenderer
-from utils import args, led_matrix_options, scheduler_event_listener, sb_cache
+from rgbmatrix import RGBMatrix, RGBMatrixOptions
+from utils import args, led_matrix_options, stop_splash_service, scheduler_event_listener, sb_cache
 from data.data import Data
 import queue
 import threading
@@ -19,19 +20,21 @@ from api.weather.nwsAlerts import nwsWxAlerts
 from api.weather.wxForecast import wxForecast
 import asyncio
 from env_canada import ECWeather
+from renderer.matrix import Matrix
 from update_checker import UpdateChecker
 import tzlocal
+from apscheduler.events import EVENT_ALL, EVENT_JOB_ERROR, EVENT_JOB_MISSED
 from apscheduler.schedulers.background import BackgroundScheduler
 from renderer.loading_screen import Loading
 import debug
 import os
 # If you want real fancy stack trace dumps, uncomment these two lines
 #from rich.traceback import install
-#install(show_locals=True)  
+#install(show_locals=True) 
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "1.7.0"
+SCRIPT_VERSION = "1.8.2"
 
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 
