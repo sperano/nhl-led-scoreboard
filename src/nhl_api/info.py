@@ -7,9 +7,9 @@ import json
 
 from nhlpy import NHLClient
 
-from nhl_api_client import Client
-from nhl_api_client.api.default import get_season_standings_by_date, get_team_week_schedule_by_date
-from nhl_api_client.models import SeasonStandings, WeekSchedule, Game
+#from nhl_api_client import Client
+#from nhl_api_client.api.default import get_season_standings_by_date, get_team_week_schedule_by_date
+#from nhl_api_client.models import SeasonStandings, WeekSchedule, Game
 
 def team_info():
     """
