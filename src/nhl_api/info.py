@@ -7,9 +7,6 @@ import json
 
 from nhlpy import NHLClient
 
-#from nhl_api_client import Client
-#from nhl_api_client.api.default import get_season_standings_by_date, get_team_week_schedule_by_date
-#from nhl_api_client.models import SeasonStandings, WeekSchedule, Game
 
 def team_info():
     """
@@ -226,7 +223,7 @@ class Standings:
         different type of Standings.
 
     """
-    def __init__(self, records: SeasonStandings, wildcard):
+    def __init__(self, records, wildcard):
         self.data = records
         self.data_wildcard = wildcard
         self.get_conference()
@@ -283,7 +280,7 @@ class Standings:
         pass
 
     @staticmethod
-    def sort_conference(data: SeasonStandings):
+    def sort_conference(data):
         eastern = []
         western = []
 

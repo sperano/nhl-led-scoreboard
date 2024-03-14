@@ -131,7 +131,7 @@ class sbMQTT(object):
 
         clientID = "nhl-led-scoreboard-{0}".format(uuid.uuid1())
 
-        self.client = sbmqtt.Client(clientID,clean_session=True)
+        self.client = sbmqtt.Client(sbmqtt.CallbackAPIVersion.VERSION1,clientID,clean_session=True)
         self.client.on_publish = self.on_publish
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
