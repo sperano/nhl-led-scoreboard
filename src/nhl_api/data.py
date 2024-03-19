@@ -2,6 +2,8 @@ import json
 import requests
 import debug
 from datetime import date
+from nhl_api.nhl_client import client
+import backoff
 
 """
     TODO:
@@ -26,10 +28,10 @@ REQUEST_TIMEOUT = 5
 
 TIMEOUT_TESTING = 0.001  # TO DELETE
 
-from nhlpy import NHLClient
+#from nhlpy import NHLClient
 
 def get_score_details(date):
-    client = NHLClient(verbose=False)
+    #client = NHLClient(verbose=False)
     #with client as client:
     score_details = client.game_center.score_now(date)
     return score_details

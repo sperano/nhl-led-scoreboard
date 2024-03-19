@@ -30,6 +30,8 @@ def set_debug_status(config,logcolor=False,loglevel='INFO'):
 
 
 	if loglevel.lower() == "debug":
+		from rich.traceback import install
+		install(show_locals=True) 
 		debug_enabled = True
 
 	if debug_enabled:

@@ -28,13 +28,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from renderer.loading_screen import Loading
 import debug
 import os
-# If you want real fancy stack trace dumps, uncomment these two lines
-#from rich.traceback import install
-#install(show_locals=True) 
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "1.8.2"
+SCRIPT_VERSION = "1.9.0-beta"
 
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 

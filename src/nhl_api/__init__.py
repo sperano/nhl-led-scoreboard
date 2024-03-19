@@ -1,9 +1,18 @@
 import nhl_api.game
 import nhl_api.info
+
 import datetime
+from nhl_api.nhl_client import client
+# from utils import args
 
-from nhlpy import NHLClient
+# from nhlpy import NHLClient
 
+# nhl_Verbose = False
+# if args().loglevel != None:
+#     if args().loglevel.lower() == "debug":
+#         nhl_Verbose = True
+    
+# nhl_client = NHLClient(verbose=nhl_Verbose,timeout=args().nhl_timeout,ssl_verify=args().nhl_ssl_verify)
 
 def player(playerId):
     """Return an Info object of a player information"""
@@ -35,7 +44,7 @@ def standings():
     # TODO: Wildcard stuff
     season_standings = {}
 
-    client = NHLClient(verbose=False)
+    #client = NHLClient(verbose=False)
     #with client as client:
     season_standings = client.standings.get_standings(date = str(datetime.date.today()))
 

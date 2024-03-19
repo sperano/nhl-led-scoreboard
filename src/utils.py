@@ -54,44 +54,17 @@ def get_lat_lng(location):
         latlng = [j["lat"],j["lng"]]
         if len(location) > 0:
             message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + location + " " + str(latlng)
-        else:                
-            message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + j["city"] + ", "+ j["country"] + " " + str(latlng)     
+        else:    
+            #Make sure that there is a city in the json from the cache, if not, use latlng only      
+            if "city" in j:    
+                message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + j["city"] + ", "+ j["country"] + " " + str(latlng)     
+            else:
+                message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + str(latlng)     
     else:
         # Cache has expired
         reload = True
         message = "location loaded from cache has expired, reloading...."
         
-          
-    # TODO: Replace anything with the file with the diskcache   
-    # path = get_file("config/location.json")
-    
-    # if os.path.isfile(path):
-    #     try:
-    #         j = json.load(open(path))
-    #         msg = "json loaded OK"
-    #         #Get the city, country and latlng from the loaded json
-    #         latlng = [j["lat"],j["lng"]]
-    #         #Check the age of the file, if it's older than 7 days, reload it.
-    #         t = os.stat(path)[8]
-    #         filetime = datetime.fromtimestamp(t) - today
-    #         if filetime.days <= -7:
-    #             reload = True
-            
-    #         if reload:
-    #             message = "location loaded from cache has expired, reloading...."
-    #         else:
-    #             if len(location) > 0:
-    #                 message = "location loaded from cache (saved {} days ago): ".format(filetime.days) + location + " " + str(latlng)
-    #             else:
-    #                 message = "location loaded from cache (saved {} days ago): ".format(filetime.days) + j["city"] + ", "+ j["country"] + " " + str(latlng)
-
-    #     except json.decoder.JSONDecodeError as e:
-    #         msg = "Unable to load json: {0}".format(e)
-    #         j = {}
-    #         reload = True
-    # else:
-    #     msg="Unable to open file {}".format(path)
-    #     reload = True
 
     if reload:
         if len(location) > 0:
@@ -228,6 +201,9 @@ def args():
     parser.add_argument("--ghtoken", action="store", help="Github API token for doing update checks(Default: blank)", default="", type=str)
     parser.add_argument("--logcolor", action="store_true", help="Display log in color (command line only)")
     parser.add_argument("--loglevel", action="store", help="log level to display (INFO,WARN,ERROR,CRITICAL,DEBUG)", type=str)
+    
+    parser.add_argument("--nhl-timeout", action="store", help="timeout for calls to the NHL API, defaults to 10 seconds", default=10, type=int)
+    parser.add_argument("--nhl-ssl-verify", action="store_true", help="Disable SSL certificate verification for NHL API calls", default=False)
 
     return parser.parse_args()
 
