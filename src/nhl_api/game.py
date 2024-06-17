@@ -5,6 +5,9 @@ such as the scoreboard and the box score.
 
 from nhl_api.utils import convert_time
 import nhl_api.object
+from nhl_api.nhl_client import client
+import httpx
+import backoff
 
 #from nhlpy import NHLClient
 # from nhl_api_client.api.play_by_play import get_schedule_by_date
@@ -31,11 +34,17 @@ class GameScoreboard(object):
         return self.__str__()
 
 
+@backoff.on_exception(backoff.expo,
+                      httpx.HTTPError,
+                      logger='scoreboard')
 def overview(game_id):
     
     #client = NHLClient(verbose=False)
     game_details = {}
     #with client as client:
-    game_details = nhl_api.nhl_client.game_center.play_by_play(game_id)
+    try:
+        game_details = client.game_center.play_by_play(game_id)
+        return game_details
+    except httpx.HTTPError as exc:
+        print(f"Error while requesting {exc}.")
 
-    return game_details

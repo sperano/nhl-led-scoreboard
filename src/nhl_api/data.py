@@ -4,6 +4,7 @@ import debug
 from datetime import date
 from nhl_api.nhl_client import client
 import backoff
+import httpx
 
 """
     TODO:
@@ -30,12 +31,20 @@ TIMEOUT_TESTING = 0.001  # TO DELETE
 
 #from nhlpy import NHLClient
 
+@backoff.on_exception(backoff.expo,
+                      httpx.HTTPError,
+                      logger='scoreboard')
+
 def get_score_details(date):
     #client = NHLClient(verbose=False)
     #with client as client:
-    score_details = client.game_center.score_now(date)
-    return score_details
-
+    try:
+        score_details = client.game_center.score_now(date)
+        return score_details
+    
+    except httpx.HTTPError as exc:
+        print(f"Error while requesting {exc}.")
+        
 def get_team_schedule(team_code, season_code):
     try:
         data = requests.get(TEAM_SCHEDULE_URL.format(team_code, season_code), timeout=REQUEST_TIMEOUT)
