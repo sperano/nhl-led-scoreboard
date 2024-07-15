@@ -65,7 +65,6 @@ def get_lat_lng(location):
         reload = True
         message = "location loaded from cache has expired, reloading...."
         
-
     if reload:
         if len(location) > 0:
 

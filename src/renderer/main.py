@@ -5,7 +5,7 @@ import debug
 from boards.boards import Boards
 from boards.clock import Clock
 from boards.stanley_cup_champions import StanleyCupChampions
-from boards.seriesticker import Seriesticker
+#from boards.seriesticker import Seriesticker
 from boards.team_summary import TeamSummary
 from boards.standings import Standings
 from data.scoreboard import Scoreboard
@@ -198,10 +198,10 @@ class MainRenderer:
 
                 sbrenderer = ScoreboardRenderer(self.data, self.matrix, self.scoreboard)
                 self.check_new_goals()
-                if self.data.isPlayoff and self.data.stanleycup_round:
+                """ if self.data.isPlayoff and self.data.stanleycup_round:
                     self.data.check_stanley_cup_champion()
                     if self.data.cup_winner_id:
-                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render()
+                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render() """
 
                 self.__render_postgame(sbrenderer)
                 self.sleepEvent.wait(self.refresh_rate)
@@ -214,10 +214,10 @@ class MainRenderer:
                 
                 sbrenderer = ScoreboardRenderer(self.data, self.matrix, self.scoreboard)
                 self.check_new_goals()
-                if self.data.isPlayoff and self.data.stanleycup_round:
+                """ if self.data.isPlayoff and self.data.stanleycup_round:
                     self.data.check_stanley_cup_champion()
                     if self.data.cup_winner_id:
-                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render()
+                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render() """
                 self.__render_postgame(sbrenderer)
 
                 self.sleepEvent.wait(self.refresh_rate)

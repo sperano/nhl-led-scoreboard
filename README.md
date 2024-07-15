@@ -1,16 +1,17 @@
 
-# NHL-LED-scoreboard (THIS PROJECT IS INDEFINITLY ON HOLD) 
+# NHL-LED-scoreboard (DEPRICATED) 
 
 ![scoreboard demo](assets/images/scoreboard.jpg)
 
-  
-  
 # NHL LED Scoreboard Raspberry Pi Image
 [![Create Release - Image](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml/badge.svg)](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml)
 [![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard-img?label=Version)](https://github.com/falkyre/nhl-led-scoreboard-img/releases/latest)
 
 [![discord button](assets/images/discord_button.png)](https://discord.gg/CWa5CzK)
 # IMPORTANT (PLEASE READ)
+
+## (2024-05-17) THE END ... For now...
+After what seems to be some minor change in the NHL API, new issues arose which rendered the software unusable. I have been working on a new version built from the ground up and decided to put my focus on it instead of fixing and supporting this one. I therefore decided to Archive this repository. The plan is to roll out the new version in the fall, in time for the 2024-2025 NHL season.
 
 ## (2023-11-09)
 old stats api is officially dead. please read below on the current state of the project. only thing that change is that the plan is that Ill start from scratch for the next version. No time frame on anything for now for reasons stated below
@@ -143,6 +144,7 @@ python3 src/main.py --emulated
 ```
 
 See [RGBMatrixEmulator customization options] for further customization of the display.
+ 
 
 ## Shout-out
 
