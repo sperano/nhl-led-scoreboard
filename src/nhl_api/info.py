@@ -4,9 +4,8 @@ from nameparser import HumanName
 import debug
 import datetime
 import json
-from nhl_api.nhl_client import client
-import backoff
-import httpx
+
+from nhlpy import NHLClient
 
 
 def team_info():
@@ -24,18 +23,26 @@ def team_info():
         team_dict[team["triCode"]] = team["id"]
 
 
-    #client = NHLClient(verbose=False)
+    client = NHLClient(verbose=False)
     teams_data = {}
     teams_response = {}
     #with client as client:
+    #teams_responses = client.standings.get_standings(str(datetime.date.today()))
     teams_responses = client.standings.get_standings()
+
     for team in teams_responses["standings"]:
         raw_team_id = team_dict[team["teamAbbrev"]["default"]]
         team_details = TeamDetails(raw_team_id, team["teamName"]["default"], team["teamAbbrev"]["default"])
         team_info = TeamInfo(team, team_details)
         teams_data[raw_team_id] = team_info
+    if "59" in teams_data:
+        return teams_data
+    else:
+        team_details=TeamDetails("59", "Utah Hockey Club", "UTA")
+        team_info = TeamInfo(team, team_details)
+        teams_data[59] = team_info
+        return teams_data
 
-    return teams_data
     # TODO: I think most of this is now held in the TeamStandings object, but leaving here for reference
     # for team in teams_data:
     #     try:
@@ -128,18 +135,12 @@ def team_info():
 
 
 # This one is a little funky for the time. I'll loop through the what and why
-@backoff.on_exception(backoff.expo,
-                      httpx.HTTPError,
-                      logger='scoreboard')
 def team_previous_game(team_code, date, pg = None, ng = None):
     # This response returns the next three games, starting from the date given
-    #client = NHLClient(verbose=False)
+    client = NHLClient(verbose=False)
     teams_response = {}
     #with client as client:
-    try:
-        teams_response = client.schedule.get_schedule_by_team_by_week(team_code, date)
-    except httpx.HTTPError as exc:
-        print(f"Error while requesting {exc}.")
+    teams_response = client.schedule.get_schedule_by_team_by_week(team_code, date)
 
     if teams_response:
         pg = teams_response[0]

@@ -113,11 +113,6 @@ class Data:
         self.curr_board = None
         self.prev_board = None
 
-        # For MQTT trigger (acts like the pb_trigger)
-        self.mqtt_trigger = False
-        # For MQTT board display - default to clock
-        self.mqtt_showboard = "clock"
-
 
         # Environment Canada manager (to share between the forecast, alerts and current obs)
         self.ecData = None
@@ -151,7 +146,7 @@ class Data:
         self.network_issues = False
 
         # Get the teams info
-        print("update Teams info")
+        debug.info("update Teams info")
         self.teams_info = self.get_teams()
         # So oddly enough, there are a handful of situations where the API does not include the team_id
         # it's happening often enough that it's worth keeping a second teams_info that is keyed off of the
@@ -162,7 +157,7 @@ class Data:
         self.config = config
 
         # Get the status from the API
-        print("Get status from api")
+        debug.info("Get status from api")
         self.get_status()
 
         # Get favorite team's id
@@ -175,7 +170,7 @@ class Data:
         #self.current_game_index = 0
 
         # Fetch the games for today
-        print("refresh games")
+        debug.info("refresh games")
         self.refresh_games()
 
         # Flag to indicate if all preferred games are Final
@@ -185,7 +180,7 @@ class Data:
         self.today = self.date()
 
         # Get refresh standings
-        print("refresh standings")
+        debug.info("refresh standings")
         self.refresh_standings()
 
         # Playoff Flag
@@ -288,7 +283,6 @@ class Data:
             TODO:
                 Add the option to start the earliest game in the preferred game list but change to the top one as soon as it start.
         """
-
         attempts_remaining = 5
         while attempts_remaining > 0:
             try:
@@ -392,8 +386,6 @@ class Data:
                 return
 
         self.all_pref_games_final = True
-        #Let the screensaver run again
-        self.screensaver_livegame = False
 
     
     # This is the function that will determine the state of the board (Offday, Gameday, Live etc...).

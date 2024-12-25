@@ -412,6 +412,13 @@
     "leagueId": 133,
     "rawTricode": "EDM",
     "triCode": "EDM"
+  }, {
+  "id":59,
+  "franchiseId": 59,
+  "fullName": "Utah Hockey Club",
+  "leageUd": 133,
+  "rawTricode": "UTA",
+  "triCode": "UTA"
   }],
-  "total": 59
+  "total": 60
 }
