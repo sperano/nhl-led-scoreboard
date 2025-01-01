@@ -1,4 +1,5 @@
-from pyowm.owm import OWM
+#from pyowm.owm import OWM
+import requests
 from env_canada import ECWeather
 import debug
 from datetime import datetime,timedelta
@@ -21,9 +22,9 @@ class wxForecast(object):
 
         self.max_days = data.config.weather_forecast_days
 
-        if self.data.config.weather_data_feed.lower() == "owm":
-            self.owm = OWM(self.apikey)
-            self.owm_manager = self.owm.weather_manager()
+        #if self.data.config.weather_data_feed.lower() == "owm":
+        #    self.owm = OWM(self.apikey)
+        #    self.owm_manager = self.owm.weather_manager()
 
         # Get forecast for next day, every forecast_update hours
 
@@ -136,10 +137,12 @@ class wxForecast(object):
             #lat = self.data.latlng[0]
             #lon = self.data.latlng[1]
             one_call = None
+            
             try:
-                # The following line currently breaks getting the forecasts.
-                #one_call = self.owm_manager.one_call(lat=self.data.latlng[0],lon=self.data.latlng[1],exclude='current,minutely,hourly,alerts')
-                one_call = self.owm_manager.one_call(lat=self.data.latlng[0],lon=self.data.latlng[1])
+                url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={self.data.config.weather_units}&appid={self.apikey}&exclude=alerts,minutely,hourly,current"
+                response = requests.get(url)
+                one_call = response.json()
+
             except Exception as e:
                 debug.error("Unable to get OWM data error:{0}".format(e))
                 self.data.forecast_updated = False

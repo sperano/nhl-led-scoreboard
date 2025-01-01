@@ -113,6 +113,11 @@ class Data:
         self.curr_board = None
         self.prev_board = None
 
+        # For MQTT trigger (acts like the pb_trigger)
+        self.mqtt_trigger = False
+        # For MQTT board display - default to clock
+        self.mqtt_showboard = "clock"
+
 
         # Environment Canada manager (to share between the forecast, alerts and current obs)
         self.ecData = None
@@ -146,7 +151,6 @@ class Data:
         self.network_issues = False
 
         # Get the teams info
-        debug.info("update Teams info")
         self.teams_info = self.get_teams()
         # So oddly enough, there are a handful of situations where the API does not include the team_id
         # it's happening often enough that it's worth keeping a second teams_info that is keyed off of the
@@ -156,8 +160,14 @@ class Data:
         # Save the parsed config
         self.config = config
 
+        # Initialize the time stamp. The time stamp is found only in the live feed endpoint of a game in the API
+        # It shows the last time (UTC) the data was updated. EX 20200114_041103
+        self.time_stamp = "00000000_000000"
+
+        # Flag for when the data live feed of a game has updated
+        self.new_data = True
+
         # Get the status from the API
-        debug.info("Get status from api")
         self.get_status()
 
         # Get favorite team's id
@@ -170,7 +180,6 @@ class Data:
         #self.current_game_index = 0
 
         # Fetch the games for today
-        debug.info("refresh games")
         self.refresh_games()
 
         # Flag to indicate if all preferred games are Final
@@ -180,7 +189,6 @@ class Data:
         self.today = self.date()
 
         # Get refresh standings
-        debug.info("refresh standings")
         self.refresh_standings()
 
         # Playoff Flag
@@ -209,7 +217,7 @@ class Data:
             today -= timedelta(days=1)
 
         return today.year, today.month, today.day
-        #return 2024, 3, 4
+        #return 2021, 1, 26
 
     def date(self):
         return datetime(self.year, self.month, self.day).date()
@@ -283,6 +291,7 @@ class Data:
             TODO:
                 Add the option to start the earliest game in the preferred game list but change to the top one as soon as it start.
         """
+
         attempts_remaining = 5
         while attempts_remaining > 0:
             try:
@@ -291,29 +300,26 @@ class Data:
                     self.games = []
                     self.pref_games = []
                     return data
-                
+
                 self.games = data["games"]
                 self.pref_games = filter_list_of_games(self.games, self.pref_teams)
-                
                 # Populate the TeamInfo classes used for the team_summary board
                 for team_id in self.pref_teams:
                     # import pdb; pdb.set_trace()
                     team_info = self.teams_info[team_id].details
-                    try:
-                        pg, ng = nhl_api.info.team_previous_game(team_info.abbrev, str(date.today()))
-                        team_info.previous_game = pg
-                        team_info.next_game = ng
-                    except:
-                        pass
-                
+                    pg, ng = nhl_api.info.team_previous_game(team_info.abbrev, str(date.today()))
+                    team_info.previous_game = pg
+                    team_info.next_game = ng
+
                 if self.config.preferred_teams_only and self.pref_teams:
                     self.games = self.pref_games
-                
+
                 if not self.is_pref_team_offday() and self.config.live_mode:
                     #self.pref_games = prioritize_pref_games(self.pref_games, self.pref_teams)
                     self.check_all_pref_games_final()
                     # TODO: This shouldn't be needed to get the fact that your preferred team has a game today
                     self.check_game_priority()
+
                 self.network_issues = False
                 break
 
@@ -386,6 +392,8 @@ class Data:
                 return
 
         self.all_pref_games_final = True
+        #Let the screensaver run again
+        self.screensaver_livegame = False
 
     
     # This is the function that will determine the state of the board (Offday, Gameday, Live etc...).
@@ -416,6 +424,10 @@ class Data:
         while attempts_remaining > 0:
             try:
                 self.overview = nhl_api.overview(self.current_game_id)
+                # TODO: Not sure what was going on here
+                if self.time_stamp != self.overview["clock"]["timeRemaining"]:
+                    self.time_stamp = self.overview["clock"]["timeRemaining"]
+                    self.new_data = True
                 self.needs_refresh = False
                 self.network_issues = False
                 break

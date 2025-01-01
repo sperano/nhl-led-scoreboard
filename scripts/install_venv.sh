@@ -72,7 +72,8 @@ cd submodules/matrix/ || exit
 # cd ../../ || exit
 
 make build-python PYTHON="$(command -v python3)"
-make install-python PYTHON="$(command -v python3)"
+#make install-python PYTHON="$(command -v python3)"
+pip3 install bindings/python
 
 cd ../../ || exit
 

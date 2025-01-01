@@ -1,17 +1,18 @@
 import sys
 import time
+import driver
 from datetime import datetime, timedelta
+
+
+from apscheduler.events import EVENT_ALL, EVENT_JOB_ERROR, EVENT_JOB_MISSED
 from data.scoreboard_config import ScoreboardConfig
 from renderer.main import MainRenderer
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from utils import args, led_matrix_options, stop_splash_service, scheduler_event_listener, sb_cache
 from data.data import Data
+import queue
 import threading
-from sbio.dimmer import Dimmer
-from sbio.pushbutton import PushButton
-from sbio.motionsensor import Motion
-from sbio.screensaver import screenSaver
-from renderer.matrix import Matrix, TermMatrix
+from renderer.matrix import Matrix
 from api.weather.ecWeather import ecWxWorker
 from api.weather.owmWeather import owmWxWorker
 from api.weather.ecAlerts import ecWxAlerts
@@ -27,33 +28,41 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from renderer.loading_screen import Loading
 import debug
 import os
-# If you want real fancy stack trace dumps, uncomment these two lines
-from rich.traceback import install
-install(show_locals=True) 
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "1.8.4"
+SCRIPT_VERSION = "1.9.0-beta"
 
+# Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
+
+if args().emulated:
+    from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions
+
+    driver.mode = driver.DriverMode.SOFTWARE_EMULATION
+else:
+    try:
+        from rgbmatrix import RGBMatrix, RGBMatrixOptions
+        from utils import stop_splash_service
+
+        driver.mode = driver.DriverMode.HARDWARE
+    except ImportError:
+        from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions
+
+        driver.mode = driver.DriverMode.SOFTWARE_EMULATION
 
 def run():
-    # Kill the splash screen if active
-    stop_splash_service()
-
     # Get supplied command line arguments
     commandArgs = args()
+    if driver.is_hardware():
+        # Kill the splash screen if active
+        stop_splash_service()
 
-    if commandArgs.terminal_mode and sys.stdin.isatty():
-        height, width = os.popen('stty size', 'r').read().split()
-        termMatrix = TermMatrix(int(width), int(height))
-        matrix = Matrix(termMatrix)
-    else:
-        # Check for led configuration arguments
-        matrixOptions = led_matrix_options(commandArgs)
-        matrixOptions.drop_privileges = False
+    # Check for led configuration arguments
+    matrixOptions = led_matrix_options(commandArgs)
+    matrixOptions.drop_privileges = False
 
-        # Initialize the matrix
-        matrix = Matrix(RGBMatrix(options = matrixOptions))
+    # Initialize the matrix
+    matrix = Matrix(RGBMatrix(options = matrixOptions))
 
      #Riff to add loading screen here
     loading = Loading(matrix)
@@ -62,6 +71,9 @@ def run():
     # Read scoreboard options from config.json if it exists
     config = ScoreboardConfig("config", commandArgs, (matrix.width, matrix.height))
 
+    # This data will get passed throughout the entirety of this program.
+    # It initializes all sorts of things like current season, teams, helper functions
+    data = Data(config)
 
     #If we pass the logging arguments on command line, override what's in the config.json, else use what's in config.json (color will always be false in config.json)
     if commandArgs.logcolor and commandArgs.loglevel != None:
@@ -72,10 +84,6 @@ def run():
         debug.set_debug_status(config,logcolor=commandArgs.logcolor,loglevel=config.loglevel)
     else:
         debug.set_debug_status(config,loglevel=config.loglevel)
-
-    # This data will get passed throughout the entirety of this program.
-    # It initializes all sorts of things like current season, teams, helper functions
-    data = Data(config)
 
     # Print some basic info on startup
     debug.info("{} - v{} ({}x{})".format(SCRIPT_NAME, SCRIPT_VERSION, matrix.width, matrix.height))
@@ -90,7 +98,6 @@ def run():
     # Will also allow for weather alert to interrupt display board if you want
     sleepEvent = threading.Event()
 
-
     # Start task scheduler, used for UpdateChecker and screensaver, forecast, dimmer and weather
     scheduler = BackgroundScheduler(timezone=str(tzlocal.get_localzone()), job_defaults={'misfire_grace_time': None})
     scheduler.add_listener(scheduler_event_listener, EVENT_JOB_MISSED | EVENT_JOB_ERROR)
@@ -100,17 +107,16 @@ def run():
 
     # Make sure we have a valid location for the data.latlng as the geocode can return a None
     # If there is no valid location, skip the weather boards
-    
+   
     #Create EC data feed handler
     if data.config.weather_enabled or data.config.wxalert_show_alerts:
-        if data.config.weather_data_feed.lower() == "ec" or data.config.wxalert_alert_feed.lower() == "ec":
-            data.ecData = ECWeather(coordinates=(tuple(data.latlng)))
-            
-            try:
+        if data.config.weather_data_feed.lower() == "ec" or data.config.wxalert_alert_feed.lower() == "ec":           
+             data.ecData = ECWeather(coordinates=(tuple(data.latlng)))
+             try:
                 asyncio.run(data.ecData.update())
-            except Exception as e:
+             except Exception as e:
                 debug.error("Unable to connect to EC .. will try on next refresh : {}".format(e))
-
+            
     if data.config.weather_enabled:
         if data.config.weather_data_feed.lower() == "ec":
             ecWxWorker(data,scheduler)
@@ -139,26 +145,54 @@ def run():
         data.UpdateRepo = commandArgs.updaterepo
         checkupdate = UpdateChecker(data,scheduler,commandArgs.ghtoken)
 
-    if data.config.dimmer_enabled:
-        dimmer = Dimmer(data, matrix,scheduler)
-
-    screensaver = None
-    if data.config.screensaver_enabled:
-        screensaver = screenSaver(data, matrix, sleepEvent, scheduler)
-        if data.config.screensaver_motionsensor:
-            motionsensor = Motion(data,matrix,sleepEvent,scheduler,screensaver)
-            motionsensorThread = threading.Thread(target=motionsensor.run, args=())
-            motionsensorThread.daemon = True
-            motionsensorThread.start()
-
-    if data.config.pushbutton_enabled:
-        pushbutton = PushButton(data,matrix,sleepEvent)
-        pushbuttonThread = threading.Thread(target=pushbutton.run, args=())
-        pushbuttonThread.daemon = True
-        pushbuttonThread.start()
+    # If the driver is running on actual hardware, these files contain libs that should be installed.
+    # For other platforms, they probably don't exist and will crash.
+    screensaver = None 
     
-    # Then the main everything runs here.
-    MainRenderer(matrix, data, sleepEvent).render()
+    if driver.is_hardware():
+        from sbio.dimmer import Dimmer
+        from sbio.pushbutton import PushButton
+        from sbio.motionsensor import Motion
+        from sbio.screensaver import screenSaver
+
+        if data.config.dimmer_enabled:
+            dimmer = Dimmer(data, matrix,scheduler)
+
+        
+        if data.config.screensaver_enabled:
+            screensaver = screenSaver(data, matrix, sleepEvent, scheduler)
+            if data.config.screensaver_motionsensor:
+                motionsensor = Motion(data,matrix,sleepEvent,scheduler,screensaver)
+                motionsensorThread = threading.Thread(target=motionsensor.run, args=())
+                motionsensorThread.daemon = True
+                motionsensorThread.start()
+
+        if data.config.pushbutton_enabled:
+            pushbutton = PushButton(data,matrix,sleepEvent)
+            pushbuttonThread = threading.Thread(target=pushbutton.run, args=())
+            pushbuttonThread.daemon = True
+            pushbuttonThread.start()
+    
+    mqtt_enabled = data.config.mqtt_enabled
+    # Create a queue for scoreboard events and info to be sent to an MQTT broker
+    sbQueue = queue.Queue()
+    pahoAvail = False
+    if mqtt_enabled:     
+        # Only import if we are actually using mqtt, that way paho_mqtt doesn't need to be installed
+        try:
+            from sbio.sbMQTT import sbMQTT
+            pahoAvail = True
+        except Exception as e:
+            debug.error("MQTT (paho-mqtt): is disabled.  Unable to import module: {}  Did you install paho-mqtt?".format(e))
+            pahoAvail = False   
+        
+        if pahoAvail:
+            sbmqtt = sbMQTT(data,matrix,sleepEvent,sbQueue,screensaver)
+            sbmqttThread = threading.Thread(target=sbmqtt.run, args=())
+            sbmqttThread.daemon = True
+            sbmqttThread.start()
+    
+    MainRenderer(matrix, data, sleepEvent,sbQueue).render()
 
 
 if __name__ == "__main__":
