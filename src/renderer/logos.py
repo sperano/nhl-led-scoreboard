@@ -1,6 +1,7 @@
 from PIL import Image
 from utils import get_file
 from images.image_helper import ImageHelper
+import platform
 import os
 # import pwd
 # import grp
@@ -90,13 +91,14 @@ class LogoRenderer:
 
     def change_ownership(self,team_abbrev):
         # If we're not on a Unix distro, this won't do anything and will crash.
-        if hasattr(os, "chown"):
-            path = os.path.dirname("{}/{}".format(PATH, team_abbrev))
-            for root, dirs, files in os.walk(path):  
-                for d in dirs:
-                    os.chown(os.path.join(root, d), uid, gid)
-                for f in files:
-                    os.chown(os.path.join(root, f), uid, gid)
+        if platform.system() == 'Linux':
+            if hasattr(os, "chown"):
+                path = os.path.dirname("{}/{}".format(PATH, team_abbrev))
+                for root, dirs, files in os.walk(path):  
+                    for d in dirs:
+                        os.chown(os.path.join(root, d), uid, gid)
+                    for f in files:
+                        os.chown(os.path.join(root, f), uid, gid)
 
     def render(self):
         self.matrix.draw_image_layout(

@@ -99,7 +99,7 @@ class Data:
 
         # Get lat/long and message (for debug) for dimmer and weather
         self.latlng, self.latlng_msg = get_lat_lng(config.location)
-
+ 
         # Test for alerts
         #self.latlng = [32.653,-83.7596]
 

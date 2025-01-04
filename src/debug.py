@@ -14,6 +14,9 @@ logger = logging.getLogger('scoreboard')
 #Don't send our logging messages up to the root logger (stops duplicates)
 logger.propagate = False
 
+logger.check = lambda msg, *args: logger._log(logging.CHECK, msg, args, stacklevel=2)
+
+
 
 def set_debug_status(config,logcolor=False,loglevel='INFO'):
 	global debug_enabled
@@ -30,8 +33,6 @@ def set_debug_status(config,logcolor=False,loglevel='INFO'):
 
 
 	if loglevel.lower() == "debug":
-		from rich.traceback import install
-		install(show_locals=True) 
 		debug_enabled = True
 
 	if debug_enabled:

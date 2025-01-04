@@ -134,8 +134,8 @@ class wxForecast(object):
 
         if self.data.config.weather_data_feed.lower() == "owm":
             debug.info("Refreshing OWM daily weather forecast")
-            #lat = self.data.latlng[0]
-            #lon = self.data.latlng[1]
+            lat = self.data.latlng[0]
+            lon = self.data.latlng[1]
             one_call = None
             
             try:
@@ -154,14 +154,11 @@ class wxForecast(object):
             while index <= self.max_days:
                 nextdate = self.currdate + timedelta(days=index)
                 nextdate = nextdate.strftime("%a %m/%d")
-                icon_code = int(one_call.forecast_daily[index].weather_code)
-                summary = one_call.forecast_daily[index].detailed_status
-                if self.data.config.weather_units == "metric":
-                    temp_high = one_call.forecast_daily[index].temperature('celsius').get('max', None) 
-                    temp_low = one_call.forecast_daily[index].temperature('celsius').get('min', None)
-                else:
-                    temp_high = one_call.forecast_daily[index].temperature('fahrenheit').get('max', None) 
-                    temp_low = one_call.forecast_daily[index].temperature('fahrenheit').get('min', None)
+                icon_code = int(one_call.get("daily")[index].get("weather")[0].get("id"))
+                summary = one_call.get("daily")[index].get("summary")
+                
+                temp_high = one_call.get("daily")[index].get("temp").get('max', None) 
+                temp_low = one_call.get("daily")[index].get("temp").get('min', None) 
 
                 #Round high and low temps to two digits only (ie 25 and not 25.61)
                 temp_hi = str(round(float(temp_high))) + self.data.wx_units[0]

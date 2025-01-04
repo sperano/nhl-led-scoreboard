@@ -2,7 +2,8 @@ tzlocal
 cairosvg
 ephem
 fastjsonschema>=2.14.4
-geocoder>=1.38.1
+geopy
+ipinfo
 gpiozero==1.6.2
 nhl-api-py
 noaa-sdk>=0.1.18
