@@ -1,4 +1,3 @@
-from rgbmatrix import RGBMatrixOptions, graphics
 import collections
 import argparse
 import os
@@ -7,10 +6,15 @@ import debug
 from datetime import datetime, timezone, time
 import regex
 import math
-import geocoder
-import dbus
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderServiceError
+import ipinfo
 import json
 from iso6709 import Location
+import platform
+import uuid
+import driver
+
 
 uid = int(os.stat("./VERSION").st_uid)
 gid = int(os.stat("./VERSION").st_uid)
@@ -19,74 +23,105 @@ gid = int(os.stat("./VERSION").st_uid)
 sb_cache = dc.Cache("/tmp/sb_cache")
 
 def stop_splash_service():
-    sysbus = dbus.SystemBus()
-    systemd1 = sysbus.get_object('org.freedesktop.systemd1',     '/org/freedesktop/systemd1')
-    manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
-    try:
-        job = manager.StopUnit('sb_splash.service', 'fail')
-    except Exception as ex:
-        nosvc = ex
+  import dbus
+  sysbus = dbus.SystemBus()
+  systemd1 = sysbus.get_object('org.freedesktop.systemd1',     '/org/freedesktop/systemd1')
+  manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
+  try:
+    job = manager.StopUnit('sb_splash.service', 'fail')
+  except Exception as ex:
+    nosvc = ex 
 
 def scheduler_event_listener(event):
     debug.error(f'Job {event.job_id} raised {event.exception.__class__.__name__}')
-    
+
 def get_lat_lng(location):
 
     #Check to see if a location.json is in the config folder
     reload = False
     ipfallback = False
+    ok = False
+    loc_cache = {}
     today = datetime.today()#gets current time
     latlng = []
+    
+    sb_useragent = f"scoreboard-{uuid.uuid4()}"
+    geolocator = Nominatim(user_agent=sb_useragent)
+    iphandler = ipinfo.getHandler()
 
-    j = {}
+    j = {}  
     
     j_cache, expiration_time = sb_cache.get("location",expire_time=True)
+
     if j_cache is not None:
         j = json.loads(j_cache)
+        debug.info(j)
         # Get the time that the cache was created
         current_time = datetime.now().timestamp()
         # Calculate the remaining time in seconds
         remaining_time_seconds = max(0, current_time - int(expiration_time))
         remaining_days =  int(remaining_time_seconds/86400)
         
-        latlng = [j["lat"],j["lng"]]
+        #Last location in cache was saved from the ipinfo.io check (first try), or Open Street Maps (the except)
+        try:
+            lat = j["lat"]
+        except KeyError:
+            lat = j["latitude"]
+            
+        try:
+            lng = j["lon"]
+        except KeyError:
+            lng = j["longitude"]
+            
+        latlng = [float(lat),float(lng)]
         if len(location) > 0:
             message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + location + " " + str(latlng)
-        else:                
-            message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + j["city"] + ", "+ j["country"] + " " + str(latlng)     
+        else:    
+            #Make sure that there is a city in the json from the cache, if not, use latlng only      
+            if "city" in j:    
+                message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + j["city"] + ", "+ j["country"] + " " + str(latlng)     
+            else:
+                message = "location loaded from cache (saved {} days ago): ".format(remaining_days) + str(latlng)     
     else:
         # Cache has expired
         reload = True
         message = "location loaded from cache has expired, reloading...."
+        debug.info(message)
         
     if reload:
         if len(location) > 0:
 
-            g = geocoder.osm(location)
-
-            if not g.ok:
+            try: 
+                g = geolocator.geocode(location)
+                latlng = [float(g.latitude),float(g.longitude)]
+                message = f"location is: {location} {latlng}"
+                print(message)
+                ok = True
+                loc_cache = g.raw
+                
+            except GeocoderServiceError as e:
                 ipfallback = True
-                message = "Unable to find [{}] with Open Street Map".format(location)
-            else:
-                latlng = g.latlng
-                message = "location is: " + location + " " + str(g.latlng)
+                message = f"Unable to find [{location}] with Open Street Map - Error returned: {e}"     
         else:
             ipfallback = True
-
+            
+        debug.info(f"ipfallback: {ipfallback}")
         if ipfallback:
-            g = geocoder.ip('me')
-            if g.ok:
-                latlng = g.latlng
-                message = "location is: " + g.city + ","+ g.country + " " + str(g.latlng)
-            else:
+            try:
+                g = iphandler.getDetails()
+                latlng = [float(g.latitude),float(g.longitude)]
+                message = "location is: " + g.city + ","+ g.country + " " + str(latlng)
+                ok = True
+                loc_cache = g.all
+            except Exception as e:
                 # Get the location of the timezone from the /usr/share/zoneinfo/zone.tab
-
+                debug.exception(f"Exception: {e}")
                 try:
-                    stream=os.popen("cat /usr/share/zoneinfo/zone.tab | grep $(cat /etc/timezone) | awk '{print $2}'")
+                    stream=os.popen("cat /usr/share/zoneinfo/zone.tab | grep $(readlink -f /etc/localtime | xargs basename) | awk '{print $2}'")
                     get_tzlatlng=stream.read().rstrip() + "/"
                     loc=Location(get_tzlatlng)
                     latlng = [float(loc.lat.decimal),float(loc.lng.decimal)]
-                except:
+                except Exception as e:
                     #If this hits, your rpi is foobarred and locale and timezone info is missing
                     #So, we will default to a Tragically Hip song lyric
                     #At the 100th meridian, where the great plains begin
@@ -95,12 +130,24 @@ def get_lat_lng(location):
                 g.latlng = latlng
                 message = "Unable to find location with open street maps or IP address, using lat/lon of your timezone, {}".format(str(latlng))
 
-        if g.ok:
+        if ok:
             #Dump the location to a file
-            savefile = json.dumps(g.json, sort_keys=False, indent=4)
+            debug.info(f"Saving {loc_cache} to diskcache")
+            savefile = json.dumps(loc_cache, sort_keys=False, indent=4)
             # Store in cache and expire after 7 days
             sb_cache.set("location",savefile,expire=604800)
-            
+            # try:
+            #     with open(path,'w') as f:
+            #         try:
+            #             f.write(savefile)
+            #             #Change the ownership of the location.json file
+            #             if hasattr(os, "chown"):
+            #                 os.chown(path, uid, gid)
+            #         except Exception as e:
+            #             debug.error("Could not write {0}. Error Message: {1}".format(path,e))
+            # except Exception as e:
+            #     debug.error("Could not open {0} unable to save location.json. Error Message: {1}".format(path,e))
+
 
     return latlng,message
     
@@ -177,18 +224,26 @@ def args():
                         default=0, type=int)
 
     parser.add_argument("--led-panel-type", action="store", help="Needed to initialize special panels. Supported: 'FM6126A'", default="", type=str)
-    parser.add_argument("--terminal-mode", action="store", help="Run on terminal instead of matrix. (Default: False)", default=False, type=bool)                     
+    parser.add_argument("--emulated", action="store_true", help="Run in software emulation mode.")                     
     parser.add_argument("--updatecheck", action="store_true", help="Check for updates (Default: False)", default=False)
     parser.add_argument("--updaterepo", action="store", help="Github repo (Default: riffnshred/nhl-scoreboard)", default="riffnshred/nhl-led-scoreboard", type=str)
     parser.add_argument("--ghtoken", action="store", help="Github API token for doing update checks(Default: blank)", default="", type=str)
     parser.add_argument("--logcolor", action="store_true", help="Display log in color (command line only)")
     parser.add_argument("--loglevel", action="store", help="log level to display (INFO,WARN,ERROR,CRITICAL,DEBUG)", type=str)
-
+    
+    parser.add_argument("--nhl-timeout", action="store", help="timeout for calls to the NHL API, defaults to 10 seconds", default=10, type=int)
+    parser.add_argument("--nhl-ssl-verify", action="store_true", help="Disable SSL certificate verification for NHL API calls", default=False)
 
     return parser.parse_args()
 
 
 def led_matrix_options(args):
+    print(driver.mode)
+    if driver.is_hardware():
+        from rgbmatrix import RGBMatrixOptions
+    else:
+        from RGBMatrixEmulator import RGBMatrixOptions
+       
     options = RGBMatrixOptions()
 
     if args.led_gpio_mapping != None:

@@ -5,7 +5,7 @@ import debug
 from boards.boards import Boards
 from boards.clock import Clock
 from boards.stanley_cup_champions import StanleyCupChampions
-from boards.seriesticker import Seriesticker
+#from boards.seriesticker import Seriesticker
 from boards.team_summary import TeamSummary
 from boards.standings import Standings
 from data.scoreboard import Scoreboard
@@ -19,13 +19,14 @@ import glob
 
 
 class MainRenderer:
-    def __init__(self, matrix, data, sleepEvent):
+    def __init__(self, matrix, data, sleepEvent,sbQueue):
         self.matrix = matrix
         self.data = data
         self.status = self.data.status
         self.refresh_rate = self.data.config.live_game_refresh_rate
         self.boards = Boards()
         self.sleepEvent = sleepEvent
+        self.sbQueue = sbQueue
         self.sog_display_frequency = data.config.sog_display_frequency
         self.alternate_data_counter = 1
 
@@ -85,6 +86,11 @@ class MainRenderer:
         i = 0
         while True:
             debug.info('PING !!! Render off day')
+            if self.data.config.mqtt_enabled:
+                qPayload = "off_day"
+                qItem = ["{0}/state".format(self.data.config.mqtt_main_topic),qPayload]
+                self.sbQueue.put_nowait(qItem)
+        
             if self.data._is_new_day():
                 debug.info('This is a new day')
                 return
@@ -147,7 +153,18 @@ class MainRenderer:
                 """ Live Game state """
                 #blocks the screensaver from running if game is live
                 self.data.screensaver_livegame = True
+                # Used for the live state payload
+                period = self.scoreboard.periods.ordinal
+                clock = self.scoreboard.periods.clock
+                score = '{}-{}'.format(self.scoreboard.away_team.goals, self.scoreboard.home_team.goals)
+        
                 debug.info("Game is Live")
+                if self.data.config.mqtt_enabled:
+                    # Add game state onto queue
+                    qPayload = {"period": period, "clock": clock,"score": score}
+                    qItem = ["{0}/live/status".format(self.data.config.mqtt_main_topic),qPayload]
+                    self.sbQueue.put_nowait(qItem)
+
                 sbrenderer = ScoreboardRenderer(self.data, self.matrix, self.scoreboard)
 
                 self.check_new_penalty()
@@ -155,6 +172,12 @@ class MainRenderer:
                 self.__render_live(sbrenderer)
                 if self.scoreboard.intermission:
                     debug.info("Main event is in Intermission")
+                    if self.data.config.mqtt_enabled:
+                        # Add game state onto queue
+                        qPayload = "intermission"
+                        qItem = ["{0}/state".format(self.data.config.mqtt_main_topic),qPayload]
+                        self.sbQueue.put_nowait(qItem)  
+
                     # Show Boards for Intermission
                     self.draw_end_period_indicator()
                     self.sleepEvent.wait(self.refresh_rate)
@@ -167,12 +190,18 @@ class MainRenderer:
 
             elif self.status.is_game_over(self.data.overview["gameState"]):
                 debug.info("Game Over")
+                if self.data.config.mqtt_enabled:
+                    # Add game state onto queue
+                    qPayload = "gameover"
+                    qItem = ["{0}/state".format(self.data.config.mqtt_main_topic),qPayload]
+                    self.sbQueue.put_nowait(qItem)
+
                 sbrenderer = ScoreboardRenderer(self.data, self.matrix, self.scoreboard)
                 self.check_new_goals()
-                if self.data.isPlayoff and self.data.stanleycup_round:
+                """ if self.data.isPlayoff and self.data.stanleycup_round:
                     self.data.check_stanley_cup_champion()
                     if self.data.cup_winner_id:
-                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render()
+                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render() """
 
                 self.__render_postgame(sbrenderer)
                 self.sleepEvent.wait(self.refresh_rate)
@@ -182,12 +211,13 @@ class MainRenderer:
             elif self.status.is_final(self.data.overview["gameState"]):
                 """ Post Game state """
                 debug.info("FINAL")
+                
                 sbrenderer = ScoreboardRenderer(self.data, self.matrix, self.scoreboard)
                 self.check_new_goals()
-                if self.data.isPlayoff and self.data.stanleycup_round:
+                """ if self.data.isPlayoff and self.data.stanleycup_round:
                     self.data.check_stanley_cup_champion()
                     if self.data.cup_winner_id:
-                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render()
+                        StanleyCupChampions(self.data, self.matrix, self.sleepEvent).render() """
                 self.__render_postgame(sbrenderer)
 
                 self.sleepEvent.wait(self.refresh_rate)
@@ -197,11 +227,14 @@ class MainRenderer:
             elif self.status.is_scheduled(self.data.overview["gameState"]):
                 """ Pre-game state """
                 debug.info("Game is Scheduled")
+                #blocks the screensaver from running if game is live or scheduled
+                self.data.screensaver_livegame = True
                 sbrenderer = ScoreboardRenderer(self.data, self.matrix, self.scoreboard)
                 self.__render_pregame(sbrenderer)
                 #sleep(self.refresh_rate)
                 self.sleepEvent.wait(self.refresh_rate)
                 self.boards._scheduled(self.data, self.matrix,self.sleepEvent)
+                
 
             elif self.status.is_irregular(self.data.overview["gameState"]):
                 """ Pre-game state """
@@ -228,6 +261,12 @@ class MainRenderer:
         debug.info("Showing Pre-Game")
         self.matrix.clear()
         sbrenderer.render()
+        if self.data.config.mqtt_enabled:
+            # Add game state onto queue
+            qPayload = "pregame"
+            qItem = ["{0}/state".format(self.data.config.mqtt_main_topic),qPayload]
+            self.sbQueue.put_nowait(qItem)
+
 
 
     def __render_postgame(self, sbrenderer):
@@ -235,6 +274,12 @@ class MainRenderer:
         self.matrix.clear()
         sbrenderer.render()
         self.draw_end_of_game_indicator()
+
+        if self.data.config.mqtt_enabled:
+            # Add game state onto queue
+            qPayload = "postgame"
+            qItem = ["{0}/state".format(self.data.config.mqtt_main_topic),qPayload]
+            self.sbQueue.put_nowait(qItem)
 
 
     def __render_live(self, sbrenderer):
@@ -286,6 +331,13 @@ class MainRenderer:
             self.goal_team_cache.append("away")
             if away_id not in self.data.pref_teams and pref_team_only:
                 return
+            
+            if self.data.config.mqtt_enabled:
+                # Add goal onto queue
+                qPayload = {"away": True, "team": away_name, "preferred_team": pref_team_only,"score": self.away_score}
+                qItem = ["{0}/live/goal".format(self.data.config.mqtt_main_topic),qPayload]
+                self.sbQueue.put_nowait(qItem)
+            
             # run the goal animation
             self._draw_event_animation("goal", away_id, away_name)
 
@@ -295,6 +347,12 @@ class MainRenderer:
             self.goal_team_cache.append("home")
             if home_id not in self.data.pref_teams and pref_team_only:
                 return
+            if self.data.config.mqtt_enabled:
+                # Add goal onto queue
+                qPayload = {"home": True, "team": home_name, "preferred_team": pref_team_only,"score": self.home_score}
+                qItem = ["{0}/live/goal".format(self.data.config.mqtt_main_topic),qPayload]
+                self.sbQueue.put_nowait(qItem)
+
             # run the goal animation
             self._draw_event_animation("goal", home_id, home_name)
 

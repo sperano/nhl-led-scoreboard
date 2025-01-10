@@ -99,7 +99,7 @@ class Data:
 
         # Get lat/long and message (for debug) for dimmer and weather
         self.latlng, self.latlng_msg = get_lat_lng(config.location)
-
+ 
         # Test for alerts
         #self.latlng = [32.653,-83.7596]
 
@@ -112,6 +112,11 @@ class Data:
         # Currently displayed board
         self.curr_board = None
         self.prev_board = None
+
+        # For MQTT trigger (acts like the pb_trigger)
+        self.mqtt_trigger = False
+        # For MQTT board display - default to clock
+        self.mqtt_showboard = "clock"
 
 
         # Environment Canada manager (to share between the forecast, alerts and current obs)
@@ -387,6 +392,8 @@ class Data:
                 return
 
         self.all_pref_games_final = True
+        #Let the screensaver run again
+        self.screensaver_livegame = False
 
     
     # This is the function that will determine the state of the board (Offday, Gameday, Live etc...).

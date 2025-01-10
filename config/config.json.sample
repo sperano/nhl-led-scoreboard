@@ -89,6 +89,16 @@
         }
 	},
 	"sbio": {
+		"mqtt": {
+            "enabled": false,
+            "broker": "test.mosquitto.org",
+            "port": 1883,
+			"auth": {
+				"username": "",
+				"password": ""
+			},
+	        "main_topic": "scoreboard"
+        },
 		"screensaver": {
             "enabled": false,
 			"animations": true,

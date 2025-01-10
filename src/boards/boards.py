@@ -5,7 +5,7 @@ A Board is simply a display object with specific parameters made to be shown on 
 """
 import debug
 from boards.scoreticker import Scoreticker
-from boards.seriesticker import Seriesticker
+# from boards.seriesticker import Seriesticker
 from boards.standings import Standings
 from boards.team_summary import TeamSummary
 from boards.clock import Clock
@@ -58,6 +58,14 @@ class Boards:
                 data.curr_board = data.config.pushbutton_state_triggered1
                 bord_index -= 1
 
+            if data.mqtt_trigger:
+                debug.info('MQTT triggered....will display ' + data.mqtt_showboard + ' board ' + "Overriding off_day -> " + data.config.boards_off_day[bord_index])
+                if not data.screensaver:
+                    data.mqtt_trigger = False
+                board = getattr(self,data.mqtt_showboard)
+                data.curr_board = data.mqtt_showboard
+                bord_index -= 1
+
             # Display the Weather Alert board
             if data.wx_alert_interrupt:
                 debug.info('Weather Alert triggered in off day loop....will display weather alert board')
@@ -84,7 +92,7 @@ class Boards:
             if bord_index >= (len(data.config.boards_off_day) - 1):
                 return
             else:
-                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver:
+                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver or not data.mqtt_trigger:
                     bord_index += 1
 
     def _scheduled(self, data, matrix, sleepEvent):
@@ -99,6 +107,15 @@ class Boards:
                 board = getattr(self,data.config.pushbutton_state_triggered1)
                 data.curr_board = data.config.pushbutton_state_triggered1
                 bord_index -= 1
+
+            if data.mqtt_trigger:
+                debug.info('MQTT triggered....will display ' + data.mqtt_showboard + ' board ' + "Overriding scheduled -> " + data.config.boards_off_day[bord_index])
+                if not data.screensaver:
+                    data.mqtt_trigger = False
+                board = getattr(self,data.mqtt_showboard)
+                data.curr_board = data.mqtt_showboard
+                bord_index -= 1
+
 
             # Display the Weather Alert board
             if data.wx_alert_interrupt:
@@ -126,7 +143,7 @@ class Boards:
             if bord_index >= (len(data.config.boards_scheduled) - 1):
                 return
             else:
-                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver:
+                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver or not data.mqtt_trigger:
                     bord_index += 1
 
     def _intermission(self, data, matrix, sleepEvent):
@@ -141,6 +158,14 @@ class Boards:
                     data.pb_trigger = False
                 board = getattr(self,data.config.pushbutton_state_triggered1)
                 data.curr_board = data.config.pushbutton_state_triggered1
+                bord_index -= 1
+
+            if data.mqtt_trigger:
+                debug.info('MQTT triggered....will display ' + data.mqtt_showboard + ' board ' + "Overriding intermission -> " + data.config.boards_off_day[bord_index])
+                if not data.screensaver:
+                    data.mqtt_trigger = False
+                board = getattr(self,data.mqtt_showboard)
+                data.curr_board = data.mqtt_showboard
                 bord_index -= 1
 
             # Display the Weather Alert board
@@ -169,7 +194,7 @@ class Boards:
             if bord_index >= (len(data.config.boards_intermission) - 1):
                 return
             else:
-                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver:
+                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver or not data.mqtt_trigger:
                     bord_index += 1
 
     def _post_game(self, data, matrix, sleepEvent):
@@ -184,6 +209,14 @@ class Boards:
                     data.pb_trigger = False
                 board = getattr(self,data.config.pushbutton_state_triggered1)
                 data.curr_board = data.config.pushbutton_state_triggered1
+                bord_index -= 1
+
+            if data.mqtt_trigger:
+                debug.info('MQTT triggered....will display ' + data.mqtt_showboard + ' board ' + "Overriding post_game -> " + data.config.boards_off_day[bord_index])
+                if not data.screensaver:
+                    data.mqtt_trigger = False
+                board = getattr(self,data.mqtt_showboard)
+                data.curr_board = data.mqtt_showboard
                 bord_index -= 1
 
             # Display the Weather Alert board
@@ -213,7 +246,7 @@ class Boards:
             if bord_index >= (len(data.config.boards_post_game) - 1):
                 return
             else:
-                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver:
+                if not data.pb_trigger or not data.wx_alert_interrupt or not data.screensaver or not data.mqtt_trigger:
                     bord_index += 1
 
     def fallback(self, data, matrix, sleepEvent):
@@ -222,17 +255,25 @@ class Boards:
     def scoreticker(self, data, matrix, sleepEvent):
         Scoreticker(data, matrix, sleepEvent).render()
 
+    # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them. 
     def seriesticker(self, data, matrix, sleepEvent):
+        debug.info("seriesticker is disabled. This feature is not available right now")
+        pass
         '''
             forcing it to show since the playoff start and regular season end are in conflict for 2021
         '''
-        Seriesticker(data, matrix, sleepEvent).render()
+        
+        #Seriesticker(data, matrix, sleepEvent).render()
+        
         '''if data.status.is_playoff(data.today, data.playoffs):
             Seriesticker(data, matrix, sleepEvent).render()
         '''    
     
+    # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them. 
     def stanley_cup_champions(self, data, matrix, sleepEvent):
-        StanleyCupChampions(data, matrix, sleepEvent).render()
+        debug.info("stanley_cup_champions is disabled. This feature is not available right now")
+        pass
+        #StanleyCupChampions(data, matrix, sleepEvent).render()
 
     def standings(self, data, matrix, sleepEvent):
         #Try making standings a thread

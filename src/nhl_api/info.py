@@ -27,14 +27,22 @@ def team_info():
     teams_data = {}
     teams_response = {}
     #with client as client:
-    teams_responses = client.standings.get_standings(str(datetime.date.today()))
+    #teams_responses = client.standings.get_standings(str(datetime.date.today()))
+    teams_responses = client.standings.get_standings()
+
     for team in teams_responses["standings"]:
         raw_team_id = team_dict[team["teamAbbrev"]["default"]]
         team_details = TeamDetails(raw_team_id, team["teamName"]["default"], team["teamAbbrev"]["default"])
         team_info = TeamInfo(team, team_details)
         teams_data[raw_team_id] = team_info
+    if "59" in teams_data:
+        return teams_data
+    else:
+        team_details=TeamDetails("59", "Utah Hockey Club", "UTA")
+        team_info = TeamInfo(team, team_details)
+        teams_data[59] = team_info
+        return teams_data
 
-    return teams_data
     # TODO: I think most of this is now held in the TeamStandings object, but leaving here for reference
     # for team in teams_data:
     #     try:

@@ -1,16 +1,20 @@
 
-# NHL-LED-scoreboard (THIS PROJECT IS INDEFINITLY ON HOLD) 
+# NHL-LED-scoreboard (DEPRECATED) 
 
 ![scoreboard demo](assets/images/scoreboard.jpg)
 
-  
-  
 # NHL LED Scoreboard Raspberry Pi Image
 [![Create Release - Image](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml/badge.svg)](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml)
 [![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard-img?label=Version)](https://github.com/falkyre/nhl-led-scoreboard-img/releases/latest)
 
 [![discord button](assets/images/discord_button.png)](https://discord.gg/CWa5CzK)
 # IMPORTANT (PLEASE READ)
+
+## (2025-01-10) It's ALIVE ... All hail V1.9.0 ... for now
+This version of the NHL LED Scoreboard has been updated to work with the latest changes to the NHL API along with other additions that were planned for the next release.  This includes MQTT, a change to remove pyowm library as the OWM API it used has been deprecated.  Also, removed the use of the geocoder library as it was failing on doing a location lookup.  This release also adds the RGB Emulator code so you can also run the Web version of the NHL LED Scoreboard if you want to (use the --emulated command line)
+
+## (2024-05-17) THE END ... For now...
+After what seems to be some minor change in the NHL API, new issues arose which rendered the software unusable. I have been working on a new version built from the ground up and decided to put my focus on it instead of fixing and supporting this one. I therefore decided to Archive this repository. The plan is to roll out the new version in the fall, in time for the 2024-2025 NHL season.
 
 ## (2023-11-09)
 old stats api is officially dead. please read below on the current state of the project. only thing that change is that the plan is that Ill start from scratch for the next version. No time frame on anything for now for reasons stated below
@@ -24,7 +28,9 @@ What I'm focusing on with the little time I find is fixing the code of this proj
 
 
 ## Compatible Raspberry pi OS
-For v1.6.x and lower, use Raspberry Pi OS Lite (Legacy). The newer version of Raspberry pi OS (Bullseye) is not supported at the moment.
+V1.9.0 has been tested and used on the latest bookworm from Raspberry Pi (November 2024) as well as DietPi V9.9.0 (based on bookworm).
+For v1.6.x and lower, use Raspberry Pi OS Lite (Legacy). The newer version of Raspberry pi OS (Bullseye) is not supported at the moment.  
+
 
 ### Supported Raspberry Pi models
 
@@ -72,6 +78,15 @@ The Discord Channel still exist, But We now use the new [Discussions](https://gi
 
 ## Requirements
 
+Installation in a python virtual enviroment is now the preferred way of installation due to the upcoming Raspberry Pi OS Bookworm and Python 3.11.  The install.sh script will handle this for you (the venv will be installed in the directory ``nhlsb_venv`` in the home directory of the user doing the install).  This will change how the scoreboard is launched as you now need to reference the venv python and not the global python install. 
+
+**Previous way with everything globally install as root user**
+
+> `sudo python3 ./src/main.py [command line options]`
+
+**Now with the venv**
+> `sudo /home/pi/nhlsb-venv/bin/python3 ./src/main.py [command line options]`
+
 Since version V1.0.0 you need python 3.3 and up.
 
 
@@ -108,6 +123,33 @@ This is the classic way to install and configure the scoreboard. If you want to 
 
 [Step by step installation guide](https://github.com/riffnshred/nhl-led-scoreboard/wiki/Step-by-step-guide.)
 
+### Method 3 - Software Emulation
+You can install the software to run in an emulated mode via a variety of display adapters by using [RGBMatrixEmulator](https://github.com/ty-porter/RGBMatrixEmulator).
+
+Installation is straight-forward using the emulator installer script appropriate for your operating system:
+
+MacOS / Linux:
+
+```sh
+sh scripts/emulator_setup.sh
+```
+
+Windows:
+
+```sh
+TODO
+```
+
+Once your emulated software is installed, you can continue with [Step 5 of the manual setup guide].
+
+Running the emulated version of the board is easy:
+
+```sh
+python3 src/main.py --emulated
+```
+
+See [RGBMatrixEmulator customization options] for further customization of the display.
+ 
 
 ## Shout-out
 

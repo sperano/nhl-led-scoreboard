@@ -3,7 +3,15 @@
 
 """
 from PIL import Image, ImageFont, ImageDraw, ImageOps
-from rgbmatrix import graphics
+
+import driver
+
+if driver.is_hardware():
+    from rgbmatrix import graphics
+else:
+    from RGBMatrixEmulator import graphics
+
+import nhl_api
 from data.scoreboard import GameSummaryBoard
 from data.team import Team
 from time import sleep
@@ -54,6 +62,10 @@ class TeamSummary:
                 prev_game_scoreboard = GameSummaryBoard(prev_game, self.data)
             else:
                 prev_game_scoreboard = False
+                self.data.network_issues = True
+            #except (TypeError, KeyError):
+            #    prev_game_scoreboard = False
+
 
             self.data.network_issues = False
             # except ValueError => e:

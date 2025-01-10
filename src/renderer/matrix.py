@@ -1,5 +1,12 @@
 from PIL import Image, ImageDraw
-from rgbmatrix import graphics
+
+import driver
+
+if driver.is_hardware():
+    from rgbmatrix import graphics
+else:
+    from RGBMatrixEmulator import graphics
+
 import math
 from utils import round_normal
 import sys
@@ -7,14 +14,6 @@ import numpy as np
 
 DEBUG = False
 
-
-# A fake class to fill in the __init__ of Matrix
-class TermMatrix:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-    def SetImage(self, img):
-        show_image(img)
 
 class Matrix:
     def __init__(self, matrix):
@@ -85,12 +84,12 @@ class Matrix:
         for index, chars in enumerate(text_chars):
             spacing = 0 if index == 0 else 1
 
-            # deprecated in pillow==9.5.0
+            # This requires pillow V9.5.0 or less
             #offset = font.getoffset(chars)
             #offset_x = offset[0]
             #offset_y = offset[1] - height - spacing
 
-            # for pillow>=10.0.0
+            # This requires pillow V10.0.0 or greater
             left, top, right, bottom = font.getbbox(chars)
             offset_x = left
             offset_y = top - height - spacing

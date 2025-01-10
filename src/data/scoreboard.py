@@ -79,13 +79,21 @@ class Scoreboard:
         # away = linescore.teams.away
         away_team = overview["awayTeam"]
         away_team_id = away_team["id"]
-        away_team_name = away_team["name"]["default"]
+        if "name" in away_team:
+            away_team_name = away_team["name"]["default"]
+        else:
+            away_team_name = away_team["commonName"]["default"]
+
         away_abbrev = data.teams_info[away_team_id].details.abbrev
 
         # home = linescore.teams.home
         home_team = overview["homeTeam"]
         home_team_id = home_team["id"]
-        home_team_name = home_team["name"]["default"]
+        if "name" in home_team:
+            home_team_name = home_team["name"]["default"]
+        else:
+            home_team_name = home_team["commonName"]["default"]
+
         home_abbrev = data.teams_info[home_team_id].details.abbrev
 
         away_goal_plays = []
@@ -149,8 +157,6 @@ class Scoreboard:
                      debug.error("Failed to get Goal details for current live game. will retry on data refresh")
                      home_penalties = []
                      break
-        home_skaters = len(overview["homeTeam"]["onIce"])
-        away_skaters = len(overview["awayTeam"]["onIce"])
 
         home_pp = False
         away_pp = False
@@ -187,7 +193,11 @@ class Scoreboard:
         self.start_time = convert_time(datetime.strptime(overview["startTimeUTC"],'%Y-%m-%dT%H:%M:%SZ')).strftime(time_format)
         self.status = overview["gameState"]
         self.periods = Periods(overview)
-        self.intermission = overview["clock"]["inIntermission"]
+        
+        try:
+            self.intermission = overview["clock"]["inIntermission"]
+        except:
+            self.intermission = False
 
         if overview["gameState"] == "OFF" or overview["gameState"] == "FINAL":
             if away_team["score"] > home_team["score"]:
@@ -254,7 +264,7 @@ class GameSummaryBoard:
         except KeyError:
             self.intermission = False
 
-        if game_details["gameState"] == "OFF" or game_details["gameState"] == "FINAL":
+        if game_details["gameState"] == "OFF" or game_details["gameState"] == "FINAL" or game_details["gameState"] == "OVER":
             if game_details["awayTeam"]["score"] > game_details["homeTeam"]["score"]:
                 self.winning_team_id = game_details["awayTeam"]["id"]
                 self.winning_score = game_details["awayTeam"]["score"]
