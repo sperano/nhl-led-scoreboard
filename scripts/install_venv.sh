@@ -96,7 +96,14 @@ sudo modprobe -r snd_bcm2835
 # Rebuild module dependacy
 sudo depmod -a
 
-sudo sed -i 's/$/ isolcpus=3/' /boot/cmdline.txt
+#Update the cmdline.txt to isolate the number of CPUs for the python to run on.  
+# On newer rpiOS, the cmdline.txt is in /boot/firmware so check if that exists
+
+if test -f /boot/firmware/cmdline.txt; the
+  sudo sed -i 's/$/ isolcpus=3/' /boot/firmware/cmdline.txt
+else
+  sudo sed -i 's/$/ isolcpus=3/' /boot/cmdline.txt
+fi
 
 git reset --hard
 git fetch origin --prune
