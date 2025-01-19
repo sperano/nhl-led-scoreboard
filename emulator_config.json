@@ -1,6 +1,6 @@
 {
   "pixel_outline": 0,
-  "pixel_size": 16,
+  "pixel_size": 10,
   "pixel_style": "square",
   "display_adapter": "browser",
   "suppress_font_warnings": false,

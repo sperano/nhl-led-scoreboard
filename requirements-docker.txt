@@ -1,5 +1,6 @@
+pillow>=10.0.0
 tzlocal
-cairosvg
+CairoSVG>=2.6.0
 ephem
 fastjsonschema>=2.14.4
 geopy
@@ -12,12 +13,10 @@ regex>=2020.4.4
 APScheduler
 lastversion>=1.1.6
 nameparser>=1.0.6
-pillow>=9.5.0
-dbus-python
 iso6709
 paho-mqtt
 rich
-RGBMatrixEmulator==0.11.6
+RGBMatrixEmulator
 tk
 diskcache
 backoff

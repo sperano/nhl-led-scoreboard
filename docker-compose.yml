@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  nhl-led-scoreboard:
+    image: nhl-led-scoreboard
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8888:8888
+    volumes:
+      - './config/config.json:/app/config/config.json'
