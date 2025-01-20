@@ -7,12 +7,10 @@ cd "${DIR}/.." || exit
 tput bold; echo "$(tput setaf 2)Installing required OS dependencies. This may take some time (10-20 minutes-ish)...$(tput setaf 9)" ; tput sgr0
 
 #Install all apt requirements using aptfile
-sudo scripts/aptfile apt-requirements
+sudo scripts/sbtools/aptfile apt-requirements
 
 tput bold; echo "$(tput setaf 2)Creating python virtual environment...$(tput setaf 9)" ; tput sgr0
 
-#Install all apt requirements using aptfile
-#sudo scripts/aptfile apt-requirements
 
 # Update system pip3 to latest version
 python3 -m pip install --upgrade pip --break-system-packages
@@ -99,7 +97,7 @@ sudo depmod -a
 #Update the cmdline.txt to isolate the number of CPUs for the python to run on.  
 # On newer rpiOS, the cmdline.txt is in /boot/firmware so check if that exists
 
-if test -f /boot/firmware/cmdline.txt; the
+if test -f /boot/firmware/cmdline.txt; then
   sudo sed -i 's/$/ isolcpus=3/' /boot/firmware/cmdline.txt
 else
   sudo sed -i 's/$/ isolcpus=3/' /boot/cmdline.txt
