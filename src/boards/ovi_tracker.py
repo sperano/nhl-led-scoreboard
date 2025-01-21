@@ -55,7 +55,7 @@ class OviTrackerRenderer:
             )
 
             # Calculate and draw goals needed
-            goals_needed = self.GRETZKY_GOALS - stats.career_goals
+            goals_needed = self.GRETZKY_GOALS - stats.career_goals + 1
             self.matrix.draw_text(
                 (4, 20),
                 f"To Go: {goals_needed}",
