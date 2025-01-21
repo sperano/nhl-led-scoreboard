@@ -16,7 +16,7 @@ BASE_URL = "https://api-web.nhle.com/v1/"
 SCHEDULE_URL = BASE_URL + 'score/{0}-{1}-{2}'
 TEAM_SCHEDULE_URL = BASE_URL + 'club-schedule-season/{0}/{1}'
 TEAM_URL = "https://api.nhle.com/stats/rest/en/team"
-PLAYER_URL = '{0}people/{1}'
+PLAYER_URL = '{0}player/{1}/landing'
 OVERVIEW_URL = BASE_URL + 'gamecenter/{0}/play-by-play'
 STATUS_URL = BASE_URL + 'gameStatus'
 CURRENT_SEASON_URL = BASE_URL + 'seasons/current'
@@ -59,13 +59,52 @@ def get_teams():
     except requests.exceptions.RequestException as e:
         raise ValueError(e)
 
-def get_player(playerId):
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException,
+                      logger='player_stats')
+def get_player_stats(player_id, season=None):
+    """
+    Get player statistics from NHL API
+    Args:
+        player_id: NHL player ID
+        season: Optional season (e.g., '20232024'). If None, gets current season
+    Returns:
+        Dictionary containing player stats
+    """
     try:
-        data = requests.get(PLAYER_URL.format(BASE_URL, playerId), timeout=REQUEST_TIMEOUT)
-        return data
-    except requests.exceptions.RequestException as e:
-        raise ValueError(e)
+        # For current season stats
+        url = f"{BASE_URL}player/{player_id}/stats"
+        if season:
+            url += f"/season/{season}"
+            
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+        return response.json()
+        
+    except requests.exceptions.RequestException as exc:
+        print(f"Error while requesting player stats: {exc}")
+        raise
 
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException,
+                      logger='player_info')
+def get_player(player_id):
+    """
+    Get player information from NHL API
+    Args:
+        player_id: NHL player ID
+    Returns:
+        Dictionary containing player information
+    """
+    try:
+        url = f"{BASE_URL}player/{player_id}/landing"
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+        return response.json()
+        
+    except requests.exceptions.RequestException as exc:
+        print(f"Error while requesting player info: {exc}")
+        raise
 
 def get_overview(game_id):
     try:
@@ -139,3 +178,40 @@ def dummie_overview():
     with open('dummie_nhl_data/overview_reg_final.json') as json_file:
         data = json.load(json_file)
         return data
+
+def fetch_player_data(player_id):
+    """Fetch player data from NHL API"""
+    url = f'https://api-web.nhle.com/v1/player/{player_id}/landing'
+    response = requests.get(url)
+    
+    if response.status_code != 200:
+        raise Exception('API request failed')
+        
+    return response.json()
+
+def get_player_stats(player_id):
+    """Get player stats from the NHL API"""
+    from nhl_api.player import PlayerStats  # Import here to avoid circular imports
+    player_data = fetch_player_data(player_id)
+    player_stats = PlayerStats(player_data)
+    
+    if player_stats.position == 'G':
+        return {
+            'games_played': player_stats.games_played,
+            'goals_against_avg': player_stats.goals_against_avg,
+            'save_percentage': player_stats.save_percentage,
+            'shutouts': player_stats.shutouts
+        }
+    else:
+        return {
+            'assists': player_stats.assists,
+            'goals': player_stats.goals,
+            'games_played': player_stats.games_played,
+            'plus_minus': player_stats.plus_minus,
+            'points': player_stats.points,
+            'penalty_minutes': player_stats.penalty_minutes,
+            'power_play_goals': player_stats.power_play_goals,
+            'game_winning_goals': player_stats.game_winning_goals,
+            'shots': player_stats.shots,
+            'shooting_percentage': player_stats.shooting_percentage
+        }

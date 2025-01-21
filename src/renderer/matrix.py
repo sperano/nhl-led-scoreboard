@@ -168,23 +168,25 @@ class Matrix:
             "size": image.size
         }
 
-    def draw_rectangle(self, position, size, color):
-        self.draw.rectangle(
-            [
-            position[0],
-            position[1],
-            position[0] + size[0],
-            position[1] + size[1]
-            ],
-            fill=color
-        )
-
-        return {
-            "position": position,
-            "size": size
-        }
-    
-    
+    def draw_rectangle(self, position, size, fill=None, outline=None):
+        """Draw a rectangle on the matrix
+        
+        Args:
+            position (tuple): (x, y) top-left corner position
+            size (tuple): (width, height) of rectangle
+            fill (tuple): RGB color tuple for fill (optional)
+            outline (tuple): RGB color tuple for outline (optional)
+        """
+        x, y = position
+        width, height = size
+        draw = ImageDraw.Draw(self.image)
+        
+        # Calculate bottom-right corner from position and size
+        right = x + width
+        bottom = y + height 
+        
+        # Draw rectangle [(left, top), (right, bottom)]
+        draw.rectangle([(x, y), (right, bottom)], fill=fill, outline=outline)
 
     def draw_pixel(self, position, color):
         try:
@@ -301,6 +303,18 @@ class Matrix:
     def update_indicator(self):
         green = self.graphics.Color(0, 255, 0)
         self.graphics.DrawLine(self.matrix, 0, 0, self.matrix.width,0, green)
+
+    def get_text_center_position(self, text, font, y_pos):
+        """Get the x,y coordinates to center text horizontally at given y position"""
+        bbox = font.getbbox(text)
+        text_width = bbox[2] - bbox[0]
+        x_pos = (self.width - text_width) // 2
+        return (x_pos, y_pos)
+
+    def draw_text_centered(self, y_pos, text, font, backgroundColor=None):
+        """Draw text centered horizontally at given y position"""
+        pos = self.get_text_center_position(text, font, y_pos)
+        self.draw_text(pos, text, font=font, backgroundColor=backgroundColor)
 
 
 class MatrixPixels:

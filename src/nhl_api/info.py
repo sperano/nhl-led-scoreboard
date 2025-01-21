@@ -385,3 +385,50 @@ class TeamDetails:
 class Info(nhl_api.object.Object):
     pass
 
+class PlayerStats:
+    def __init__(self, player_id, season=None):
+        self.player_id = player_id
+        self.season = season
+        self.info = self._get_info()
+        self.stats = self._get_stats()
+        
+    def _get_info(self):
+        """Get basic player information"""
+        return nhl_api.data.get_player(self.player_id)
+    
+    def _get_stats(self):
+        """Get player statistics"""
+        return nhl_api.data.get_player_stats(self.player_id, self.season)
+    
+    @property
+    def full_name(self):
+        return self.info.get('fullName', '')
+    
+    @property
+    def position(self):
+        return self.info.get('primaryPosition', {}).get('abbreviation', '')
+    
+    @property
+    def current_team(self):
+        return self.info.get('currentTeam', {}).get('name', '')
+    
+    @property
+    def season_stats(self):
+        """Get current season statistics"""
+        stats = self.stats.get('stats', [{}])[0].get('splits', [{}])[0].get('stat', {})
+        if self.position == 'G':
+            return {
+                'games': stats.get('games', 0),
+                'gaa': stats.get('goalAgainstAverage', 0.0),
+                'savePercentage': stats.get('savePercentage', 0.0),
+                'shutouts': stats.get('shutouts', 0)
+            }
+        else:
+            return {
+                'games': stats.get('games', 0),
+                'goals': stats.get('goals', 0),
+                'assists': stats.get('assists', 0),
+                'points': stats.get('points', 0),
+                'plusMinus': stats.get('plusMinus', 0)
+            }
+

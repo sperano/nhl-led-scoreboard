@@ -28,7 +28,9 @@
               "christmas",
               "seasoncountdown",
               "clock",
-              "weather"
+              "weather",
+              "player_stats",
+              "ovi_tracker"
             ]
         }
     },    

@@ -428,5 +428,59 @@
       "font": "wx_medium",
       "align": "center-bottom"
       }
+  },
+  "player_stats": {
+    "name": {
+      "position": ["50%", 0],
+      "align": "center-top",
+      "font": "small"
+    },
+    "team": {
+      "position": ["50%", 9],
+      "align": "center-top",
+      "font": "small"
+    },
+    "stat_1": {
+      "position": [0, 18],
+      "align": "left-top",
+      "font": "small"
+    },
+    "stat_2": {
+      "position": [32, 18],
+      "align": "left-top",
+      "font": "small"
+    },
+    "stat_3": {
+      "position": [0, 25],
+      "align": "left-top",
+      "font": "small"
+    },
+    "stat_4": {
+      "position": [32, 25],
+      "align": "left-top",
+      "font": "small"
+    },
+    "stat_5": {
+      "position": [0, 32],
+      "align": "left-top",
+      "font": "small"
+    }
+  },
+  "ovi_tracker": {
+    "title": {
+      "position": ["50%", 0],
+      "align": "center-top",
+      "font": "small"
+    },
+    "career_goals": {
+      "position": [0, 10],
+      "align": "left-top",
+      "font": "small"
+    },
+    "goals_needed": {
+      "position": [0, 20],
+      "align": "left-top",
+      "font": "small"
+    }
   }
 }
