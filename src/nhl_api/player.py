@@ -9,6 +9,7 @@ class PlayerStats:
         self.name = f"{player_data.get('firstName', {}).get('default', '')} {player_data.get('lastName', {}).get('default', '')}"
         self.position = player_data.get('position', '')
         self.team = player_data.get('currentTeamAbbrev', '')
+        self.team_id = player_data.get('currentTeamId', 0)
         
         # Get current season stats
         current_stats = player_data.get('featuredStats', {}).get('regularSeason', {}).get('subSeason', {})

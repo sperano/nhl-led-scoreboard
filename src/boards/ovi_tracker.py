@@ -65,7 +65,13 @@ class OviTrackerRenderer:
             self.matrix.draw_image((25,0), gradient, align="center")
 
             # Draw text over rectangles
-            self.matrix.draw_text_centered(1, "OVI GOAL TRACKER", self.font, backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b']))
+            self.matrix.draw_text_centered(
+                1, 
+                "OVI GOAL TRACKER", 
+                self.font,
+                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
+                backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
+                )
             
             # Draw stats
             self.matrix.draw_text(

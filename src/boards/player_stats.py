@@ -7,10 +7,12 @@ import debug
 class PlayerStatsRenderer:
     def __init__(self, data, matrix, sleepEvent):
         self.data = data
+        self.teams_info = data.teams_info
         self.matrix = matrix
         self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
 
+        self.team_colors = data.config.team_colors
         self.font = self.data.config.layout.font
 
         self.layout = self.get_layout()
@@ -31,15 +33,23 @@ class PlayerStatsRenderer:
             if not stats:
                 debug.error(f"Could not get stats for player {player_id}")
                 return
+            
+            team_id = stats.team_id
+            team_colors = self.data.config.team_colors
+            bg_color = team_colors.color("{}.primary".format(team_id))
+            txt_color = team_colors.color("{}.text".format(team_id))
 
             # Clear the matrix
             self.matrix.clear()
 
             # Draw player name
-            self.matrix.draw_text_layout(
-                self.layout.name,
-                stats.name
-            )
+            self.matrix.draw_text_centered(
+                1, 
+                f"{stats.name}", 
+                self.font,
+                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
+                backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
+                )
 
             # Draw team and position
             team_pos = f"{stats.team} - {stats.position}"

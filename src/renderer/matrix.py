@@ -311,10 +311,10 @@ class Matrix:
         x_pos = (self.width - text_width) // 2
         return (x_pos, y_pos)
 
-    def draw_text_centered(self, y_pos, text, font, backgroundColor=None):
+    def draw_text_centered(self, y_pos, text, font, fill=None, backgroundColor=None):
         """Draw text centered horizontally at given y position"""
         pos = self.get_text_center_position(text, font, y_pos)
-        self.draw_text(pos, text, font=font, backgroundColor=backgroundColor)
+        self.draw_text(pos, text, font=font, fill=fill, backgroundColor=backgroundColor)
 
 
 class MatrixPixels:
