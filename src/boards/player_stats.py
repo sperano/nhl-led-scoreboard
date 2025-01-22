@@ -76,7 +76,7 @@ class PlayerStatsRenderer:
 
             # Render to matrix
             self.matrix.render()
-            self.sleepEvent.wait(5)
+            self.sleepEvent.wait(15)
 
         except Exception as e:
             debug.error(f"Error rendering player stats: {str(e)}")

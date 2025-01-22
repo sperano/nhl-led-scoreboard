@@ -62,28 +62,28 @@ def get_teams():
 @backoff.on_exception(backoff.expo,
                       requests.exceptions.RequestException,
                       logger='player_stats')
-def get_player_stats(player_id, season=None):
-    """
-    Get player statistics from NHL API
-    Args:
-        player_id: NHL player ID
-        season: Optional season (e.g., '20232024'). If None, gets current season
-    Returns:
-        Dictionary containing player stats
-    """
-    try:
-        # For current season stats
-        url = f"{BASE_URL}player/{player_id}/stats"
-        if season:
-            url += f"/season/{season}"
+# def get_player_stats(player_id, season=None):
+#     """
+#     Get player statistics from NHL API
+#     Args:
+#         player_id: NHL player ID
+#         season: Optional season (e.g., '20232024'). If None, gets current season
+#     Returns:
+#         Dictionary containing player stats
+#     """
+#     try:
+#         # For current season stats
+#         url = f"{BASE_URL}player/{player_id}/stats"
+#         if season:
+#             url += f"/season/{season}"
             
-        response = requests.get(url, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
-        return response.json()
+#         response = requests.get(url, timeout=REQUEST_TIMEOUT)
+#         response.raise_for_status()  # Raises an HTTPError for bad responses
+#         return response.json()
         
-    except requests.exceptions.RequestException as exc:
-        print(f"Error while requesting player stats: {exc}")
-        raise
+#     except requests.exceptions.RequestException as exc:
+#         print(f"Error while requesting player stats: {exc}")
+#         raise
 
 @backoff.on_exception(backoff.expo,
                       requests.exceptions.RequestException,
@@ -192,26 +192,11 @@ def fetch_player_data(player_id):
 def get_player_stats(player_id):
     """Get player stats from the NHL API"""
     from nhl_api.player import PlayerStats  # Import here to avoid circular imports
-    player_data = fetch_player_data(player_id)
-    player_stats = PlayerStats(player_data)
+    player_stats = PlayerStats.from_api(player_id)
     
-    if player_stats.position == 'G':
-        return {
-            'games_played': player_stats.games_played,
-            'goals_against_avg': player_stats.goals_against_avg,
-            'save_percentage': player_stats.save_percentage,
-            'shutouts': player_stats.shutouts
-        }
-    else:
-        return {
-            'assists': player_stats.assists,
-            'goals': player_stats.goals,
-            'games_played': player_stats.games_played,
-            'plus_minus': player_stats.plus_minus,
-            'points': player_stats.points,
-            'penalty_minutes': player_stats.penalty_minutes,
-            'power_play_goals': player_stats.power_play_goals,
-            'game_winning_goals': player_stats.game_winning_goals,
-            'shots': player_stats.shots,
-            'shooting_percentage': player_stats.shooting_percentage
-        }
+    # Convert relevant attributes to dictionary
+    return {
+        attr: getattr(player_stats, attr)
+        for attr in player_stats.__dict__
+        if not attr.startswith('_') and attr != 'player_data'
+    }
