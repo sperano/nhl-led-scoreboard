@@ -467,6 +467,10 @@
     }
   },
   "ovi_tracker": {
+    "logo": {
+      "position": [["100%", 1], 0],
+      "align": "right"
+    },
     "title": {
       "position": ["50%", 0],
       "align": "center-top",
