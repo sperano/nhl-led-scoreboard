@@ -52,7 +52,7 @@ class PlayerStatsRenderer:
                 )
 
             # Draw team and position
-            team_pos = f"{stats.team} - {stats.position}"
+            team_pos = f"{stats.team} - {stats.position} - {stats.sweater_number}"
             self.matrix.draw_text_layout(
                 self.layout.team,
                 team_pos
