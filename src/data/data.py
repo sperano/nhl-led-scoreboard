@@ -512,6 +512,10 @@ class Data:
         else:
             return False
 
+    #Players
+    def get_players_info(self):
+        self.players_info = nhl_api.info.player_info(playerId)
+
     #
     # Playoffs
     def refresh_playoff(self):
@@ -620,4 +624,28 @@ class Data:
         self.refresh_playoff()
         
  
+        
+
+    def get_player_stats(self, player_id, season=None):
+        """
+        Get player statistics
+        Args:
+            player_id: NHL player ID
+            season: Optional season string (e.g., '20232024')
+        Returns:
+            PlayerStats object containing player info and statistics
+        """
+        attempts_remaining = 5
+        while attempts_remaining > 0:
+            try:
+                player_stats = nhl_api.info.PlayerStats(player_id, season)
+                self.network_issues = False
+                return player_stats
+            except ValueError as error_message:
+                self.network_issues = True
+                debug.error(f"Failed to get player stats. {attempts_remaining} attempts remaining.")
+                debug.error(error_message)
+                attempts_remaining -= 1
+                sleep(NETWORK_RETRY_SLEEP_TIME)
+        return None
         

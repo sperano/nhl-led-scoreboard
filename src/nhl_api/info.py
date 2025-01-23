@@ -384,4 +384,3 @@ class TeamDetails:
 
 class Info(nhl_api.object.Object):
     pass
-

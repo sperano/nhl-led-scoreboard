@@ -35,5 +35,16 @@
         }
       }
     }
+  },
+  "ovi_tracker": {
+    "logos": {
+      "_default": {
+        "zoom": "100%",
+        "position": [0, 0],
+        "flip": 0,
+        "rotate": 0,
+        "crop": [0, 0, 0, 0]
+      }
+    }
   }
 }

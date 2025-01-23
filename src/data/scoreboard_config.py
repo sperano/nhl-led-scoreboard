@@ -158,6 +158,10 @@ class ScoreboardConfig:
         self.preferred_divisions = json["boards"]["standings"]["divisions"]
         self.preferred_conference = json["boards"]["standings"]["conference"]
 
+        # Player Stats
+        self.player_stats_rotation_rate = json["boards"]["player_stats"]["rotation_rate"]
+        self.player_stats_players = json["boards"]["player_stats"]["players"]
+
         # Clock
         self.clock_board_duration = json["boards"]["clock"]["duration"]
         self.clock_hide_indicators = json["boards"]["clock"]["hide_indicator"]
