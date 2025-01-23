@@ -86,7 +86,16 @@
             "scroll_alert": true,
             "alert_duration": 5,
 			"show_on_clock": true
-        }
+		},
+		"player_stats": {
+			"rotation_rate": 7,
+			"players": [
+				"8471214", 
+				"8480313",
+				"8471675", 
+				"8478402"
+			]
+		}
 	},
 	"sbio": {
 		"mqtt": {
