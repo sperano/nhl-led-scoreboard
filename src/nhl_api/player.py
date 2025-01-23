@@ -22,9 +22,11 @@ class PlayerStats:
         
         # Handle different stats for goalies vs skaters
         if self.position == 'G':
-            self.goals_against_avg = current_stats.get('goalsAgainstAverage', 0.0)
-            self.save_percentage = current_stats.get('savePercentage', 0.0)
+            self.goals_against_avg = current_stats.get('goalsAgainstAvg', 0.0)
+            self.save_percentage = current_stats.get('savePctg', 0.0)
             self.shutouts = current_stats.get('shutouts', 0)
+            self.wins = current_stats.get('wins', 0)
+            self.losses = current_stats.get('losses', 0)
         else:
             self.goals = current_stats.get('goals', 0)
             self.assists = current_stats.get('assists', 0)
