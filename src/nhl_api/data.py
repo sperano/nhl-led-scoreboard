@@ -25,6 +25,7 @@ STANDINGS_URL = BASE_URL + 'standings'
 STANDINGS_WILD_CARD = STANDINGS_URL + '/wildCardWithLeaders'
 PLAYOFF_URL = BASE_URL + "tournaments/playoffs?expand=round.series,schedule.game.seriesSummary&season={}"
 SERIES_RECORD = "https://records.nhl.com/site/api/playoff-series?cayenneExp=playoffSeriesLetter='{}' and seasonId={}"
+SKATER_STATS_LEADERS_URL = BASE_URL + 'skater-stats-leaders/current'
 REQUEST_TIMEOUT = 5
 
 TIMEOUT_TESTING = 0.001  # TO DELETE
@@ -200,3 +201,52 @@ def get_player_stats(player_id):
         for attr in player_stats.__dict__
         if not attr.startswith('_') and attr != 'player_data'
     }
+
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException,
+                      logger='skater_stats')
+def get_skater_stats_leaders(category=None, limit=None):
+    """
+    Get current NHL skater statistics leaders from NHL API
+    Args:
+        category (str, optional): Specific stat category to query. Must be one of:
+            - goals
+            - points
+            - assists
+            - toi (time on ice)
+            - plusMinus
+            - penaltyMins
+            - faceoffLeaders
+            - goalsPp (powerplay)
+            - goalsSh (shorthanded)
+        limit (int, optional): Number of results to return
+    Returns:
+        Dictionary containing leader statistics
+    Raises:
+        ValueError: If category is invalid
+    """
+    valid_categories = {
+        'goals', 'points', 'assists', 'toi', 'plusMinus',
+        'penaltyMins', 'faceoffLeaders', 'goalsPp', 'goalsSh'
+    }
+    
+    try:
+        params = {}
+        if category:
+            if category not in valid_categories:
+                raise ValueError(f"Invalid category. Must be one of: {', '.join(sorted(valid_categories))}")
+            params['categories'] = category
+        if limit:
+            params['limit'] = limit
+
+        response = requests.get(
+            SKATER_STATS_LEADERS_URL,
+            params=params,
+            timeout=REQUEST_TIMEOUT
+        )
+        response.raise_for_status()
+        return response.json()
+        
+    except requests.exceptions.RequestException as exc:
+        print(f"Error while requesting skater stats leaders: {exc}")
+        raise
