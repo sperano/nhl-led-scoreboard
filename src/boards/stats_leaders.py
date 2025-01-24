@@ -13,42 +13,64 @@ class StatsLeaders:
         self.team_colors = data.config.team_colors
         self.layout = data.config.layout
 
+        self.enabled_categories = self.data.config.stats_leaders_categories
+        self.rotation_rate = self.data.config.stats_leaders_rotation_rate
+
+        # Dictionary mapping API categories to display names
+        self.categories = {
+            'goals': 'GOAL',
+            'points': 'POINT',
+            'assists': 'ASSIST',
+            'toi': 'TOI',
+            'plusMinus': '+/-',
+            'penaltyMins': 'PIM',
+            'faceoffLeaders': 'FO%',
+            'goalsPp': 'PPG',
+            'goalsSh': 'SHG'
+        }
+
     def render(self):
         try:
-            # Use the imported function directly
-            leaders_data = get_skater_stats_leaders(category='goals', limit=10)
-            
-            if not leaders_data or 'goals' not in leaders_data:
-                debug.error("Stats leaders board unavailable due to missing information from the API")
-                return
+            for category in self.enabled_categories:
+                # Check if the category is valid
+                if not category in self.categories:
+                    debug.error(f"Stats leaders board unavailable due to missing information from the API for category: {category}")
+                    return
+                
+                # Use the imported function directly
+                leaders_data = get_skater_stats_leaders(category=category, limit=10)
+                
+                if not leaders_data or category not in leaders_data:
+                    debug.error(f"Stats leaders board unavailable due to missing information from the API for category: {category}")
+                    return
 
-            # Calculate image height (header + 10 players * 7 pixels per row)
-            im_height = (11 * 7)  # 11 rows total (1 header + 10 players)
-            
-            # Create and draw the image
-            image = self.draw_leaders(leaders_data['goals'], im_height, self.matrix.width)
-            
-            # Initial position (start at top)
-            i = 0
-            self.matrix.draw_image((0, i), image)
-            self.matrix.render()
-            self.sleepEvent.wait(5)  # Show top for 5 seconds
-
-            # Scroll the image if it's taller than the matrix
-            while i > -(im_height - self.matrix.height) and not self.sleepEvent.is_set():
-                i -= 1
+                # Calculate image height (header + 10 players * 7 pixels per row)
+                im_height = (11 * 7)  # 11 rows total (1 header + 10 players)
+                
+                # Create and draw the image
+                image = self.draw_leaders(category, leaders_data[category], im_height, self.matrix.width)
+                
+                # Initial position (start at top)
+                i = 0
                 self.matrix.draw_image((0, i), image)
                 self.matrix.render()
-                self.sleepEvent.wait(0.2)  # Scroll speed
+                self.sleepEvent.wait(5)  # Show top for 5 seconds
 
-            # Show bottom for 5 seconds
-            self.sleepEvent.wait(5)
+                # Scroll the image if it's taller than the matrix
+                while i > -(im_height - self.matrix.height) and not self.sleepEvent.is_set():
+                    i -= 1
+                    self.matrix.draw_image((0, i), image)
+                    self.matrix.render()
+                    self.sleepEvent.wait(0.2)  # Scroll speed
+
+                # Show bottom for 5 seconds
+                self.sleepEvent.wait(5)
 
         except Exception as e:
             debug.error(f"Error rendering stats leaders: {str(e)}")
             debug.error(f"Stack trace: {traceback.format_exc()}")
 
-    def draw_leaders(self, leaders_data, img_height, width):
+    def draw_leaders(self, category, leaders_data, img_height, width):
         """Draw an image showing the top goal scorers"""
         
         # Create a new image
@@ -61,7 +83,7 @@ class StatsLeaders:
         top = row_height - 1
 
         # Draw header
-        draw.text((1, 0), "NHL GOAL LEADERS", font=self.layout.font)
+        draw.text((1, 0), f"NHL {self.categories[category]} LEADERS", font=self.layout.font)
         row_pos += row_height
 
         # Draw each player's stats
@@ -69,7 +91,7 @@ class StatsLeaders:
             # Get player info
             last_name = player['lastName']['default']
             abbrev = player['teamAbbrev']
-            goals = str(player['value'])
+            stat = str(player['value'])
             rank = str(leaders_data.index(player) + 1)
             
             # Get team colors
@@ -96,8 +118,8 @@ class StatsLeaders:
                      font=self.layout.font)
             
             # Right-align goals count (white)
-            goals_width = self.layout.font.getlength(goals)
-            draw.text((width - goals_width - 1, row_pos), goals, font=self.layout.font)
+            stat_width = self.layout.font.getlength(stat)
+            draw.text((width - stat_width - 1, row_pos), stat, font=self.layout.font)
 
             row_pos += row_height
 
