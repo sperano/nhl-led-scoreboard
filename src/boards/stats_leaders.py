@@ -113,7 +113,7 @@ class StatsLeaders:
             )
             
             # Draw last name (in team text color)
-            draw.text((14, row_pos), last_name, 
+            draw.text((15, row_pos), last_name, 
                      fill=(txt_color['r'], txt_color['g'], txt_color['b']), 
                      font=self.layout.font)
             
