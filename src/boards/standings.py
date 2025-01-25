@@ -1,6 +1,7 @@
 from PIL import Image, ImageFont, ImageDraw, ImageSequence
 
 import driver
+import debug
 
 if driver.is_hardware():
     from rgbmatrix import graphics
@@ -22,6 +23,7 @@ class Standings:
         self.team_colors = data.config.team_colors
         self.sleepEvent= sleepEvent
         self.sleepEvent.clear()
+        self.wildcard_limit = self.data.config.wildcard_limit
 
     def render(self):
         if self.data.standings:
@@ -79,26 +81,14 @@ class Standings:
                     conf_name = self.data.config.preferred_conference
                     conf_data = getattr(self.data.standings.by_wildcard, conf_name)
                     wildcard_records["conference"] = conf_name
-                    division_leaders = {}
-                    for record_type, value in vars(conf_data).items():
-                        if record_type == "wild_card":
-                            wildcard_records["wild_card"] = value
-                        else:
-                            for div_name, div_record in vars(value).items():
-                                division_leaders[div_name] = div_record
+                    wildcard_records["wild_card"] = conf_data.wild_card
+                    wildcard_records["division_leaders"] = conf_data.division_leaders
 
-                            wildcard_records["division_leaders"] = division_leaders
-
-                    # initialize the number_of_rows at 10 (conference name + 2x Division name + wildcard title + 6x Division leaders record)
+                    # initialize the number_of_rows
                     number_of_rows = 10 + len(wildcard_records["wild_card"])
-
-                    # Space between each table in row of LED
                     table_offset = 3
-
-                    # Total Height in row of LED. each record and table titles need 7 row of LED plus the space between each tables (3 tables means 2 space between each)
                     img_height = (number_of_rows * 7) + (table_offset * 2)
-
-                    # Increment to move image up
+                    
                     i = 0
                     image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset)
                     self.matrix.draw_image((0, i), image)
@@ -177,24 +167,19 @@ class Standings:
                 elif type == 'wild_card':
                     wildcard_records = {}
                     for conf_name, conf_data in vars(self.data.standings.by_wildcard).items():
+                        debug.info(conf_name)
+                        conf_data = getattr(self.data.standings.by_wildcard, conf_name)
                         wildcard_records["conference"] = conf_name
-                        division_leaders = {}
-                        for record_type, value in vars(conf_data).items():
-                            if record_type == "wild_card":
-                                wildcard_records["wild_card"] = value
-                            else:
-                                for div_name, div_record in vars(value).items():
-                                    division_leaders[div_name] = div_record
-                                wildcard_records["division_leaders"] = division_leaders
-                        # initialize the number_of_rows at 10 (conference name + 2x Division name + wildcard title + 6x Division leaders record)
-                        number_of_rows = 10 + len(wildcard_records["wild_card"])
-                        # Space between each table in row of LED
+                        wildcard_records["wild_card"] = conf_data.wild_card
+                        wildcard_records["division_leaders"] = conf_data.division_leaders
+
+                        # initialize the number_of_rows
+                        number_of_rows = 10 + self.wildcard_limit
                         table_offset = 3
-                        # Total Height in row of LED. each record and table titles need 7 row of LED plus the space between each tables (3 tables means 2 space between each)
                         img_height = (number_of_rows * 7) + (table_offset * 2)
-                        # Increment to move image up
+                        
                         i = 0
-                        image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset)
+                        image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset, self.wildcard_limit)
                         self.matrix.draw_image((0, i), image)
                         self.matrix.render()
                         #sleep(5)
@@ -217,21 +202,13 @@ def draw_standing(data, name, records, img_height, width):
         Draw an image of a list of standing record of each team.
         :return the image
     """
-
     layout = data.config.layout
-
-    # Create a new data image.
     image = Image.new('RGB', (width, img_height))
     draw = ImageDraw.Draw(image)
 
-    """
-        Each record info is shown in a row of 7 pixel high. The initial row start at pixel 0 (top screen). For each
-        team's record we add an other row and increment the row position by the height of a row plus the
-        incrementation "i".
-    """
     row_pos = 0
     row_height = 7
-    top = row_height - 1  # For some reason, when drawing with PIL, the first row is not 0 but -1
+    top = row_height - 1
 
     draw.text((1, 0), name, font=layout.font)
     row_pos += row_height
@@ -258,73 +235,70 @@ def draw_standing(data, name, records, img_height, width):
     return image
 
 
-def draw_wild_card(data, wildcard_records, width, img_height, offset):
-    """
-        Draw an image of a list of standing record of each team.
-        This is the Wild card version which is a bit more elaborate. need to figure a way to merge both draw_standings
-        and draw_wild_card together.
-        :return image
-    """
-    teams_info = data.teams_info
+def draw_wild_card(data, wildcard_records, width, img_height, offset, limit):
     layout = data.config.layout
-    # Create a new data image.
     image = Image.new('RGB', (width, img_height))
     draw = ImageDraw.Draw(image)
 
-    """
-        Each record info is shown in a row of 7 pixel high. The initial row start at pixel 0 (top screen). For each
-        team's record we add an other row and increment the row position by the height of a row plus the
-        incrementation "i".
-    """
     row_pos = 0
     row_height = 7
-    top = row_height - 1  # For some reason, when drawing with PIL, the first row is not 0 but -1
+    top = row_height - 1
 
+    # Draw conference name
     draw.text((1, 0), wildcard_records["conference"], font=layout.font)
     row_pos += row_height
-    for division, division_data in wildcard_records["division_leaders"].items():
-        draw.text((1, row_pos), division, font=layout.font)
+
+    # Draw division leaders
+    division_pairs = {
+        'eastern': ["metropolitan", "atlantic"],
+        'western': ["central", "pacific"]
+    }
+    
+    divisions = division_pairs.get(wildcard_records["conference"].lower(), ["metropolitan", "atlantic"])
+    
+    for division_name in divisions:
+        draw.text((1, row_pos), division_name, font=layout.font)
         row_pos += row_height
-        for team in division_data["teamRecords"]:
-            abbrev = team.team_abbrev.default
+        debug.info(division_name)
+        teams = getattr(wildcard_records["division_leaders"], division_name, [])
+        for team in teams:
+            abbrev = team["teamAbbrev"]["default"]
             team_id = data.teams_info_by_abbrev[abbrev].details.id
-            points = str(team.points)
-            wins = team.wins
-            losses = team.losses
-            ot = team.ot_losses
+            points = str(team["points"])
+            wins = team["wins"]
+            losses = team["losses"]
+            ot = team["otLosses"]
+            
             team_colors = data.config.team_colors
             bg_color = team_colors.color("{}.primary".format(team_id))
             txt_color = team_colors.color("{}.text".format(team_id))
+            
             draw.rectangle([0, row_pos, 12, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
             draw.text((1, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=layout.font)
-            if len(points) == 3:
-                draw.text((54, row_pos), points, font=layout.font)
-            else:
-                draw.text((57, row_pos), points, font=layout.font)
             draw.text((19, row_pos), "{}-{}-{}".format(wins, losses, ot), font=layout.font)
+            draw.text((57 if len(points) < 3 else 54, row_pos), points, font=layout.font)
             row_pos += row_height
-        # add a space of one row of 2 LED between each tables
         row_pos += offset
 
+    # Draw wild card teams
     draw.text((1, row_pos), "wild card", font=layout.font)
     row_pos += row_height
-    for team in wildcard_records["wild_card"]:
-        abbrev = team.team_abbrev.default
+    for team in wildcard_records["wild_card"][:limit]:
+        abbrev = team["teamAbbrev"]["default"]
         team_id = data.teams_info_by_abbrev[abbrev].details.id
-        points = str(team.points)
-        wins = team.wins
-        losses = team.losses
-        ot = team.ot_losses
+        points = str(team["points"])
+        wins = team["wins"]
+        losses = team["losses"]
+        ot = team["otLosses"]
+        
         team_colors = data.config.team_colors
         bg_color = team_colors.color("{}.primary".format(team_id))
         txt_color = team_colors.color("{}.text".format(team_id))
-        draw.rectangle([0, top + row_pos, 12, row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
+        
+        draw.rectangle([0, row_pos, 12, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
         draw.text((1, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=layout.font)
-        if len(points) == 3:
-            draw.text((54, row_pos), points, font=layout.font)
-        else:
-            draw.text((57, row_pos), points, font=layout.font)
         draw.text((19, row_pos), "{}-{}-{}".format(wins, losses, ot), font=layout.font)
+        draw.text((57 if len(points) < 3 else 54, row_pos), points, font=layout.font)
         row_pos += row_height
 
     return image
