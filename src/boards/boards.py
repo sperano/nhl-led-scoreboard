@@ -20,6 +20,7 @@ from boards.stanley_cup_champions import StanleyCupChampions
 from boards.player_stats import PlayerStatsRenderer
 from time import sleep
 from boards.ovi_tracker import OviTrackerRenderer
+from boards.stats_leaders import StatsLeaders
 
 import traceback
 
@@ -313,3 +314,15 @@ class Boards:
 
     def ovi_tracker(self, data, matrix, sleepEvent):
         OviTrackerRenderer(data, matrix, sleepEvent).render()
+
+    def stats_leaders(self, data, matrix, sleepEvent):
+        StatsLeaders(data, matrix, sleepEvent).render()
+
+    def _get_board_list(self):
+        boards = []
+        
+        # Add stats leaders board check
+        if self.data.config.boards_enabled["stats_leaders"]:
+            boards.append(self.stats_leaders)
+            
+        return boards

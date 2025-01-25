@@ -95,6 +95,14 @@
 				"8471675", 
 				"8478402"
 			]
+		},
+		"stats_leaders": {
+			"rotation_rate": 7,
+			"categories": [
+				"goals", 
+				"assists",
+				"points"
+			]
 		}
 	},
 	"sbio": {

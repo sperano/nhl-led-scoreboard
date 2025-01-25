@@ -162,6 +162,10 @@ class ScoreboardConfig:
         self.player_stats_rotation_rate = json["boards"]["player_stats"]["rotation_rate"]
         self.player_stats_players = json["boards"]["player_stats"]["players"]
 
+        # Stats Leaders
+        self.stats_leaders_rotation_rate = json["boards"]["stats_leaders"]["rotation_rate"]
+        self.stats_leaders_categories = json["boards"]["stats_leaders"]["categories"]
+
         # Clock
         self.clock_board_duration = json["boards"]["clock"]["duration"]
         self.clock_hide_indicators = json["boards"]["clock"]["hide_indicator"]
