@@ -157,6 +157,7 @@ class ScoreboardConfig:
         self.standing_type = json["boards"]["standings"]["standing_type"]
         self.preferred_divisions = json["boards"]["standings"]["divisions"]
         self.preferred_conference = json["boards"]["standings"]["conference"]
+        self.wildcard_limit = json["boards"]["standings"]["wildcard_limit"]
 
         # Player Stats
         self.player_stats_rotation_rate = json["boards"]["player_stats"]["rotation_rate"]
