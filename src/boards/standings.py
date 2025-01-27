@@ -9,7 +9,6 @@ else:
     from RGBMatrixEmulator import graphics
 
 from time import sleep
-import debug
 
 class Standings:
     """
@@ -167,7 +166,6 @@ class Standings:
                 elif type == 'wild_card':
                     wildcard_records = {}
                     for conf_name, conf_data in vars(self.data.standings.by_wildcard).items():
-                        debug.info(conf_name)
                         conf_data = getattr(self.data.standings.by_wildcard, conf_name)
                         wildcard_records["conference"] = conf_name
                         wildcard_records["wild_card"] = conf_data.wild_card
@@ -259,7 +257,6 @@ def draw_wild_card(data, wildcard_records, width, img_height, offset, limit):
     for division_name in divisions:
         draw.text((1, row_pos), division_name, font=layout.font)
         row_pos += row_height
-        debug.info(division_name)
         teams = getattr(wildcard_records["division_leaders"], division_name, [])
         for team in teams:
             abbrev = team["teamAbbrev"]["default"]
