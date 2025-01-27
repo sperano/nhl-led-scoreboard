@@ -84,12 +84,12 @@ class Standings:
                     wildcard_records["division_leaders"] = conf_data.division_leaders
 
                     # initialize the number_of_rows
-                    number_of_rows = 10 + len(wildcard_records["wild_card"])
+                    number_of_rows = 10 + self.wildcard_limit
                     table_offset = 3
                     img_height = (number_of_rows * 7) + (table_offset * 2)
                     
                     i = 0
-                    image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset)
+                    image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset, self.wildcard_limit)
                     self.matrix.draw_image((0, i), image)
                     self.matrix.render()
                     #sleep(5)
