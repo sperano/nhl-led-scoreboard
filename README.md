@@ -1,16 +1,19 @@
 
-# NHL-LED-scoreboard (DEPRECATED) 
+# NHL-LED-scoreboard (Sort of limping along) 
 
 ![scoreboard demo](assets/images/scoreboard.jpg)
 
 # NHL LED Scoreboard Raspberry Pi Image 
-### not updated to V1.9.0 ... yet
+### not updated to 2025.3.0 ... yet
 
 [![Create Release - Image](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml/badge.svg)](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml)
 [![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard-img?label=Version)](https://github.com/falkyre/nhl-led-scoreboard-img/releases/latest)
 
 [![discord button](assets/images/discord_button.png)](https://discord.gg/CWa5CzK)
 # IMPORTANT (PLEASE READ)
+I've switched over to using CALVER(https://calver.org/) versioning.  This will follow the YYYY.MM.minor numbering scheme.  So anything released n March of 2025 will have a 2025.3.x version number.  I've done this to step away from the old versioning and not keep updating the last V1.9.xxxxxx.
+
+As of 2025.3.0, you can now download and run the scoreboard in a web browser using docker or podman.  The images are published here:  https://github.com/falkyre/nhl-led-scoreboard/pkgs/container/nhl-led-scoreboard and are two platforms (linux/amd64 or linux/arm64).  This is completely seperate from running the scoreboard on physical hardware and is just another way to enjoy this tremendous application.  The docker-compose.yml file will create a container with the code in this repository and run a webserver on port 8888 that will display the scoreboard.  If you don't run the docker-compose up from where you downloaded this repository, you'll have to change the ./config/config.json line in the docker-compose file to point to where you locally have a config.json file.  Change the TZ environment variable to reflect your timezone.  You can change the ports to use a different host based port if you want to (the format is host port:container port).  Don't change the container port number from 8888.
 
 ## (2025-01-10) It's ALIVE ... All hail V1.9.0 ... for now
 This version of the NHL LED Scoreboard has been updated to work with the latest changes to the NHL API along with other additions that were planned for the next release.  This includes MQTT, a change to remove pyowm library as the OWM API it used has been deprecated.  Also, removed the use of the geocoder library as it was failing on doing a location lookup.  This release also adds the RGB Emulator code so you can also run the Web version of the NHL LED Scoreboard if you want to (use the --emulated command line)
