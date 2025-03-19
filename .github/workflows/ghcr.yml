@@ -37,9 +37,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           context: .
           file: ./Dockerfile
           push: true
           tags: | 
             ghcr.io/falkyre/nhl-led-scoreboard:latest
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          
