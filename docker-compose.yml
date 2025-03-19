@@ -1,6 +1,6 @@
 services:
   nhl-led-scoreboard:
-    image: nhl-led-scoreboard
+    image: ghcr.io/falkyre/nhl-led-scoreboard:latest
     build:
       context: .
       dockerfile: ./Dockerfile
