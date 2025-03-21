@@ -21,6 +21,9 @@ class OviTrackerRenderer:
         self.GRETZKY_GOALS = 894
         self.OVI_ID = "8471214"  # Ovechkin's NHL ID
         self.team_id = 15 # Capitals
+
+        rows, cols = self.data.config.config.layout.size
+        self.img = get_file(f'assets/images/{rows}x{cols}_gr8_chase.png')
         
     def get_layout(self):
         """Get the layout for Ovechkin goal tracker display"""
@@ -48,7 +51,8 @@ class OviTrackerRenderer:
                 self.data.config,
                 self.layout.logo,
                 team.details.abbrev,
-                'ovi_tracker'
+                'ovi_tracker',
+                img=self.img
             )
 
             # Clear the matrix
@@ -65,8 +69,8 @@ class OviTrackerRenderer:
             self.matrix.draw_image((25,0), gradient, align="center")
 
             # Draw text over rectangles
-            self.matrix.draw_text_centered(
-                1, 
+            self.matrix.draw_text(
+                (1, 1), 
                 "OVI GOAL TRACKER", 
                 self.font,
                 fill=(txt_color['r'], txt_color['g'], txt_color['b']),
