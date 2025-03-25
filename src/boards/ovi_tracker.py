@@ -21,6 +21,10 @@ class OviTrackerRenderer:
         self.GRETZKY_GOALS = 894
         self.OVI_ID = "8471214"  # Ovechkin's NHL ID
         self.team_id = 15 # Capitals
+
+        rows = self.matrix.height
+        cols = self.matrix.width
+        self.img = get_file(f'assets/images/{cols}x{rows}_gr8_chase.png')
         
     def get_layout(self):
         """Get the layout for Ovechkin goal tracker display"""
@@ -42,13 +46,17 @@ class OviTrackerRenderer:
             bg_color = team_colors.color("{}.primary".format(team_id))
             txt_color = team_colors.color("{}.text".format(team_id))
 
+            letter_height = 6
+            letter_spacing = 1
+
             # Render logo
             logo_renderer = LogoRenderer(
                 self.matrix,
                 self.data.config,
                 self.layout.logo,
                 team.details.abbrev,
-                'ovi_tracker'
+                'ovi_tracker',
+                img=self.img
             )
 
             # Clear the matrix
@@ -56,40 +64,45 @@ class OviTrackerRenderer:
 
             gradient = Image.open(get_file('assets/images/64x32_scoreboard_center_gradient.png'))
 
-            #   For 128x64 use the bigger gradient image.
+            #   For 128x64 use the bigger gradient image and larger font
             if self.matrix.height == 64:
                 gradient = Image.open(get_file('assets/images/128x64_scoreboard_center_gradient.png'))
-            
+                self.font = self.data.config.layout.font_large
+                letter_height = 12
             
             logo_renderer.render()
-            self.matrix.draw_image((25,0), gradient, align="center")
-
-            # Draw text over rectangles
-            self.matrix.draw_text_centered(
-                1, 
-                "OVI GOAL TRACKER", 
-                self.font,
-                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
-                backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
-                )
+            self.matrix.draw_image((20,0), gradient, align="center")
             
             # Draw stats
+            current_y = 1
             self.matrix.draw_text(
-                (3, 8),
-                f"Career:",
-                font=self.font
+                (1, current_y),
+                f"Goals",
+                font=self.font,
+                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
+                backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
             ) 
+            current_y += letter_height + letter_spacing
             self.matrix.draw_text(
-                (3, 14),
+                (1, current_y),
                 f"{stats.career_goals}",
                 font=self.font
             )
 
+            current_y += letter_height + letter_spacing + 1
             # Calculate and draw goals needed
             goals_needed = self.GRETZKY_GOALS - stats.career_goals + 1
             self.matrix.draw_text(
-                (3, 22),
-                f"{goals_needed} To Go!!!",
+                (1, current_y),
+                f"To Go",
+                font=self.font,
+                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
+                backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
+            )
+            current_y += letter_height + letter_spacing
+            self.matrix.draw_text(
+                (1, current_y),
+                f"{goals_needed}",
                 font=self.font
             )
 

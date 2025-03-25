@@ -441,5 +441,27 @@
       "font": "wx_medium",
       "align": "center-bottom"
       }
+    
+  },
+  "ovi_tracker": {
+    "logo": {
+      "position": ["115%", -5],
+      "align": "right"
+    },
+    "title": {
+      "position": ["50%", 0],
+      "align": "center-top",
+      "font": "small"
+    },
+    "career_goals": {
+      "position": [0, 10],
+      "align": "left-top",
+      "font": "small"
+    },
+    "goals_needed": {
+      "position": [0, 20],
+      "align": "left-top",
+      "font": "small"
+    }
   }
 }

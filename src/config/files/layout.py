@@ -14,6 +14,7 @@ class LayoutConfig:
     self.colors = ConfigFile('config/colors/layout.json')
     self.fonts = fonts
 
+
   def get_board_layout(self, board):
     layouts = self.layout.data
     default_layout = layouts._default.__copy__()

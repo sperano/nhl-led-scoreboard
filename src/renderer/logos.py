@@ -18,7 +18,7 @@ LOGO_URL = 'https://assets.nhle.com/logos/nhl/svg/{}_{}.svg'
 
 
 class LogoRenderer:
-    def __init__(self, matrix, config, element_layout, team_abbrev, board, gameLocation=None):
+    def __init__(self, matrix, config, element_layout, team_abbrev, board, gameLocation=None, img=None):
         self.matrix = matrix
 
         self.logo_variant = config.config.logos.get_team_logo(team_abbrev)
@@ -31,7 +31,8 @@ class LogoRenderer:
         
         self.element_layout = element_layout
 
-        self.load(team_abbrev)
+        # Passing optional img to load method
+        self.load(team_abbrev, img)
 
     def get_size(self):
         return (
@@ -46,10 +47,14 @@ class LogoRenderer:
             size[0], size[1]
         ))
 
-    def load(self, team_abbrev):
+    def load(self, team_abbrev, img):
         try:
-            filename = self.get_path(team_abbrev)
-            self.logo = Image.open(filename)
+            # If img is not None, load the image, else lookup team logo
+            if img:
+                self.logo = Image.open(img)
+            else:
+                filename = self.get_path(team_abbrev)
+                self.logo = Image.open(filename)
         except FileNotFoundError:
             self.save_image(filename, team_abbrev)
 
