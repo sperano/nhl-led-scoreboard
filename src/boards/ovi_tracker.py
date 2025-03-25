@@ -22,8 +22,9 @@ class OviTrackerRenderer:
         self.OVI_ID = "8471214"  # Ovechkin's NHL ID
         self.team_id = 15 # Capitals
 
-        rows, cols = self.data.config.config.layout.size
-        self.img = get_file(f'assets/images/{rows}x{cols}_gr8_chase.png')
+        rows = self.matrix.height
+        cols = self.matrix.width
+        self.img = get_file(f'assets/images/{cols}x{rows}_gr8_chase.png')
         
     def get_layout(self):
         """Get the layout for Ovechkin goal tracker display"""

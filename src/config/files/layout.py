@@ -14,8 +14,6 @@ class LayoutConfig:
     self.colors = ConfigFile('config/colors/layout.json')
     self.fonts = fonts
 
-    # save size so it can be loaded later
-    self.size = size
 
   def get_board_layout(self, board):
     layouts = self.layout.data
