@@ -1,6 +1,9 @@
 services:
   nhl-led-scoreboard:
     image: ghcr.io/falkyre/nhl-led-scoreboard:latest
+    command: 
+      - "--led-rows=64"
+      - "--led-cols=128"
     build:
       context: .
       dockerfile: ./Dockerfile
