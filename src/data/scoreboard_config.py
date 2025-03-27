@@ -163,6 +163,11 @@ class ScoreboardConfig:
         except KeyError:
             self.wildcard_limit = 4
 
+        try:
+            self.standings_large_font = json["boards"]["standings"]["large_font"]
+        except KeyError:
+            self.standings_large_font = False
+
         # Player Stats
         try:
             self.player_stats_rotation_rate = json["boards"]["player_stats"]["rotation_rate"]
