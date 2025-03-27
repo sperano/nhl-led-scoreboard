@@ -23,6 +23,15 @@ class Standings:
         self.sleepEvent= sleepEvent
         self.sleepEvent.clear()
         self.wildcard_limit = data.config.wildcard_limit
+   
+        if data.config.standings_large_font and self.matrix.width >= 128:
+            self.font = data.config.layout.font_large
+            self.font_height = 13
+            self.width_multiplier = 2
+        else:
+            self.font = data.config.layout.font
+            self.font_height = 7
+            self.width_multiplier = 1
 
     def render(self):
         if self.data.standings:
@@ -32,10 +41,19 @@ class Standings:
                     conference = self.data.config.preferred_conference
                     records = getattr(self.data.standings.by_conference, conference)
                     # calculate the image height
-                    im_height = (len(records) + 1) * 7
+                    im_height = (len(records) + 1) * self.font_height
                     # Increment to move image up
                     i = 0
-                    image = draw_standing(self.data, conference, records, im_height, self.matrix.width)
+                    image = draw_standing(
+                        self.data, 
+                        conference, 
+                        records, 
+                        im_height, 
+                        self.matrix.width, 
+                        self.font, 
+                        self.font_height, 
+                        self.width_multiplier
+                    )
                     self.matrix.draw_image((0, i), image)
                     self.matrix.render()
                     #sleep(5)
@@ -55,10 +73,18 @@ class Standings:
                     division = self.data.config.preferred_divisions
                     records = getattr(self.data.standings.by_division, division)
                     # calculate the image height
-                    im_height = (len(records) + 1) * 7
+                    im_height = (len(records) + 1) * self.font_height
                     # Increment to move image up
                     i = 0
-                    image = draw_standing(self.data, division, records, im_height, self.matrix.width)
+                    image = draw_standing(
+                        self.data, 
+                        division, 
+                        records, 
+                        im_height, 
+                        self.matrix.width, 
+                        self.font, 
+                        self.width_multiplier
+                    )
                     self.matrix.draw_image((0, i), image)
                     self.matrix.render()
                     #sleep(5)
@@ -86,10 +112,20 @@ class Standings:
                     # initialize the number_of_rows
                     number_of_rows = 10 + self.wildcard_limit
                     table_offset = 3
-                    img_height = (number_of_rows * 7) + (table_offset * 2)
+                    img_height = (number_of_rows * self.font_height) + (table_offset * 2)
                     
                     i = 0
-                    image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset, self.wildcard_limit)
+                    image = draw_wild_card(
+                        self.data, 
+                        wildcard_records, 
+                        self.matrix.width, 
+                        img_height, 
+                        table_offset, 
+                        self.wildcard_limit, 
+                        self.font, 
+                        self.font_height, 
+                        self.width_multiplier
+                    )
                     self.matrix.draw_image((0, i), image)
                     self.matrix.render()
                     #sleep(5)
@@ -108,10 +144,19 @@ class Standings:
                     for conference in self.conferences:
                         records = getattr(self.data.standings.by_conference, conference)
                         # calculate the image height
-                        im_height = (len(records) + 1) * 7
+                        im_height = (len(records) + 1) * self.font_height
                         # Increment to move image up
                         i = 0
-                        image = draw_standing(self.data, conference, records, im_height, self.matrix.width)
+                        image = draw_standing(
+                            self.data, 
+                            conference, 
+                            records, 
+                            im_height, 
+                            self.matrix.width, 
+                            self.font, 
+                            self.font_height, 
+                            self.width_multiplier
+                        )
                         self.matrix.draw_image((0, i), image)
                         self.matrix.render()
                         if self.data.network_issues:
@@ -144,10 +189,17 @@ class Standings:
                     for division in self.divisions:
                         records = getattr(self.data.standings.by_division, division)
                         # calculate the image height
-                        im_height = (len(records) + 1) * 7
+                        # image height is 7 rows per team
+                        im_height = (len(records) + 1) * self.font_height
                         # Increment to move image up
                         i = 0
-                        image = draw_standing(self.data, division, records, im_height, self.matrix.width)
+                        image = draw_standing(
+                            self.data, 
+                            division, 
+                            records, 
+                            im_height, 
+                            self.matrix.width, 
+                            self.font, self.font_height, self.width_multiplier)
                         self.matrix.draw_image((0, i), image)
                         self.matrix.render()
                         #sleep(5)
@@ -174,10 +226,20 @@ class Standings:
                         # initialize the number_of_rows
                         number_of_rows = 10 + self.wildcard_limit
                         table_offset = 3
-                        img_height = (number_of_rows * 7) + (table_offset * 2)
+                        img_height = (number_of_rows * self.font_height) + (table_offset * 2)
                         
                         i = 0
-                        image = draw_wild_card(self.data, wildcard_records, self.matrix.width, img_height, table_offset, self.wildcard_limit)
+                        image = draw_wild_card(
+                            self.data, 
+                            wildcard_records, 
+                            self.matrix.width, 
+                            img_height, 
+                            table_offset, 
+                            self.wildcard_limit, 
+                            self.font, 
+                            self.font_height, 
+                            self.width_multiplier
+                        )
                         self.matrix.draw_image((0, i), image)
                         self.matrix.render()
                         #sleep(5)
@@ -195,7 +257,7 @@ class Standings:
             debug.error("Standing board unavailable due to missing information from the API")
 
 
-def draw_standing(data, name, records, img_height, width):
+def draw_standing(data, name, records, img_height, width, font, font_height, width_multiplier):
     """
         Draw an image of a list of standing record of each team.
         :return the image
@@ -205,10 +267,10 @@ def draw_standing(data, name, records, img_height, width):
     draw = ImageDraw.Draw(image)
 
     row_pos = 0
-    row_height = 7
+    row_height = font_height
     top = row_height - 1
 
-    draw.text((1, 0), name, font=layout.font)
+    draw.text((1, 0), name, font=font)
     row_pos += row_height
 
     for team in records:
@@ -221,29 +283,29 @@ def draw_standing(data, name, records, img_height, width):
         team_colors = data.config.team_colors
         bg_color = team_colors.color("{}.primary".format(team_id))
         txt_color = team_colors.color("{}.text".format(team_id))
-        draw.rectangle([0, row_pos, 12,top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
-        draw.text((1, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=layout.font)
+        draw.rectangle([0, row_pos, 12 * width_multiplier, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
+        draw.text((1 * width_multiplier, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=font)
         if len(points) == 3:
-            draw.text((54, row_pos), points, font=layout.font)
+            draw.text((54 * width_multiplier, row_pos), points, font=font)
         else:
-            draw.text((57, row_pos), points, font=layout.font)
-        draw.text((19, row_pos), "{}-{}-{}".format(wins, losses, ot), font=layout.font)
+            draw.text((57 * width_multiplier, row_pos), points, font=font)
+        draw.text((19 * width_multiplier, row_pos), "{}-{}-{}".format(wins, losses, ot), font=font)
         row_pos += row_height
 
     return image
 
 
-def draw_wild_card(data, wildcard_records, width, img_height, offset, limit):
+def draw_wild_card(data, wildcard_records, width, img_height, offset, limit, font, font_height, width_multiplier):
     layout = data.config.layout
     image = Image.new('RGB', (width, img_height))
     draw = ImageDraw.Draw(image)
 
     row_pos = 0
-    row_height = 7
+    row_height = font_height
     top = row_height - 1
 
     # Draw conference name
-    draw.text((1, 0), wildcard_records["conference"], font=layout.font)
+    draw.text((1, 0), wildcard_records["conference"], font=font)
     row_pos += row_height
 
     # Draw division leaders
@@ -255,7 +317,7 @@ def draw_wild_card(data, wildcard_records, width, img_height, offset, limit):
     divisions = division_pairs.get(wildcard_records["conference"].lower(), ["metropolitan", "atlantic"])
     
     for division_name in divisions:
-        draw.text((1, row_pos), division_name, font=layout.font)
+        draw.text((1, row_pos), division_name, font=font)
         row_pos += row_height
         teams = getattr(wildcard_records["division_leaders"], division_name, [])
         for team in teams:
@@ -270,15 +332,15 @@ def draw_wild_card(data, wildcard_records, width, img_height, offset, limit):
             bg_color = team_colors.color("{}.primary".format(team_id))
             txt_color = team_colors.color("{}.text".format(team_id))
             
-            draw.rectangle([0, row_pos, 12, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
-            draw.text((1, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=layout.font)
-            draw.text((19, row_pos), "{}-{}-{}".format(wins, losses, ot), font=layout.font)
-            draw.text((57 if len(points) < 3 else 54, row_pos), points, font=layout.font)
+            draw.rectangle([0, row_pos, 12 * width_multiplier, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
+            draw.text((1 * width_multiplier, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=font)
+            draw.text((19 * width_multiplier, row_pos), "{}-{}-{}".format(wins, losses, ot), font=font)
+            draw.text((57 * width_multiplier if len(points) < 3 else 54 * width_multiplier, row_pos), points, font=font)
             row_pos += row_height
         row_pos += offset
 
     # Draw wild card teams
-    draw.text((1, row_pos), "wild card", font=layout.font)
+    draw.text((1, row_pos), "wild card", font=font)
     row_pos += row_height
     for team in wildcard_records["wild_card"][:limit]:
         abbrev = team["teamAbbrev"]["default"]
@@ -292,10 +354,10 @@ def draw_wild_card(data, wildcard_records, width, img_height, offset, limit):
         bg_color = team_colors.color("{}.primary".format(team_id))
         txt_color = team_colors.color("{}.text".format(team_id))
         
-        draw.rectangle([0, row_pos, 12, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
-        draw.text((1, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=layout.font)
-        draw.text((19, row_pos), "{}-{}-{}".format(wins, losses, ot), font=layout.font)
-        draw.text((57 if len(points) < 3 else 54, row_pos), points, font=layout.font)
+        draw.rectangle([0, row_pos, 12 * width_multiplier, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
+        draw.text((1 * width_multiplier, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=font)
+        draw.text((19 * width_multiplier, row_pos), "{}-{}-{}".format(wins, losses, ot), font=font)
+        draw.text((57 * width_multiplier if len(points) < 3 else 54 * width_multiplier, row_pos), points, font=font)
         row_pos += row_height
 
     return image
