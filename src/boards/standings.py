@@ -83,6 +83,7 @@ class Standings:
                         im_height, 
                         self.matrix.width, 
                         self.font, 
+                        self.font_height,
                         self.width_multiplier
                     )
                     self.matrix.draw_image((0, i), image)
@@ -199,7 +200,10 @@ class Standings:
                             records, 
                             im_height, 
                             self.matrix.width, 
-                            self.font, self.font_height, self.width_multiplier)
+                            self.font, 
+                            self.font_height, 
+                            self.width_multiplier)
+
                         self.matrix.draw_image((0, i), image)
                         self.matrix.render()
                         #sleep(5)
