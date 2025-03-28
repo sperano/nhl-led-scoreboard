@@ -15,11 +15,11 @@ import platform
 import uuid
 import driver
 
-
 uid = int(os.stat("./VERSION").st_uid)
 gid = int(os.stat("./VERSION").st_uid)
 
 # For caching weather and location data
+    
 sb_cache = dc.Cache("/tmp/sb_cache")
 
 def stop_splash_service():
