@@ -445,23 +445,22 @@
   },
   "ovi_tracker": {
     "logo": {
-      "position": ["115%", -5],
-      "align": "right"
+      "position": [0, 0],
+      "align": "left"
     },
     "title": {
-      "position": ["50%", 0],
-      "align": "center-top",
-      "font": "small"
+      "position": [124, 1],
+      "align": "right-top",
+      "font": "wx_medium"
+    },
+    "name": {
+      "position": [125, 10],
+      "align": "right-top"
     },
     "career_goals": {
-      "position": [0, 10],
-      "align": "left-top",
-      "font": "small"
-    },
-    "goals_needed": {
-      "position": [0, 20],
-      "align": "left-top",
-      "font": "small"
+      "position": [125, 30],
+      "align": "right-top",
+      "font": "large"
     }
   }
 }
