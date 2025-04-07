@@ -331,15 +331,23 @@ def draw_wild_card(data, wildcard_records, width, img_height, offset, limit, fon
             wins = team["wins"]
             losses = team["losses"]
             ot = team["otLosses"]
+            clinched = team.get("clinchIndicator", False)
             
             team_colors = data.config.team_colors
             bg_color = team_colors.color("{}.primary".format(team_id))
             txt_color = team_colors.color("{}.text".format(team_id))
             
             draw.rectangle([0, row_pos, 12 * width_multiplier, top + row_pos], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
-            draw.text((1 * width_multiplier, row_pos), abbrev, fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=font)
+            #if clinched:
+                #draw.text((12 * width_multiplier + 1, row_pos), "c", fill=(txt_color['r'], txt_color['g'], txt_color['b']), font=font)
+                #draw.line((12 * width_multiplier + 1, row_pos, 12 * width_multiplier + 1, top + row_pos), fill=(txt_color['r'], txt_color['g'], txt_color['b']))
+            draw.text((1 * width_multiplier, row_pos), abbrev, font=font)
             draw.text((19 * width_multiplier, row_pos), "{}-{}-{}".format(wins, losses, ot), font=font)
-            draw.text((57 * width_multiplier if len(points) < 3 else 54 * width_multiplier, row_pos), points, font=font)
+            if clinched:
+                pts_color = (0, 255, 0)
+            else:
+                pts_color = (255, 255, 255)
+            draw.text((57 * width_multiplier if len(points) < 3 else 54 * width_multiplier, row_pos), points, fill=pts_color, font=font)
             row_pos += row_height
         row_pos += offset
 
