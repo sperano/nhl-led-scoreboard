@@ -15,6 +15,8 @@ class OviTrackerRenderer:
         self.layout = self.get_layout()
 
         self.team_colors = data.config.team_colors
+        self.font_large_2 = data.config.layout.font_large_2
+        self.font_large = data.config.layout.font_large
         self.font = data.config.layout.font
         
         # Gretzky's career goals record
@@ -24,7 +26,14 @@ class OviTrackerRenderer:
 
         rows = self.matrix.height
         cols = self.matrix.width
-        self.img = get_file(f'assets/images/{cols}x{rows}_gr8_chase.png')
+        self.img = get_file(f'assets/images/{cols}x{rows}_ovi_gsoat_bg.png')
+
+        self.title_text = "NHL GOAL LEADER"
+        self.name_text = "ALEX OVECHKIN"
+        if cols > 64:
+            self.title_text = "NHL ALL-TIME GOALS LEADER"
+
+        
         
     def get_layout(self):
         """Get the layout for Ovechkin goal tracker display"""
@@ -62,49 +71,57 @@ class OviTrackerRenderer:
             # Clear the matrix
             self.matrix.clear()
 
-            gradient = Image.open(get_file('assets/images/64x32_scoreboard_center_gradient.png'))
+            # gradient = Image.open(get_file('assets/images/64x32_scoreboard_center_gradient.png'))
 
-            #   For 128x64 use the bigger gradient image and larger font
-            if self.matrix.height == 64:
-                gradient = Image.open(get_file('assets/images/128x64_scoreboard_center_gradient.png'))
-                self.font = self.data.config.layout.font_large
-                letter_height = 12
+            # #   For 128x64 use the bigger gradient image and larger font
+            # if self.matrix.height == 64:
+            #     gradient = Image.open(get_file('assets/images/128x64_scoreboard_center_gradient.png'))
+            #     self.font = self.data.config.layout.font_large
+            #     letter_height = 12
             
             logo_renderer.render()
-            self.matrix.draw_image((20,0), gradient, align="center")
+            # self.matrix.draw_image((20,0), gradient, align="center")
             
             # Draw stats
-            current_y = 1
-            self.matrix.draw_text(
-                (1, current_y),
-                f"Goals",
-                font=self.font,
-                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
+            current_y = 2
+            # self.matrix.draw_text(
+            #     ("5%", current_y),
+            #     f"NHL ALL-TIME GOALS LEADER",
+            #     font=self.font,
+            #     fill=(255,255,255)
+            # ) 
+            self.matrix.draw_text_layout(
+                self.layout.title,
+                self.title_text
+            )
+            current_y += letter_height + letter_spacing + 1
+            self.matrix.draw_text_layout(
+                self.layout.name,
+                f"ALEX OVECHKIN",
+                fillColor=(txt_color['r'], txt_color['g'], txt_color['b']),
                 backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
             ) 
-            current_y += letter_height + letter_spacing
-            self.matrix.draw_text(
-                (1, current_y),
-                f"{stats.career_goals}",
-                font=self.font
+            self.matrix.draw_text_layout(
+                self.layout.career_goals,
+                f"{stats.career_goals}"
             )
 
-            current_y += letter_height + letter_spacing + 1
-            # Calculate and draw goals needed
-            goals_needed = self.GRETZKY_GOALS - stats.career_goals + 1
-            self.matrix.draw_text(
-                (1, current_y),
-                f"To Go",
-                font=self.font,
-                fill=(txt_color['r'], txt_color['g'], txt_color['b']),
-                backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
-            )
-            current_y += letter_height + letter_spacing
-            self.matrix.draw_text(
-                (1, current_y),
-                f"{goals_needed}",
-                font=self.font
-            )
+            # current_y += letter_height + letter_spacing + 1
+            # # Calculate and draw goals needed
+            # goals_needed = self.GRETZKY_GOALS - stats.career_goals + 1
+            # self.matrix.draw_text(
+            #     (1, current_y),
+            #     f"To Go",
+            #     font=self.font,
+            #     fill=(txt_color['r'], txt_color['g'], txt_color['b']),
+            #     backgroundColor=(bg_color['r'], bg_color['g'], bg_color['b'])
+            # )
+            # current_y += letter_height + letter_spacing
+            # self.matrix.draw_text(
+            #     (1, current_y),
+            #     f"{goals_needed}",
+            #     font=self.font
+            # )
 
             # Render to matrix
             self.matrix.render()
