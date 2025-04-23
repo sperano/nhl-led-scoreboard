@@ -189,13 +189,13 @@ class Data:
         self.refresh_standings()
 
         # Playoff Flag
-        self.isPlayoff = False
+        self.isPlayoff = True
 
         # Stanley cup round flag
         self.stanleycup_round = False
 
         # Fetch the playoff data
-        # self.refresh_playoff()
+        self.refresh_playoff()
 
         # Stanley cup champions
         # self.cup_winner_id = self.check_stanley_cup_champion()
@@ -538,29 +538,49 @@ class Data:
                 # Check if there is any rounds avaialable and grab the most recent one available.
                 if self.playoffs.rounds:
                     self.current_round = self.playoffs.rounds[str(self.playoffs.default_round)]
-                    self.current_round_name = self.current_round.names.name
+                    self.current_round_name = self.current_round["roundLabel"]
                     if self.current_round_name == "Stanley Cup Qualifier":
                         self.current_round_name = "Qualifier"
                     if self.playoffs.default_round == 4:
                         self.stanleycup_round = True
 
                     debug.info("defaultround number is : {}".format(self.playoffs.default_round))
-                    8478996
+                    #8478996
                     try:
                         self.series = []
 
                         # Grab the series of the current round of playoff.
-                        self.series_list = self.current_round.series
+                        self.series_list = self.current_round["series"]     
+
+                        self.series_list = []
+                        for i in self.playoffs.rounds:
+                            for j in self.playoffs.rounds[i]["series"]:
+                                self.series_list.append(j)
 
                         # Check if prefered team are part of the current round of playoff
-                        self.pref_series = prioritize_pref_series(filter_list_of_series(self.series_list, self.pref_teams), self.pref_teams)
-
+                        #self.pref_series = prioritize_pref_series(filter_list_of_series(self.series_list, self.pref_teams), self.pref_teams)
+                        self.pref_series = self.series_list
+                        
                         # If the user as set to show his favorite teams in the seriesticker
                         if self.config.seriesticker_preferred_teams_only and self.pref_series:
                             self.series_list = self.pref_series
-                        
                         for s in self.series_list:
                             self.series.append(Series(s,self))
+
+                        highest_round = self.series[-1].round_number
+                        teams = []
+                        for s in self.series[::-1]:
+                            if s.round_number == highest_round:
+                                teams.append(s.top_team.abbrev)
+                                teams.append(s.bottom_team.abbrev)
+
+                            if int(s.round_number) < int(highest_round):
+                                team1 = s.top_team.abbrev
+                                team2 = s.bottom_team.abbrev
+
+                                if((team1 in teams) or (team2 in teams)):
+                                    s.show = False
+
                         
                         self.isPlayoff = True
                     except AttributeError:

@@ -18,9 +18,27 @@ class Seriesticker:
         self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
         
-        self.font = data.config.layout.font
         self.layout = self.data.config.config.layout.get_board_layout('scoreticker')
         self.team_colors = self.data.config.team_colors
+
+        if data.config.standings_large_font and self.matrix.width >= 128:
+            self.font = data.config.layout.font_large
+            self.font_height = 11
+            self.width_multiplier = 2
+            self.header_y = 1
+            self.round_name_y = 14
+            self.top_seed_y = 27
+            self.grid_row_y = 40
+            self.bottom_seed_y = 41
+        else:
+            self.font = data.config.layout.font
+            self.font_height = 5
+            self.width_multiplier = 1
+            self.header_y = 1
+            self.round_name_y = 7
+            self.top_seed_y = 14
+            self.bottom_seed_y = 22
+            self.grid_row_y = 21
 
     def render(self):
         if not self.data.current_round:
@@ -37,7 +55,7 @@ class Seriesticker:
             color_banner_text = (0,0,0)
             round_name = "Final" 
 
-            if not self.data.current_round.number == 4:
+            if not self.data.current_round == 4:
                 try:
                     color_conf = self.team_colors.color("{}.primary".format(series.conference))
                     banner_text = series.conference
@@ -48,19 +66,23 @@ class Seriesticker:
                 round_name = self.data.current_round_name
                 self.show_indicator(self.index, self.num_series)
             
-            self.matrix.draw_text(
-                (1, 7),
-                round_name,
-                font=self.font,
-                fill=(255,255,255)
-            )
+            
             # Conference banner, Round Title
-            self.matrix.draw.rectangle([0,0,self.matrix.width,5], fill=color_banner_bg)
+            row = 1
+            self.matrix.draw.rectangle([0,0,self.matrix.width,self.font_height + row], fill=color_banner_bg)
             self.matrix.draw_text(
-                (1, 1), 
+                (1 * self.width_multiplier, self.header_y), 
                 banner_text, 
                 font=self.font, 
                 fill=(0,0,0)
+            )
+
+            row += 1
+            self.matrix.draw_text(
+                (1 * self.width_multiplier, self.round_name_y),
+                round_name,
+                font=self.font,
+                fill=(255,255,255)
             )
             self.index += 1
             
@@ -84,28 +106,28 @@ class Seriesticker:
         color_bottom_team = self.team_colors.color("{}.text".format(series.bottom_team.id))
 
         # Table
-        self.matrix.draw.line([(0,21),(self.matrix.width,21)], width=1, fill=(150,150,150))
+        self.matrix.draw.line([(0,self.grid_row_y),(self.matrix.width,self.grid_row_y)], width=1, fill=(150,150,150))
 
         # use rectangle because I want to keep symmetry for the background of team's abbrev
-        self.matrix.draw.rectangle([0,14,12,20], fill=(color_top_bg['r'], color_top_bg['g'], color_top_bg['b']))
+        self.matrix.draw.rectangle([0, self.top_seed_y,12 * self.width_multiplier,self.top_seed_y + self.font_height + 1], fill=(color_top_bg['r'], color_top_bg['g'], color_top_bg['b']))
         self.matrix.draw_text(
-            (1, 15), 
+            (1 * self.width_multiplier, self.top_seed_y + 1), 
             series.top_team.abbrev, 
             font=self.font, 
             fill=(color_top_team['r'], color_top_team['g'], color_top_team['b'])
         )
 
-        self.matrix.draw.rectangle([0,22,12,28], fill=(color_bottom_bg['r'], color_bottom_bg['g'], color_bottom_bg['b']))
+        self.matrix.draw.rectangle([0,self.bottom_seed_y,12 * self.width_multiplier,self.bottom_seed_y + self.font_height + 1], fill=(color_bottom_bg['r'], color_bottom_bg['g'], color_bottom_bg['b']))
         self.matrix.draw_text(
-            (1, 23), 
+            (1 * self.width_multiplier, self.bottom_seed_y + 1), 
             series.bottom_team.abbrev, 
             font=self.font, 
             fill=(color_bottom_team['r'], color_bottom_team['g'], color_bottom_team['b'])
         )
         
         rec_width = 0
-        top_row = 15
-        bottom_row = 23
+        top_row = self.top_seed_y + 1
+        bottom_row = self.bottom_seed_y + 1
         loosing_color = (150,150,150)
 
         # text offset for loosing score if the winning team has a score of 10 or higher and loosing team 
@@ -116,20 +138,20 @@ class Seriesticker:
             attempts_remaining = 5
             while attempts_remaining > 0:
                 try:
-                    if game["gameId"] in series.game_overviews:
+                    if game["id"] in series.game_overviews:
                         # Look if the game data is already stored in the game overviews from the series
-                        overview = series.game_overviews[game["gameId"]]
+                        overview = series.game_overviews[game["id"]]
                     else:
                         # Request and store the game overview in the series instance
-                        overview = series.get_game_overview(game["gameId"])
+                        overview = series.get_game_overview(game["id"])
                     
                     # get the scoreboard
                     try:
                         scoreboard = Scoreboard(overview, self.data)
                     except:
                         break
-                    if self.data.status.is_final(overview.status) and hasattr(scoreboard, "winning_team"):
-                        if scoreboard.winning_team == series.top_team.id:
+                    if (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])) and hasattr(scoreboard, "winning_team_id"):
+                        if scoreboard.winning_team_id == series.top_team.id:
                             winning_row = top_row
                             loosing_row = bottom_row
                             winning_team_color = color_top_team
@@ -145,8 +167,8 @@ class Seriesticker:
                             offset_correction = 1
                         
                         self.matrix.draw_text(
-                            ((rec_width + 15 + offset_correction), loosing_row), 
-                            str(scoreboard.loosing_score), 
+                            ((rec_width + 15 * self.width_multiplier + offset_correction), loosing_row), 
+                            str(scoreboard.losing_score), 
                             font=self.font, 
                             fill=loosing_color,
                             backgroundColor=None, 
@@ -154,7 +176,7 @@ class Seriesticker:
                         )
 
                         position = self.matrix.draw_text(
-                            (rec_width + 15, winning_row), 
+                            (rec_width + 15 * self.width_multiplier, winning_row), 
                             str(scoreboard.winning_score), 
                             font=self.font, 
                             fill=(winning_team_color['r'], winning_team_color['g'], winning_team_color['b']), 
@@ -163,7 +185,7 @@ class Seriesticker:
                         )
 
                         # Increment 
-                        rec_width += (position["size"][0] + 4)
+                        rec_width += (position["size"][0] + (4 * self.width_multiplier))
                     break
 
                 except ValueError as error_message:

@@ -178,8 +178,8 @@ class Scoreboard:
                         away_pp = True
                     if "EN" in overview["situation"]["awayTeam"]["situationDescriptions"]:
                         away_goalie_pulled = True
-            else:
-                debug.info("No situation data")
+            #else:
+                #debug.info("No situation data")
         except:
             debug.info("Situation Load Error")
             exit()
