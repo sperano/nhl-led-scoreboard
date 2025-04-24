@@ -101,8 +101,8 @@ class Matrix:
                 width = bounding_box[2] if bounding_box[2] > width else width
                 height += bounding_box[3] + spacing
 
-        width -= 1
-        height -= 1
+        #width -= 1
+        #height -= 1
         size = (width, height)
 
         x, y = self.align_position(align, position, size)
@@ -113,14 +113,6 @@ class Matrix:
             (width + backgroundOffset[0] + backgroundOffset[2], height + backgroundOffset[1] + backgroundOffset[3]),
             backgroundColor
         )
-
-        if (backgroundColor != None):
-            self.draw_rectangle(
-            (x - backgroundOffset[0], y - backgroundOffset[1]),
-            (width + backgroundOffset[0] + backgroundOffset[2], height + backgroundOffset[1] + backgroundOffset[3]),
-            backgroundColor
-        )
-        
         
         for index, chars in enumerate(text_chars):
             offset = offsets[index]
@@ -182,8 +174,8 @@ class Matrix:
         draw = ImageDraw.Draw(self.image)
         
         # Calculate bottom-right corner from position and size
-        right = x + width
-        bottom = y + height 
+        right = x + width - 1
+        bottom = y + height - 1
         
         # Draw rectangle [(left, top), (right, bottom)]
         draw.rectangle([(x, y), (right, bottom)], fill=fill, outline=outline)
@@ -206,7 +198,7 @@ class Matrix:
                 pixel.color
             )
 
-    def draw_text_layout(self, layout, text, align="left", fillColor=None, backgroundColor=None):
+    def draw_text_layout(self, layout, text, align="left", fillColor=None, backgroundColor=None, backgroundOffset=[1, 1, 1, 1]):
         if fillColor == None:
             fillColor = layout.color
         self.cache_position(
@@ -217,6 +209,8 @@ class Matrix:
                 fill=fillColor,
                 font=layout.font,
                 backgroundColor=backgroundColor, #layout.backgroundColor if hasattr(layout, 'backgroundColor') else None,
+                backgroundOffset=backgroundOffset,
+
                 align=layout.align
             )
         )
@@ -240,6 +234,15 @@ class Matrix:
                 size,
                 layout.align
             )
+        )
+
+    def draw_rectangle_layout(self, layout, fill=None, outline=None):
+        size = (layout.size[0], layout.size[1])
+        self.cache_position(
+            layout.id,
+            self.draw_rectangle(
+                self.layout_position(layout),
+                size, fill=fill, outline=outline)
         )
 
     def layout_position(self, layout, offset=(0, 0)):
