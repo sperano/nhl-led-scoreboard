@@ -180,6 +180,11 @@ class Matrix:
         # Draw rectangle [(left, top), (right, bottom)]
         draw.rectangle([(x, y), (right, bottom)], fill=fill, outline=outline)
 
+        return {
+            "position": (x, y),
+            "size": size
+        }
+
     def draw_pixel(self, position, color):
         try:
             self.pixels[position] = color
@@ -236,13 +241,13 @@ class Matrix:
             )
         )
 
-    def draw_rectangle_layout(self, layout, fill=None, outline=None):
+    def draw_rectangle_layout(self, layout, fillColor=None, outline=None):
         size = (layout.size[0], layout.size[1])
         self.cache_position(
             layout.id,
             self.draw_rectangle(
                 self.layout_position(layout),
-                size, fill=fill, outline=outline)
+                size, fill=fillColor, outline=outline)
         )
 
     def layout_position(self, layout, offset=(0, 0)):

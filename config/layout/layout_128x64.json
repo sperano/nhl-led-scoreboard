@@ -187,6 +187,11 @@
       "font": "medium",
       "align": "center"
     },
+    "overview":{
+      "position":["50%",16],
+      "font":"wx_medium",
+      "align": "center"
+    },
     "top_seed_bg": {
       "position":[0,25],
       "size":[25,15]
@@ -204,96 +209,242 @@
       "font": "medium"
     },
     "top_seed_score_1":{
-      "position":[29,27],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_1_bg",
+        "align": "center-center"
+      }
     },
     "top_seed_score_2":{
-      "position":[5,0],
+      "position":[1, 1],
       "font": "medium",
+      "align": "center-center",
       "relative": {
-        "to": "top_seed_score_1",
-        "align": "right-top"
+        "to": "top_seed_score_2_bg",
+        "align": "center-center"
       }
     },
     "top_seed_score_3":{
-      "position":[51,27],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_3_bg",
+        "align": "center-center"
+      }
     },
     "top_seed_score_4":{
-      "position":[62,27],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_4_bg",
+        "align": "center-center"
+      }
     },
     "top_seed_score_5":{
-      "position":[73,27],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_5_bg",
+        "align": "center-center"
+      }
     },
     "top_seed_score_6":{
-      "position":[84,27],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_6_bg",
+        "align": "center-center"
+      }
     },
     "top_seed_score_7":{
-      "position":[95,27],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_7_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_1_bg":{
+      "position":[2,0],
+      "size":[11,15],
+      "relative":{
+        "to": "top_seed_bg",
+        "align": "right"
+      }
+    },
+    "top_seed_score_2_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_1_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_3_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_2_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_4_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_3_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_5_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_4_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_6_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_5_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_7_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_6_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_1_bg":{
-      "position":[29,45],
-      "size":[10,15]
+      "position":[2,0],
+      "size":[11,15],
+      "relative":{
+        "to": "bottom_seed_bg",
+        "align": "right"
+      }
     },
     "bottom_seed_score_2_bg":{
-      "position":[40,45],
-      "size":[10,15]
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_1_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_3_bg":{
-      "position":[51,45],
-      "size":[10,15]
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_2_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_4_bg":{
-      "position":[62,45],
-      "size":[10,15]
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_3_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_5_bg":{
-      "position":[73,45],
-      "size":[10,15]
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_4_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_6_bg":{
-      "position":[84,45],
-      "size":[10,15]
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_5_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_7_bg":{
-      "position":[95,45],
-      "size":[10,15]
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_6_bg",
+        "align":"right"
+      }
     },
     "bottom_seed_score_1":{
-      "position":[30,45],
+      "position":[1, 1],
       "font": "medium",
+      "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_1_bg",
         "align": "center-center"
       }
     },
     "bottom_seed_score_2":{
-      "position":[41,45],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_2_bg",
+        "align": "center-center"
+      }
     },
     "bottom_seed_score_3":{
-      "position":[52,45],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_3_bg",
+        "align": "center-center"
+      }
     },
     "bottom_seed_score_4":{
-      "position":[63,45],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_4_bg",
+        "align": "center-center"
+      }
     },
     "bottom_seed_score_5":{
-      "position":[74,45],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_5_bg",
+        "align": "center-center"
+      }
     },
     "bottom_seed_score_6":{
-      "position":[85,45],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_6_bg",
+        "align": "center-center"
+      }
     },
     "bottom_seed_score_7":{
-      "position":[96,45],
-      "font": "medium"
+      "position":[1, 1],
+      "font": "medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_7_bg",
+        "align": "center-center"
+      }
     }
   },
   "wx_clock": {
