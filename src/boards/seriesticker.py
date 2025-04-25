@@ -59,6 +59,14 @@ class Seriesticker:
             self.layout.bottom_seed_score_7_bg,
         ]
 
+        # Adjustments for 128x64 screen
+        if self.matrix.width >=128:
+            self.header_padding = [2,2,2,2]
+            self.status_message = "{} LEADS SERIES {} - {}"
+        else:
+            self.header_padding = [1,1,1,1]
+            self.status_message = "{} LEADS {}-{}"
+
     def render(self):
         if not self.data.current_round:
             debug.log("No Playoff to render on seriesticker")
@@ -88,10 +96,25 @@ class Seriesticker:
             top_team_wins = series.top_team.series_wins
             bottom_team_wins = series.bottom_team.series_wins
 
-            if top_team_wins > bottom_team_wins:
-                series_overview = f"{series.top_team.abbrev} LEADS SERIES {top_team_wins} - {bottom_team_wins}"
+            # Determine the series overview message
+            # Series hasn't started yet
+            if top_team_wins == 0 and bottom_team_wins == 0:
+                series_overview = "SERIES UPCOMING"
+            # Series is tied
+            elif top_team_wins == bottom_team_wins:
+                series_overview = "SERIES TIED"
+            # Top team won
+            elif top_team_wins == 4:
+                series_overview = f"{series.top_team.abbrev} WON SERIES"
+            # Bottom team won
+            elif bottom_team_wins == 4:
+                series_overview = f"{series.bottom_team.abbrev} WON SERIES"
+            # Top team is leading
+            elif top_team_wins > bottom_team_wins:
+                series_overview = self.status_message.format(series.top_team.abbrev, top_team_wins, bottom_team_wins)
+            # Bottom team is leading
             else:
-                series_overview = f"{series.bottom_team.abbrev} LEADS SERIES {bottom_team_wins} - {top_team_wins}"
+                series_overview = self.status_message.format(series.bottom_team.abbrev, bottom_team_wins, top_team_wins)
 
             # Conference banner, Round Title
             self.matrix.draw_text_layout(
@@ -100,7 +123,7 @@ class Seriesticker:
                 align="left",
                 fillColor=(0,0,0,),
                 backgroundColor=color_banner_bg,
-                backgroundOffset=[2,2,2,2]
+                backgroundOffset=self.header_padding
             )
 
             self.index += 1
