@@ -3,14 +3,15 @@
 """
 from time import sleep
 from utils import center_obj
-from data.playoffs import Series
+# from data.playoffs import Series
 from data.scoreboard import Scoreboard
+from data.data import Data
 from renderer.matrix import MatrixPixels, Matrix
 import debug
-import nhlpy
+# import nhlpy
 
 class Seriesticker:
-    def __init__(self, data, matrix: Matrix, sleepEvent):
+    def __init__(self, data: Data, matrix: Matrix, sleepEvent):
         self.data = data
         self.rotation_rate = 5
         self.matrix = matrix
@@ -93,6 +94,21 @@ class Seriesticker:
                 round_name = self.data.current_round_name.replace("-"," ").upper()
                 self.show_indicator(self.index, self.num_series)
             
+            # Get next game
+            if series.current_game_id in series.game_overviews:
+                # Look if the game data is already stored in the game overviews from the series
+                overview = series.game_overviews[series.current_game_id]
+            else:
+                # Request and store the game overview in the series instance
+                overview = series.get_game_overview(series.current_game_id)
+
+            scoreboard = Scoreboard(overview, self.data) # should be the next game or current live game
+            if self.data.status.is_scheduled(scoreboard.status):
+                start_time = scoreboard.start_time.lstrip("0")
+                series_overview_game = f"NEXT GAME: {scoreboard.date.upper()} @ {start_time}"
+            elif self.data.status.is_live(scoreboard.status):
+                series_overview_game = f"GAME IS LIVE"
+                
             top_team_wins = series.top_team.series_wins
             bottom_team_wins = series.bottom_team.series_wins
 
@@ -125,8 +141,6 @@ class Seriesticker:
                 backgroundColor=color_banner_bg,
                 backgroundOffset=self.header_padding
             )
-
-            self.index += 1
             
             self.draw_series_table(series)
 
@@ -135,7 +149,15 @@ class Seriesticker:
                 series_overview
             )
 
+            # Show next game info on larger displays
+            if self.matrix.width >= 128:
+                self.matrix.draw_text_layout(
+                    self.layout.overview_game,
+                    series_overview_game
+            )
+
             self.matrix.render()
+            self.index += 1
             self.sleepEvent.wait(self.data.config.seriesticker_rotation_rate)
 
     def draw_series_table(self, series):

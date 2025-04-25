@@ -173,7 +173,7 @@
   },
   "seriesticker":{
     "seperator":{
-      "position":[0,41]
+      "position":[0,43]
     },
     "indicator_dots": {
       "position": ["50%", ["100%", -1]],
@@ -192,20 +192,25 @@
       "font":"wx_medium",
       "align": "center"
     },
+    "overview_game":{
+      "position":["50%",22],
+      "font":"wx_medium",
+      "align": "center"
+    },
     "top_seed_bg": {
-      "position":[0,25],
+      "position":[0,28],
       "size":[25,15]
     },
     "bottom_seed_bg": {
-      "position":[0,43],
+      "position":[0,44],
       "size":[25,15]
     },
     "top_seed": {
-      "position":[2,27],
+      "position":[2,30],
       "font": "medium"
     },
     "bottom_seed": {
-      "position":[2,45],
+      "position":[2,46],
       "font": "medium"
     },
     "top_seed_score_1":{
