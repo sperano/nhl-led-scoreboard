@@ -180,11 +180,11 @@
       "align": "center"
     },
     "default":{
-      "font": "medium"
+      "font": "default_medium"
     },
     "header":{
       "position": ["50%",2],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center"
     },
     "overview":{
@@ -207,15 +207,15 @@
     },
     "top_seed": {
       "position":[2,30],
-      "font": "medium"
+      "font": "default_medium"
     },
     "bottom_seed": {
       "position":[2,46],
-      "font": "medium"
+      "font": "default_medium"
     },
     "top_seed_score_1":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_1_bg",
@@ -224,7 +224,7 @@
     },
     "top_seed_score_2":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_2_bg",
@@ -233,7 +233,7 @@
     },
     "top_seed_score_3":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_3_bg",
@@ -242,7 +242,7 @@
     },
     "top_seed_score_4":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_4_bg",
@@ -251,7 +251,7 @@
     },
     "top_seed_score_5":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_5_bg",
@@ -260,7 +260,7 @@
     },
     "top_seed_score_6":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_6_bg",
@@ -269,7 +269,7 @@
     },
     "top_seed_score_7":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "top_seed_score_7_bg",
@@ -390,7 +390,7 @@
     },
     "bottom_seed_score_1":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_1_bg",
@@ -399,7 +399,7 @@
     },
     "bottom_seed_score_2":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_2_bg",
@@ -408,7 +408,7 @@
     },
     "bottom_seed_score_3":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_3_bg",
@@ -417,7 +417,7 @@
     },
     "bottom_seed_score_4":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_4_bg",
@@ -426,7 +426,7 @@
     },
     "bottom_seed_score_5":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_5_bg",
@@ -435,7 +435,7 @@
     },
     "bottom_seed_score_6":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_6_bg",
@@ -444,7 +444,7 @@
     },
     "bottom_seed_score_7":{
       "position":[1, 1],
-      "font": "medium",
+      "font": "default_medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_7_bg",
