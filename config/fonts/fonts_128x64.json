@@ -3,6 +3,10 @@
     "file": "04B_24__.TTF",
     "size": 16
   },
+  "default_medium": {
+    "file": "score_large.otf",
+    "size": 16
+  },
   "medium": {
     "file": "score_large.otf",
     "size": 32

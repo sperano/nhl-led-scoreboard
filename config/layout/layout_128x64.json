@@ -172,8 +172,284 @@
     }
   },
   "seriesticker":{
-    "table":{
-      "position":[0,44]
+    "seperator":{
+      "position":[0,43]
+    },
+    "indicator_dots": {
+      "position": ["50%", ["100%", -1]],
+      "align": "center"
+    },
+    "default":{
+      "font": "default_medium"
+    },
+    "header":{
+      "position": ["50%",2],
+      "font": "default_medium",
+      "align": "center"
+    },
+    "overview":{
+      "position":["50%",16],
+      "font":"wx_medium",
+      "align": "center"
+    },
+    "overview_game":{
+      "position":["50%",22],
+      "font":"wx_medium",
+      "align": "center"
+    },
+    "top_seed_bg": {
+      "position":[0,28],
+      "size":[25,15]
+    },
+    "bottom_seed_bg": {
+      "position":[0,44],
+      "size":[25,15]
+    },
+    "top_seed": {
+      "position":[2,30],
+      "font": "default_medium"
+    },
+    "bottom_seed": {
+      "position":[2,46],
+      "font": "default_medium"
+    },
+    "top_seed_score_1":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_1_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_2":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_2_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_3":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_3_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_4":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_4_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_5":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_5_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_6":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_6_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_7":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "top_seed_score_7_bg",
+        "align": "center-center"
+      }
+    },
+    "top_seed_score_1_bg":{
+      "position":[2,0],
+      "size":[11,15],
+      "relative":{
+        "to": "top_seed_bg",
+        "align": "right"
+      }
+    },
+    "top_seed_score_2_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_1_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_3_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_2_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_4_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_3_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_5_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_4_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_6_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_5_bg",
+        "align":"right"
+      }
+    },
+    "top_seed_score_7_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"top_seed_score_6_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_1_bg":{
+      "position":[2,0],
+      "size":[11,15],
+      "relative":{
+        "to": "bottom_seed_bg",
+        "align": "right"
+      }
+    },
+    "bottom_seed_score_2_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_1_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_3_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_2_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_4_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_3_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_5_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_4_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_6_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_5_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_7_bg":{
+      "position":[1,0],
+      "size":[11,15],
+      "relative": {
+        "to":"bottom_seed_score_6_bg",
+        "align":"right"
+      }
+    },
+    "bottom_seed_score_1":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_1_bg",
+        "align": "center-center"
+      }
+    },
+    "bottom_seed_score_2":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_2_bg",
+        "align": "center-center"
+      }
+    },
+    "bottom_seed_score_3":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_3_bg",
+        "align": "center-center"
+      }
+    },
+    "bottom_seed_score_4":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_4_bg",
+        "align": "center-center"
+      }
+    },
+    "bottom_seed_score_5":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_5_bg",
+        "align": "center-center"
+      }
+    },
+    "bottom_seed_score_6":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_6_bg",
+        "align": "center-center"
+      }
+    },
+    "bottom_seed_score_7":{
+      "position":[1, 1],
+      "font": "default_medium",
+      "align": "center-center",
+      "relative": {
+        "to": "bottom_seed_score_7_bg",
+        "align": "center-center"
+      }
     }
   },
   "wx_clock": {

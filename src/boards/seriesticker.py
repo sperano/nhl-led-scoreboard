@@ -3,14 +3,15 @@
 """
 from time import sleep
 from utils import center_obj
-from data.playoffs import Series
+# from data.playoffs import Series
 from data.scoreboard import Scoreboard
-from renderer.matrix import MatrixPixels
+from data.data import Data
+from renderer.matrix import MatrixPixels, Matrix
 import debug
-import nhlpy
+# import nhlpy
 
 class Seriesticker:
-    def __init__(self, data, matrix, sleepEvent):
+    def __init__(self, data: Data, matrix: Matrix, sleepEvent):
         self.data = data
         self.rotation_rate = 5
         self.matrix = matrix
@@ -18,27 +19,54 @@ class Seriesticker:
         self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
         
-        self.layout = self.data.config.config.layout.get_board_layout('scoreticker')
+        self.layout = self.data.config.config.layout.get_board_layout('seriesticker')
         self.team_colors = self.data.config.team_colors
 
-        if data.config.standings_large_font and self.matrix.width >= 128:
-            self.font = data.config.layout.font_large
-            self.font_height = 11
-            self.width_multiplier = 2
-            self.header_y = 1
-            self.round_name_y = 14
-            self.top_seed_y = 27
-            self.grid_row_y = 40
-            self.bottom_seed_y = 41
+        self.top_seed_scores = [
+            self.layout.top_seed_score_1,
+            self.layout.top_seed_score_2,
+            self.layout.top_seed_score_3,
+            self.layout.top_seed_score_4,
+            self.layout.top_seed_score_5,
+            self.layout.top_seed_score_6,
+            self.layout.top_seed_score_7,
+        ]
+        self.top_seed_scores_bg = [
+            self.layout.top_seed_score_1_bg,
+            self.layout.top_seed_score_2_bg,
+            self.layout.top_seed_score_3_bg,
+            self.layout.top_seed_score_4_bg,
+            self.layout.top_seed_score_5_bg,
+            self.layout.top_seed_score_6_bg,
+            self.layout.top_seed_score_7_bg,
+        ]
+
+        self.bottom_seed_scores = [
+            self.layout.bottom_seed_score_1,
+            self.layout.bottom_seed_score_2,
+            self.layout.bottom_seed_score_3,
+            self.layout.bottom_seed_score_4,
+            self.layout.bottom_seed_score_5,
+            self.layout.bottom_seed_score_6,
+            self.layout.bottom_seed_score_7,
+        ]
+        self.bottom_seed_scores_bg = [
+            self.layout.bottom_seed_score_1_bg,
+            self.layout.bottom_seed_score_2_bg,
+            self.layout.bottom_seed_score_3_bg,
+            self.layout.bottom_seed_score_4_bg,
+            self.layout.bottom_seed_score_5_bg,
+            self.layout.bottom_seed_score_6_bg,
+            self.layout.bottom_seed_score_7_bg,
+        ]
+
+        # Adjustments for 128x64 screen
+        if self.matrix.width >=128:
+            self.header_padding = [2,2,2,2]
+            self.status_message = "{} LEADS SERIES {} - {}"
         else:
-            self.font = data.config.layout.font
-            self.font_height = 5
-            self.width_multiplier = 1
-            self.header_y = 1
-            self.round_name_y = 7
-            self.top_seed_y = 14
-            self.bottom_seed_y = 22
-            self.grid_row_y = 21
+            self.header_padding = [1,1,1,1]
+            self.status_message = "{} LEADS {}-{}"
 
     def render(self):
         if not self.data.current_round:
@@ -50,51 +78,86 @@ class Seriesticker:
 
         for series in self.allseries:
             self.matrix.clear()
-            banner_text = "Stanley Cup"
+            banner_text = "STANLEY CUP"
             color_banner_bg = (200,200,200)
             color_banner_text = (0,0,0)
-            round_name = "Final" 
+            round_name = "FINAL" 
 
             if not self.data.current_round == 4:
                 try:
                     color_conf = self.team_colors.color("{}.primary".format(series.conference))
-                    banner_text = series.conference
+                    banner_text = series.conference[:4].upper()
                 except:
                     color_conf = self.team_colors.color("{}.primary".format("Western"))
-                    banner_text = "Western"
+                    banner_text = "WEST"
                 color_banner_bg = (color_conf['r'], color_conf['g'], color_conf['b'])
-                round_name = self.data.current_round_name
+                round_name = self.data.current_round_name.replace("-"," ").upper()
                 self.show_indicator(self.index, self.num_series)
             
-            
+            # Get next game
+            if series.current_game_id in series.game_overviews:
+                # Look if the game data is already stored in the game overviews from the series
+                overview = series.game_overviews[series.current_game_id]
+            else:
+                # Request and store the game overview in the series instance
+                overview = series.get_game_overview(series.current_game_id)
+
+            scoreboard = Scoreboard(overview, self.data) # should be the next game or current live game
+            if self.data.status.is_scheduled(scoreboard.status):
+                start_time = scoreboard.start_time.lstrip("0")
+                series_overview_game = f"NEXT GAME: {scoreboard.date.upper()} @ {start_time}"
+            elif self.data.status.is_live(scoreboard.status):
+                series_overview_game = f"GAME IS LIVE"
+                
+            top_team_wins = series.top_team.series_wins
+            bottom_team_wins = series.bottom_team.series_wins
+
+            # Determine the series overview message
+            # Series hasn't started yet
+            if top_team_wins == 0 and bottom_team_wins == 0:
+                series_overview = "SERIES UPCOMING"
+            # Series is tied
+            elif top_team_wins == bottom_team_wins:
+                series_overview = "SERIES TIED"
+            # Top team won
+            elif top_team_wins == 4:
+                series_overview = f"{series.top_team.abbrev} WON SERIES"
+            # Bottom team won
+            elif bottom_team_wins == 4:
+                series_overview = f"{series.bottom_team.abbrev} WON SERIES"
+            # Top team is leading
+            elif top_team_wins > bottom_team_wins:
+                series_overview = self.status_message.format(series.top_team.abbrev, top_team_wins, bottom_team_wins)
+            # Bottom team is leading
+            else:
+                series_overview = self.status_message.format(series.bottom_team.abbrev, bottom_team_wins, top_team_wins)
+
             # Conference banner, Round Title
-            row = 1
-            self.matrix.draw.rectangle([0,0,self.matrix.width,self.font_height + row], fill=color_banner_bg)
-            self.matrix.draw_text(
-                (1 * self.width_multiplier, self.header_y), 
-                banner_text, 
-                font=self.font, 
-                fill=(0,0,0)
+            self.matrix.draw_text_layout(
+                self.layout.header,
+                f"{banner_text} - {round_name}", 
+                align="left",
+                fillColor=(0,0,0,),
+                backgroundColor=color_banner_bg,
+                backgroundOffset=self.header_padding
             )
-
-            row += 1
-            self.matrix.draw_text(
-                (1 * self.width_multiplier, self.round_name_y),
-                round_name,
-                font=self.font,
-                fill=(255,255,255)
-            )
-            self.index += 1
             
-            # # If something fails in the process of drawing the series table due to failed API request
-            # # Continue in the loop and skip this series.
-            # if not self.draw_series_table(series):
-            #     debug.error('Failed Draw the series table due to failed API request. Skiping to the next series')
-            #     continue
-
-
             self.draw_series_table(series)
+
+            self.matrix.draw_text_layout(
+                self.layout.overview,
+                series_overview
+            )
+
+            # Show next game info on larger displays
+            if self.matrix.width >= 128:
+                self.matrix.draw_text_layout(
+                    self.layout.overview_game,
+                    series_overview_game
+            )
+
             self.matrix.render()
+            self.index += 1
             self.sleepEvent.wait(self.data.config.seriesticker_rotation_rate)
 
     def draw_series_table(self, series):
@@ -106,35 +169,36 @@ class Seriesticker:
         color_bottom_team = self.team_colors.color("{}.text".format(series.bottom_team.id))
 
         # Table
+        self.grid_row_y = self.layout.seperator.position[1]
         self.matrix.draw.line([(0,self.grid_row_y),(self.matrix.width,self.grid_row_y)], width=1, fill=(150,150,150))
 
         # use rectangle because I want to keep symmetry for the background of team's abbrev
-        self.matrix.draw.rectangle([0, self.top_seed_y,12 * self.width_multiplier,self.top_seed_y + self.font_height + 1], fill=(color_top_bg['r'], color_top_bg['g'], color_top_bg['b']))
-        self.matrix.draw_text(
-            (1 * self.width_multiplier, self.top_seed_y + 1), 
+        self.matrix.draw_rectangle_layout(
+            self.layout.top_seed_bg,
+            fillColor=(color_top_bg['r'], color_top_bg['g'], color_top_bg['b'])
+        )
+        self.matrix.draw_text_layout(
+            self.layout.top_seed,
             series.top_team.abbrev, 
-            font=self.font, 
-            fill=(color_top_team['r'], color_top_team['g'], color_top_team['b'])
+            fillColor=(color_top_team['r'], color_top_team['g'], color_top_team['b'])
         )
 
-        self.matrix.draw.rectangle([0,self.bottom_seed_y,12 * self.width_multiplier,self.bottom_seed_y + self.font_height + 1], fill=(color_bottom_bg['r'], color_bottom_bg['g'], color_bottom_bg['b']))
-        self.matrix.draw_text(
-            (1 * self.width_multiplier, self.bottom_seed_y + 1), 
+        self.matrix.draw_rectangle_layout(
+            self.layout.bottom_seed_bg,
+            fillColor=(color_bottom_bg['r'], color_bottom_bg['g'], color_bottom_bg['b'])
+        )
+        self.matrix.draw_text_layout(
+            self.layout.bottom_seed,
             series.bottom_team.abbrev, 
-            font=self.font, 
-            fill=(color_bottom_team['r'], color_bottom_team['g'], color_bottom_team['b'])
+            fillColor=(color_bottom_team['r'], color_bottom_team['g'], color_bottom_team['b'])
         )
         
-        rec_width = 0
-        top_row = self.top_seed_y + 1
-        bottom_row = self.bottom_seed_y + 1
         loosing_color = (150,150,150)
+        loosing_color_bg = (0,0,0)
 
-        # text offset for loosing score if the winning team has a score of 10 or higher and loosing team 
-        # have a score lower then 10
-
-        offset_correction = 0
+        game_count = 0
         for game in series.games:
+            game_count += 1
             attempts_remaining = 5
             while attempts_remaining > 0:
                 try:
@@ -152,40 +216,42 @@ class Seriesticker:
                         break
                     if (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])) and hasattr(scoreboard, "winning_team_id"):
                         if scoreboard.winning_team_id == series.top_team.id:
-                            winning_row = top_row
-                            loosing_row = bottom_row
+                            winning_layout = self.top_seed_scores[game_count - 1]
+                            winning_layout_bg = self.top_seed_scores_bg[game_count - 1]
+                            loosing_layout = self.bottom_seed_scores[game_count - 1]
+                            loosing_layout_bg = self.bottom_seed_scores_bg[game_count - 1]
                             winning_team_color = color_top_team
                             winning_bg_color = color_top_bg
                         else:
-                            winning_row = bottom_row
-                            loosing_row = top_row
+                            winning_layout = self.bottom_seed_scores[game_count - 1]
+                            winning_layout_bg = self.bottom_seed_scores_bg[game_count - 1]
+                            loosing_layout = self.top_seed_scores[game_count - 1]
+                            loosing_layout_bg = self.top_seed_scores_bg[game_count - 1]
                             winning_team_color = color_bottom_team
                             winning_bg_color = color_bottom_bg
 
-                        # Look loosing score text needs an offset
-                        if len(str(scoreboard.winning_score)) == 2 and len(str(scoreboard.winning_score)) == 1:
-                            offset_correction = 1
-                        
-                        self.matrix.draw_text(
-                            ((rec_width + 15 * self.width_multiplier + offset_correction), loosing_row), 
-                            str(scoreboard.losing_score), 
-                            font=self.font, 
-                            fill=loosing_color,
-                            backgroundColor=None, 
-                            backgroundOffset=[1, 1, 1, 1]
+                        self.matrix.draw_rectangle_layout(
+                            loosing_layout_bg,
+                            fillColor=loosing_color_bg
                         )
 
-                        position = self.matrix.draw_text(
-                            (rec_width + 15 * self.width_multiplier, winning_row), 
-                            str(scoreboard.winning_score), 
-                            font=self.font, 
-                            fill=(winning_team_color['r'], winning_team_color['g'], winning_team_color['b']), 
-                            backgroundColor=(winning_bg_color['r'], winning_bg_color['g'], winning_bg_color['b']), 
-                            backgroundOffset=[1, 1, 1, 1]
+                        self.matrix.draw_rectangle_layout(
+                            winning_layout_bg,
+                            fillColor=(winning_bg_color['r'], winning_bg_color['g'], winning_bg_color['b']), 
                         )
 
-                        # Increment 
-                        rec_width += (position["size"][0] + (4 * self.width_multiplier))
+                        self.matrix.draw_text_layout(
+                            loosing_layout,
+                            str(scoreboard.losing_score),  
+                            fillColor=loosing_color
+                        )
+
+                        self.matrix.draw_text_layout(
+                            winning_layout,
+                            str(scoreboard.winning_score),  
+                            fillColor=(winning_team_color['r'], winning_team_color['g'], winning_team_color['b']), 
+                        )
+
                     break
 
                 except ValueError as error_message:
