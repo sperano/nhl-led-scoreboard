@@ -134,6 +134,7 @@ def team_info():
     #         debug.error("Missing data in current team info")
 
 def team_next_game_by_code(team_code):
+    # Returns the next game and previous game for a team
     data = nhl_api.data.get_team_schedule(team_code)
     parsed = data.json()
     pg = None
@@ -156,41 +157,45 @@ def team_last_game_by_code(team_code):
     return None
 
 # This one is a little funky for the time. I'll loop through the what and why
+# Not too funky anymore, get the teams schedule and grab the lastd and next game
 def team_previous_game(team_code, date, pg = None, ng = None):
     return team_next_game_by_code(team_code)
-    # This response returns the next three games, starting from the date given
-    client = NHLClient(verbose=False)
-    teams_response = {}
-    #with client as client:
-    teams_response = client.schedule.get_schedule_by_team_by_week(team_code, date)
+
+    # Previous Logic - keeping just in case
+
+    # # This response returns the next three games, starting from the date given
+    # client = NHLClient(verbose=False)
+    # teams_response = {}
+    # #with client as client:
+    # teams_response = client.schedule.get_schedule_by_team_by_week(team_code, date)
     
-    if teams_response:
-        pg = teams_response[0]
-    else:
-        if ng is None or pg is None:
-            pg, ng = team_previous_game(team_code, teams_response[0]["gametDate"], None, None) 
-    # If the first game in the list is a future game, the that's the next game. I think this will always be the case...
-    # TODO: Get a better situation for a LIVE game when showing a team summary during intermission
+    # if teams_response:
+    #     pg = teams_response[0]
+    # else:
+    #     if ng is None or pg is None:
+    #         pg, ng = team_previous_game(team_code, teams_response[0]["gametDate"], None, None) 
+    # # If the first game in the list is a future game, the that's the next game. I think this will always be the case...
+    # # TODO: Get a better situation for a LIVE game when showing a team summary during intermission
 
-    if pg["gameState"] == "FUT" or pg["gameState"] == "PRE" or pg["gameState"] == "LIVE":
-        ng = pg
-        # Then we take the previous_start_date given from the response and run through it again
-        previousStartDate = datetime.date.today() - datetime.timedelta(days=7)
-        pg, ng = team_previous_game(team_code, previousStartDate, None, ng)
-    else:
-        # I _think_ that realistically the previous_game will always be the last game in this list, but
-        # I'm going to simply loop through for now.
-        for game in teams_response[1:]:
-            if (game["gameState"] == "FINAL" or game["gameState"] == "OFF") and game["gameDate"] > pg["gameDate"]:
-                pg = game
-            else:
-                if ng is None or ng["gameDate"] < game["gameDate"]:
-                    ng = game
+    # if pg["gameState"] == "FUT" or pg["gameState"] == "PRE" or pg["gameState"] == "LIVE":
+    #     ng = pg
+    #     # Then we take the previous_start_date given from the response and run through it again
+    #     previousStartDate = datetime.date.today() - datetime.timedelta(days=7)
+    #     pg, ng = team_previous_game(team_code, previousStartDate, None, ng)
+    # else:
+    #     # I _think_ that realistically the previous_game will always be the last game in this list, but
+    #     # I'm going to simply loop through for now.
+    #     for game in teams_response[1:]:
+    #         if (game["gameState"] == "FINAL" or game["gameState"] == "OFF") and game["gameDate"] > pg["gameDate"]:
+    #             pg = game
+    #         else:
+    #             if ng is None or ng["gameDate"] < game["gameDate"]:
+    #                 ng = game
 
-    # Then return. I'd like to say we could be smart and take a few days off from the initial request,
-    # but I'm already questioning how that'd act with the likes of the all-star break.
-    # I think two requests is fine for now
-    return pg, ng
+    # # Then return. I'd like to say we could be smart and take a few days off from the initial request,
+    # # but I'm already questioning how that'd act with the likes of the all-star break.
+    # # I think two requests is fine for now
+    # return pg, ng
 
 def player_info(playerId):
     data = nhl_api.data.get_player(playerId)
