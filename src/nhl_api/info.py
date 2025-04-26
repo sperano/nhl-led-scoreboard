@@ -143,6 +143,7 @@ def team_next_game_by_code(team_code):
     for game in parsed["games"]:
         if game["gameState"] == "FUT" or game["gameState"] == "PRE" or game["gameState"] == "LIVE":
             ng = game
+            return pg, ng
         else:
             pg = game
     
