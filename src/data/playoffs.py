@@ -56,6 +56,7 @@ class Series:
         self.game_overviews = {}
         self.show = True
         self.data = data
+        self.live_game_id = None
 
         if int(top["seriesWins"]) == to_win or int(bottom["seriesWins"]) == to_win: 
             self.final=True
@@ -93,4 +94,14 @@ class Series:
         # only cache completed games
         if (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])):
             self.game_overviews[gameid] = overview
+
+            # if the game that was live is now over, lets refresh the playoff data
+            if gameid == self.live_game_id:
+                self.data.refresh_playoff() #ideally we'd just refresh the series data but this is easier for now
+                self.live_game_id = None
+
+        # if a game in the series is live, track it.  We will want to refresh the playoff data when it concludes
+        if self.data.status.is_live(overview["gameState"]):
+            self.live_game_id = gameid
+        
         return overview
