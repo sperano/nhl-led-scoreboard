@@ -55,6 +55,7 @@ class Series:
         self.games = series_info["games"]
         self.game_overviews = {}
         self.show = True
+        self.data = data
 
         if int(top["seriesWins"]) == to_win or int(bottom["seriesWins"]) == to_win: 
             self.final=True
@@ -68,7 +69,7 @@ class Series:
                 #self.short_status = series.currentGame.seriesSummary.seriesStatusShort
                 self.current_game_date = datetime.strptime(self.current_game["startTimeUTC"].split("T")[0], "%Y-%m-%d").strftime("%b %d")
                 self.current_game_start_time = convert_time(datetime.strptime(self.current_game["startTimeUTC"], '%Y-%m-%dT%H:%M:%SZ')).strftime(data.config.time_format)
-            except error as e:
+            except Exception as e:
                 debug.info("Unknown error:")
                 print(e)
 
@@ -82,5 +83,9 @@ class Series:
             overview = client.game_center.play_by_play(gameid)
         except:
             debug.error("failed overview refresh for series game id {}".format(gameid))
-        self.game_overviews[gameid] = overview
+        # caching decision should probalby be made elsewhere but for now this is fine
+        # we dont want to cache live or future games because they will change
+        # only cache completed games
+        if (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])):
+            self.game_overviews[gameid] = overview
         return overview
