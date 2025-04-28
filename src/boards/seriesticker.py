@@ -95,12 +95,8 @@ class Seriesticker:
                 self.show_indicator(self.index, self.num_series)
             
             # Get next game
-            if series.current_game_id in series.game_overviews:
-                # Look if the game data is already stored in the game overviews from the series
-                overview = series.game_overviews[series.current_game_id]
-            else:
-                # Request and store the game overview in the series instance
-                overview = series.get_game_overview(series.current_game_id)
+            
+            overview = series.get_game_overview(series.current_game_id)
 
             scoreboard = Scoreboard(overview, self.data) # should be the next game or current live game
             if self.data.status.is_scheduled(scoreboard.status):
@@ -118,13 +114,13 @@ class Seriesticker:
                 series_overview = "SERIES UPCOMING"
             # Series is tied
             elif top_team_wins == bottom_team_wins:
-                series_overview = "SERIES TIED"
+                series_overview = f"SERIES TIED {top_team_wins}-{bottom_team_wins}"
             # Top team won
             elif top_team_wins == 4:
-                series_overview = f"{series.top_team.abbrev} WON SERIES"
+                series_overview = f"{series.top_team.abbrev} WON SERIES {top_team_wins}-{bottom_team_wins}"
             # Bottom team won
             elif bottom_team_wins == 4:
-                series_overview = f"{series.bottom_team.abbrev} WON SERIES"
+                series_overview = f"{series.bottom_team.abbrev} WON SERIES {top_team_wins}-{bottom_team_wins}"
             # Top team is leading
             elif top_team_wins > bottom_team_wins:
                 series_overview = self.status_message.format(series.top_team.abbrev, top_team_wins, bottom_team_wins)
@@ -202,12 +198,8 @@ class Seriesticker:
             attempts_remaining = 5
             while attempts_remaining > 0:
                 try:
-                    if game["id"] in series.game_overviews:
-                        # Look if the game data is already stored in the game overviews from the series
-                        overview = series.game_overviews[game["id"]]
-                    else:
-                        # Request and store the game overview in the series instance
-                        overview = series.get_game_overview(game["id"])
+                    # get the game overview
+                    overview = series.get_game_overview(game["id"])
                     
                     # get the scoreboard
                     try:

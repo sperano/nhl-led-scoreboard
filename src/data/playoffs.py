@@ -76,14 +76,19 @@ class Series:
 
 
     def get_game_overview(self, gameid):
-        # Request the game overview
         overview = ""
-        try:
-            client = NHLClient(verbose=False)
-            overview = client.game_center.play_by_play(gameid)
-        except:
-            debug.error("failed overview refresh for series game id {}".format(gameid))
-        # caching decision should probalby be made elsewhere but for now this is fine
+        # Check if the game data is already stored in the game overviews from the series
+        if gameid in self.game_overviews:
+            # Fetch the game overview from the cache
+            overview = self.game_overviews[gameid]
+        else:
+            # Not cached, request the overview from the NHL API
+            try:
+                client = NHLClient(verbose=False)
+                overview = client.game_center.play_by_play(gameid)
+            except:
+                debug.error("failed overview refresh for series game id {}".format(gameid))
+        
         # we dont want to cache live or future games because they will change
         # only cache completed games
         if (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])):
