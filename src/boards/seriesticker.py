@@ -120,7 +120,7 @@ class Seriesticker:
                 series_overview = f"{series.top_team.abbrev} WON SERIES {top_team_wins}-{bottom_team_wins}"
             # Bottom team won
             elif bottom_team_wins == 4:
-                series_overview = f"{series.bottom_team.abbrev} WON SERIES {top_team_wins}-{bottom_team_wins}"
+                series_overview = f"{series.bottom_team.abbrev} WON SERIES {bottom_team_wins}-{top_team_wins}"
             # Top team is leading
             elif top_team_wins > bottom_team_wins:
                 series_overview = self.status_message.format(series.top_team.abbrev, top_team_wins, bottom_team_wins)
