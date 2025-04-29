@@ -14,9 +14,8 @@ import debug
 class Seriesticker:
     def __init__(self, data: Data, matrix: Matrix, sleepEvent):
         self.data = data
-        self.rotation_rate = 5
+        self.rotation_rate = 6
         self.matrix = matrix
-        self.spacing = 3 # Number of pixel between each dot + 1
         self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
         
@@ -95,20 +94,6 @@ class Seriesticker:
                 round_name = self.data.current_round_name.replace("-"," ").upper()
                 self.show_indicator(self.index, self.num_series)
             
-            # Get next game
-            
-            overview = series.get_game_overview(series.current_game_id)
-
-            scoreboard = Scoreboard(overview, self.data) # should be the next game or current live game
-            if self.data.status.is_scheduled(scoreboard.status):
-                # if game is today, change date to "TODAY"
-                if scoreboard.date == datetime.now().strftime("%b %d"):
-                    game_date= "TODAY"
-                else:
-                    game_date = scoreboard.date.upper()
-                series_overview_game = f"NEXT GAME: {game_date} @ {scoreboard.start_time}"
-            elif self.data.status.is_live(scoreboard.status):
-                series_overview_game = f"GAME IS LIVE"
                 
             top_team_wins = series.top_team.series_wins
             bottom_team_wins = series.bottom_team.series_wins
@@ -150,13 +135,6 @@ class Seriesticker:
                 series_overview
             )
 
-            # Show next game info on larger displays
-            if self.matrix.width >= 128:
-                self.matrix.draw_text_layout(
-                    self.layout.overview_game,
-                    series_overview_game
-            )
-
             self.matrix.render()
             self.index += 1
             self.sleepEvent.wait(self.data.config.seriesticker_rotation_rate)
@@ -169,11 +147,11 @@ class Seriesticker:
         color_bottom_bg = self.team_colors.color("{}.primary".format(series.bottom_team.id))
         color_bottom_team = self.team_colors.color("{}.text".format(series.bottom_team.id))
 
-        # Table
+        # Draw separator line between teams
         self.grid_row_y = self.layout.seperator.position[1]
         self.matrix.draw.line([(0,self.grid_row_y),(self.matrix.width,self.grid_row_y)], width=1, fill=(150,150,150))
 
-        # use rectangle because I want to keep symmetry for the background of team's abbrev
+        # Draw team abbrev and backgrounds
         self.matrix.draw_rectangle_layout(
             self.layout.top_seed_bg,
             fillColor=(color_top_bg['r'], color_top_bg['g'], color_top_bg['b'])
@@ -211,6 +189,8 @@ class Seriesticker:
                         scoreboard = Scoreboard(overview, self.data)
                     except:
                         break
+                    
+                    # If the game is final, draw the winning and loosing team scores
                     if (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])) and hasattr(scoreboard, "winning_team_id"):
                         if scoreboard.winning_team_id == series.top_team.id:
                             winning_layout = self.top_seed_scores[game_count - 1]
@@ -249,6 +229,25 @@ class Seriesticker:
                             fillColor=(winning_team_color['r'], winning_team_color['g'], winning_team_color['b']), 
                         )
 
+                    # process the "current game" -- which is the current or next game
+                    if game["id"] == series.current_game_id:
+                        # show the next game info on larger displays
+                        if self.matrix.width >= 128:
+                            if scoreboard.date == datetime.now().strftime("%b %d"):
+                                game_date= "TODAY"
+                            else:
+                                game_date = scoreboard.date.upper()
+                            
+                            series_overview_game = f"NEXT GAME: {game_date} @ {scoreboard.start_time}"
+
+                            self.matrix.draw_text_layout(
+                                self.layout.overview_game,
+                                series_overview_game
+                            )                        
+
+                    # If the game doesnt hit a condition above, break the loop
+                    # this assumes games are in order from oldest to newest
+                    # we dont need to process future games so we break instead of looping through them
                     break
 
                 except ValueError as error_message:
