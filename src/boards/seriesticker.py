@@ -2,6 +2,7 @@
     Shows list of series summary (Table with each result of game).
 """
 from time import sleep
+from datetime import datetime
 from utils import center_obj
 # from data.playoffs import Series
 from data.scoreboard import Scoreboard
@@ -100,8 +101,12 @@ class Seriesticker:
 
             scoreboard = Scoreboard(overview, self.data) # should be the next game or current live game
             if self.data.status.is_scheduled(scoreboard.status):
-                start_time = scoreboard.start_time.lstrip("0")
-                series_overview_game = f"NEXT GAME: {scoreboard.date.upper()} @ {start_time}"
+                # if game is today, change date to "TODAY"
+                if scoreboard.date == datetime.now().strftime("%b %d"):
+                    game_date= "TODAY"
+                else:
+                    game_date = scoreboard.date.upper()
+                series_overview_game = f"NEXT GAME: {game_date} @ {scoreboard.start_time}"
             elif self.data.status.is_live(scoreboard.status):
                 series_overview_game = f"GAME IS LIVE"
                 

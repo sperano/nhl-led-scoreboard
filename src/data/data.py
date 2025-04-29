@@ -11,6 +11,7 @@ from data.playoffs import Series
 from data.status import Status
 from utils import get_lat_lng
 import json
+from nhl_api.game import PlayByPlay
 
 NETWORK_RETRY_SLEEP_TIME = 0.5
 
@@ -80,7 +81,7 @@ def game_by_schedule(games):
     By default, the api return the list of games ordered by start time, the first ones to finish will be put at the top. This function just fix make sure the list stay ordred by the start
     """
 
-    return sorted(games, key=lambda x: g.game_date)
+    return sorted(games, key=lambda x: x.game_date)
 
 
 class Data:
@@ -441,17 +442,17 @@ class Data:
                 sleep(NETWORK_RETRY_SLEEP_TIME)
 
 
-
-    # TODO: Should probably move this into it's own TestClass of sorts
-    def test_goal(self, data, matrix, sleepEvent):
-        from data.scoreboard import Scoreboard
-        from renderer.goal import GoalRenderer
-        # f = open('test_scenarios/goal.json')
-        f = open('test_scenarios/goal_unassisted.json')
-        parsed = json.load(f)
-        overview = PlayByPlay.from_dict(parsed)
-        scoreboard = Scoreboard(overview, data)
-        GoalRenderer(data, matrix, sleepEvent, scoreboard.home_team).render()
+    # Commented out because it appears to be broken
+    # # TODO: Should probably move this into it's own TestClass of sorts
+    # def test_goal(self, data, matrix, sleepEvent):
+    #     from data.scoreboard import Scoreboard
+    #     from renderer.goal import GoalRenderer
+    #     # f = open('test_scenarios/goal.json')
+    #     f = open('test_scenarios/goal_unassisted.json')
+    #     parsed = json.load(f)
+    #     overview = PlayByPlay.from_dict(parsed)
+    #     scoreboard = Scoreboard(overview, data)
+    #     GoalRenderer(data, matrix, sleepEvent, scoreboard.home_team).render()
 
     """
         TODO: TO DELETE if the new check_game_priority() function works withtout a fuzz
@@ -515,7 +516,7 @@ class Data:
             return False
 
     #Players
-    def get_players_info(self):
+    def get_players_info(self, playerId):
         self.players_info = nhl_api.info.player_info(playerId)
 
     #
