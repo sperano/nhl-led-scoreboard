@@ -1,5 +1,7 @@
 class Team:
     def __init__(self, id, abbrev, name):
+        if id == -1:
+            id = "tbd"
         self.id = id
         self.abbrev = abbrev
         self.name = name

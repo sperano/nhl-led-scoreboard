@@ -52,6 +52,7 @@ class Series:
             self.conference = ""
         self.series_letter = series["seriesLetter"]
         self.round_number = series["roundNumber"]
+        self.round_name = series["seriesLabel"]
         #self.series_code = series.seriesCode #To use with the nhl records API
         #self.matchup_short_name = series.names.matchupShortName
         self.top_team = SeriesTeam(top, top_team_abbrev)

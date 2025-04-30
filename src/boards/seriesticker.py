@@ -14,7 +14,7 @@ import debug
 class Seriesticker:
     def __init__(self, data: Data, matrix: Matrix, sleepEvent):
         self.data = data
-        self.rotation_rate = 6
+        self.rotation_rate = 1
         self.matrix = matrix
         self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
@@ -91,7 +91,7 @@ class Seriesticker:
                     color_conf = self.team_colors.color("{}.primary".format("Western"))
                     banner_text = "WEST"
                 color_banner_bg = (color_conf['r'], color_conf['g'], color_conf['b'])
-                round_name = self.data.current_round_name.replace("-"," ").upper()
+                round_name = series.round_name.replace("-"," ").upper()
                 self.show_indicator(self.index, self.num_series)
             
                 
