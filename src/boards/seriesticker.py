@@ -232,13 +232,15 @@ class Seriesticker:
                     # process the "current game" -- which is the current or next game
                     if game["id"] == series.current_game_id:
                         # show the next game info on larger displays
+                        series_overview_game = ""
                         if self.matrix.width >= 128:
-                            if scoreboard.date == datetime.now().strftime("%b %d"):
-                                game_date= "TODAY"
+                            if self.data.status.is_live(scoreboard.status):
+                                series_overview_game = f"GAME IS LIVE"
+                            elif scoreboard.date == datetime.now().strftime("%b %d"):
+                                series_overview_game = f"NEXT GAME: TODAY @ {scoreboard.start_time}"
                             else:
                                 game_date = scoreboard.date.upper()
-                            
-                            series_overview_game = f"NEXT GAME: {game_date} @ {scoreboard.start_time}"
+                                series_overview_game = f"NEXT GAME: {game_date} @ {scoreboard.start_time}"
 
                             self.matrix.draw_text_layout(
                                 self.layout.overview_game,
