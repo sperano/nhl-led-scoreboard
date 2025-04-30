@@ -34,8 +34,12 @@ class Series:
 
             This is off from the nhl record api. Not sure if it will update as soon as the day is over. 
         """
-        client = NHLClient(verbose=False)
-        series_info = client.playoffs.schedule(data.status.season_id, series["seriesLetter"])
+        try:
+            client = NHLClient(verbose=False)
+            series_info = client.playoffs.schedule(data.status.season_id, series["seriesLetter"])
+        except Exception as e:
+            debug.error(f"Failed to get series info for {series['seriesLetter']}")
+            return
 
         top = series_info["topSeedTeam"]
         bottom = series_info["bottomSeedTeam"]
@@ -56,6 +60,7 @@ class Series:
         self.game_overviews = {}
         self.show = True
         self.data = data
+        self.current_game_id = None
         self.live_game_id = None
 
         if int(top["seriesWins"]) == to_win or int(bottom["seriesWins"]) == to_win: 
@@ -83,17 +88,19 @@ class Series:
             # Fetch the game overview from the cache
             debug.log(f"Cache hit for game overview {gameid}")
             overview = self.game_overviews[gameid]
+
         else:
             # Not cached, request the overview from the NHL API
             try:
                 debug.log(f"Cache miss, requesting overview for game {gameid}") 
                 client = NHLClient(verbose=False)
                 overview = client.game_center.play_by_play(gameid)
-                if overview is None:
-                    debug.error(f"Failed to get overview for game {gameid}")
-                    return None
             except:
                 debug.error("failed overview refresh for series game id {}".format(gameid))
+
+            if overview == "":
+                debug.error(f"Failed to get overview for game {gameid}")
+                return None
         
             # if a game is scheduled, cache it if it is more than 24 hours away
             if self.data.status.is_scheduled(overview["gameState"]):
