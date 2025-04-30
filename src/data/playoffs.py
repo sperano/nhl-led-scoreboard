@@ -3,7 +3,7 @@ from data.scoreboard import Scoreboard
 from utils import convert_time
 from nhlpy import NHLClient
 import debug
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def get_team_position(teams_info):
     """
@@ -34,8 +34,12 @@ class Series:
 
             This is off from the nhl record api. Not sure if it will update as soon as the day is over. 
         """
-        client = NHLClient(verbose=False)
-        series_info = client.playoffs.schedule(data.status.season_id, series["seriesLetter"])
+        try:
+            client = NHLClient(verbose=False)
+            series_info = client.playoffs.schedule(data.status.season_id, series["seriesLetter"])
+        except Exception as e:
+            debug.error(f"Failed to get series info for {series['seriesLetter']}")
+            return
 
         top = series_info["topSeedTeam"]
         bottom = series_info["bottomSeedTeam"]
@@ -48,6 +52,7 @@ class Series:
             self.conference = ""
         self.series_letter = series["seriesLetter"]
         self.round_number = series["roundNumber"]
+        self.round_name = series["seriesLabel"]
         #self.series_code = series.seriesCode #To use with the nhl records API
         #self.matchup_short_name = series.names.matchupShortName
         self.top_team = SeriesTeam(top, top_team_abbrev)
@@ -55,6 +60,9 @@ class Series:
         self.games = series_info["games"]
         self.game_overviews = {}
         self.show = True
+        self.data = data
+        self.current_game_id = None
+        self.live_game_id = None
 
         if int(top["seriesWins"]) == to_win or int(bottom["seriesWins"]) == to_win: 
             self.final=True
@@ -68,19 +76,53 @@ class Series:
                 #self.short_status = series.currentGame.seriesSummary.seriesStatusShort
                 self.current_game_date = datetime.strptime(self.current_game["startTimeUTC"].split("T")[0], "%Y-%m-%d").strftime("%b %d")
                 self.current_game_start_time = convert_time(datetime.strptime(self.current_game["startTimeUTC"], '%Y-%m-%dT%H:%M:%SZ')).strftime(data.config.time_format)
-            except error as e:
+            except Exception as e:
                 debug.info("Unknown error:")
                 print(e)
 
 
 
     def get_game_overview(self, gameid):
-        # Request the game overview
         overview = ""
-        try:
-            client = NHLClient(verbose=False)
-            overview = client.game_center.play_by_play(gameid)
-        except:
-            debug.error("failed overview refresh for series game id {}".format(gameid))
-        self.game_overviews[gameid] = overview
+        # Check if the game data is already stored in the game overviews from the series
+        if gameid in self.game_overviews:
+            # Fetch the game overview from the cache
+            debug.log(f"Cache hit for game overview {gameid}")
+            overview = self.game_overviews[gameid]
+
+        else:
+            # Not cached, request the overview from the NHL API
+            try:
+                debug.log(f"Cache miss, requesting overview for game {gameid}") 
+                client = NHLClient(verbose=False)
+                overview = client.game_center.play_by_play(gameid)
+            except:
+                debug.error("failed overview refresh for series game id {}".format(gameid))
+
+            if overview == "":
+                debug.error(f"Failed to get overview for game {gameid}")
+                return None
+        
+            # if a game is scheduled, cache it if it is more than 24 hours away
+            if self.data.status.is_scheduled(overview["gameState"]):
+                start_time = datetime.strptime(overview["startTimeUTC"], '%Y-%m-%dT%H:%M:%SZ')
+                if start_time > datetime.now() + timedelta(days=1):
+                    debug.log(f"Game {gameid} is scheduled more than 24 hours away, caching")
+                    self.game_overviews[gameid] = overview
+                
+            # cache completed games
+            elif (self.data.status.is_final(overview["gameState"]) or self.data.status.is_game_over(overview["gameState"])):
+                debug.log(f"Caching overview for game {gameid}")
+                self.game_overviews[gameid] = overview
+
+                # if the game that was live is now over, lets refresh the playoff data
+                if gameid == self.live_game_id:
+                    debug.log(f"Game {gameid} is over, refreshing playoff data")
+                    self.data.refresh_playoff() #ideally we'd just refresh the series data but this is easier for now
+                    self.live_game_id = None
+
+            # if a game in the series is live, track it.  We will want to refresh the playoff data when it concludes
+            if self.data.status.is_live(overview["gameState"]):
+                self.live_game_id = gameid
+        
         return overview
