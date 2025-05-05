@@ -151,6 +151,10 @@ class ScoreboardConfig:
         # Seriesticker
         self.seriesticker_preferred_teams_only = json["boards"]["seriesticker"]["preferred_teams_only"]
         self.seriesticker_rotation_rate = json["boards"]["seriesticker"]["rotation_rate"]
+        try:
+            self.seriesticker_hide_completed_rounds = json["boards"]["seriesticker"]["hide_completed_rounds"]
+        except KeyError:
+            self.seriesticker_hide_completed_rounds = False
 
         # Standings
         self.preferred_standings_only = json["boards"]["standings"]["preferred_standings_only"]

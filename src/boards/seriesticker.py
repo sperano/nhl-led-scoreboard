@@ -72,18 +72,23 @@ class Seriesticker:
         if not self.data.current_round:
             debug.log("No Playoff to render on seriesticker")
             return
-        self.allseries = self.data.series
+        playoff_series = self.data.series
         self.index = 0
-        self.num_series = len(self.allseries)
 
-        for series in self.allseries:
+        # Check option to hide completed rounds and filter 
+        if self.data.config.seriesticker_hide_completed_rounds:
+            playoff_series = [s for s in self.data.series if getattr(s, "round_number", 0) >= self.data.current_round["roundNumber"]]
+        
+        self.num_series = len(playoff_series)
+
+        for series in playoff_series:
             self.matrix.clear()
             banner_text = "STANLEY CUP"
             color_banner_bg = (200,200,200)
             color_banner_text = (0,0,0)
             round_name = "FINAL" 
 
-            if not self.data.current_round == 4:
+            if not self.data.current_round["roundNumber"] == 4:
                 try:
                     color_conf = self.team_colors.color("{}.primary".format(series.conference))
                     banner_text = series.conference[:4].upper()

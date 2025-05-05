@@ -46,10 +46,11 @@
 			"preferred_teams_only": false,
 			"rotation_rate": 5
 		},
-                "seriesticker": {
-                        "preferred_teams_only": true,
-                        "rotation_rate": 5
-                },
+        "seriesticker": {
+            "preferred_teams_only": true,
+            "rotation_rate": 5,
+			"hide_completed_rounds": false
+        },
 		"standings": {
 			"preferred_standings_only": true,
 			"standing_type": "division",
