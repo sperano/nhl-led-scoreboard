@@ -72,18 +72,23 @@ class Seriesticker:
         if not self.data.current_round:
             debug.log("No Playoff to render on seriesticker")
             return
-        self.allseries = self.data.series
+        playoff_series = self.data.series
         self.index = 0
-        self.num_series = len(self.allseries)
 
-        for series in self.allseries:
+        # Check option to hide completed rounds and filter 
+        if self.data.config.seriesticker_hide_completed_rounds:
+            playoff_series = [s for s in self.data.series if getattr(s, "round_number", 0) >= self.data.current_round["roundNumber"]]
+        
+        self.num_series = len(playoff_series)
+
+        for series in playoff_series:
             self.matrix.clear()
             banner_text = "STANLEY CUP"
             color_banner_bg = (200,200,200)
             color_banner_text = (0,0,0)
             round_name = "FINAL" 
 
-            if not self.data.current_round == 4:
+            if not self.data.current_round["roundNumber"] == 4:
                 try:
                     color_conf = self.team_colors.color("{}.primary".format(series.conference))
                     banner_text = series.conference[:4].upper()
@@ -233,14 +238,15 @@ class Seriesticker:
                     if game["id"] == series.current_game_id:
                         # show the next game info on larger displays
                         series_overview_game = ""
+                        next_game_number = series.top_team.series_wins + series.bottom_team.series_wins + 1
                         if self.matrix.width >= 128:
                             if self.data.status.is_live(scoreboard.status):
                                 series_overview_game = f"GAME IS LIVE"
                             elif scoreboard.date == datetime.now().strftime("%b %d"):
-                                series_overview_game = f"NEXT GAME: TODAY @ {scoreboard.start_time}"
+                                series_overview_game = f"GAME {next_game_number}: TODAY @ {scoreboard.start_time}"
                             else:
                                 game_date = scoreboard.date.upper()
-                                series_overview_game = f"NEXT GAME: {game_date} @ {scoreboard.start_time}"
+                                series_overview_game = f"GAME {next_game_number}: {game_date} @ {scoreboard.start_time}"
 
                             self.matrix.draw_text_layout(
                                 self.layout.overview_game,

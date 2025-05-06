@@ -412,7 +412,6 @@
     },
     "bottom_seed_score_6":{
       "position":[1, 1],
-      "font": "medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_6_bg",
@@ -421,7 +420,6 @@
     },
     "bottom_seed_score_7":{
       "position":[1, 1],
-      "font": "medium",
       "align": "center-center",
       "relative": {
         "to": "bottom_seed_score_7_bg",

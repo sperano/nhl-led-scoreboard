@@ -1,3 +1,6 @@
+import json
+import debug
+
 class Periods:
     PLAYOFF = 'P'
     END = 'End'
@@ -15,7 +18,11 @@ class Periods:
         # Possible states. FUT, PRE, OFF, LIVE, CRIT, FINAL
         if overview["gameState"] == "LIVE" or overview["gameState"] == "CRIT":
             # Apparently the number can be nil? I am struggling figure out why this is failing
-            self.number = overview["periodDescriptor"]["number"] if overview["periodDescriptor"]["number"] else 0
+            try:
+                self.number = overview["periodDescriptor"]["number"] if overview["periodDescriptor"]["number"] else 0
+            except KeyError:
+                self.number = 0
+                debug.error(f"Failed to parse period number from overview")
         elif overview["gameState"] == "OFF" or overview["gameState"] == "FINAL":
             if overview.get("gameOutcome"):
                 lastPeriod = overview["gameOutcome"]["lastPeriodType"]
