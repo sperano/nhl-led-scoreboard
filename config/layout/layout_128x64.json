@@ -187,6 +187,10 @@
       "font": "default_medium",
       "align": "center"
     },
+    "stanley_cup_logo": {
+      "position": [105, 13],
+      "align": "left"
+    },
     "overview":{
       "position":["50%",16],
       "font":"wx_medium",

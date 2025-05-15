@@ -9,18 +9,20 @@ from data.scoreboard import Scoreboard
 from data.data import Data
 from renderer.matrix import MatrixPixels, Matrix
 import debug
+from PIL import Image
+from utils import get_file
 # import nhlpy
 
 class Seriesticker:
     def __init__(self, data: Data, matrix: Matrix, sleepEvent):
         self.data = data
-        self.rotation_rate = 1
         self.matrix = matrix
         self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
         
         self.layout = self.data.config.config.layout.get_board_layout('seriesticker')
         self.team_colors = self.data.config.team_colors
+        
 
         self.top_seed_scores = [
             self.layout.top_seed_score_1,
@@ -64,9 +66,11 @@ class Seriesticker:
         if self.matrix.width >=128:
             self.header_padding = [2,2,2,2]
             self.status_message = "{} LEADS SERIES {} - {}"
+            self.stanley_cup_logo = "assets/images/128x64_StanleyCup.png"
         else:
             self.header_padding = [1,1,1,1]
             self.status_message = "{} LEADS {}-{}"
+            self.stanley_cup_logo = False
 
     def render(self):
         if not self.data.current_round:
@@ -85,10 +89,18 @@ class Seriesticker:
             self.matrix.clear()
             banner_text = "STANLEY CUP"
             color_banner_bg = (200,200,200)
-            color_banner_text = (0,0,0)
             round_name = "FINAL" 
 
-            if not self.data.current_round["roundNumber"] == 4:
+            # Draw Stanley Cup logo on larger displays
+            if self.stanley_cup_logo:
+                img = get_file(self.stanley_cup_logo)
+                img = Image.open(img)
+                self.matrix.draw_image_layout(
+                    self.layout.stanley_cup_logo,
+                    img
+                )
+
+            if not series.round_number == 4:
                 try:
                     color_conf = self.team_colors.color("{}.primary".format(series.conference))
                     banner_text = series.conference[:4].upper()
@@ -97,7 +109,16 @@ class Seriesticker:
                     banner_text = "WEST"
                 color_banner_bg = (color_conf['r'], color_conf['g'], color_conf['b'])
                 round_name = series.round_name.replace("-"," ").upper()
+                if round_name == "CONFERENCE FINALS":
+                    round_name = "CONF FINALS"
                 self.show_indicator(self.index, self.num_series)
+
+            # STANLEY CUP FINAL or EAST/WEST CONFERENCE FINALS
+            if series.round_number >= 3:
+                banner_text = f"{banner_text} {round_name}"
+            else:
+                # EAST/WEST - 1ST/2ND ROUND
+                banner_text = f"{banner_text} - {round_name}"
             
                 
             top_team_wins = series.top_team.series_wins
@@ -126,7 +147,7 @@ class Seriesticker:
             # Conference banner, Round Title
             self.matrix.draw_text_layout(
                 self.layout.header,
-                f"{banner_text} - {round_name}", 
+                banner_text, 
                 align="left",
                 fillColor=(0,0,0,),
                 backgroundColor=color_banner_bg,
