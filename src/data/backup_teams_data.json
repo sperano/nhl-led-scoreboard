@@ -419,6 +419,13 @@
   "leageUd": 133,
   "rawTricode": "UTA",
   "triCode": "UTA"
-  }],
-  "total": 60
+  },{
+  "id": 68,
+  "franchiseId": 40,
+  "fullName": "Utah Mammoth",
+  "leagueId": 133,
+  "rawTricode": "UTA",
+  "triCode": "UTA"
+  },],
+  "total": 61
 }
