@@ -103,10 +103,10 @@ make build-python PYTHON="$(command -v python3)"
 
 if [ -n "$VIRTUAL_ENV" ]; then
   #make install-python PYTHON="$(command -v python3)"
-  pip3 install bindings/python/
+  # The --use-pep517 is required for newer versions of pip to install the package correctly
+  pip3 install bindings/python/ --use-pep517
 else
-  sudo pip3 install bindings/python/
-fi
+  sudo pip3 install bindings/python/ --use-pep517
 
 cd ../../ || exit
 
