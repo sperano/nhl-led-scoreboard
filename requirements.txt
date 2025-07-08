@@ -21,5 +21,6 @@ RGBMatrixEmulator
 tk
 diskcache
 backoff
+bottleneck==1.4.2
 pandas==2.2.3
 env-canada==0.11.2
