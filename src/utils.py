@@ -226,7 +226,7 @@ def args():
     parser.add_argument("--led-panel-type", action="store", help="Needed to initialize special panels. Supported: 'FM6126A'", default="", type=str)
     parser.add_argument("--emulated", action="store_true", help="Run in software emulation mode.")                     
     parser.add_argument("--updatecheck", action="store_true", help="Check for updates (Default: False)", default=False)
-    parser.add_argument("--updaterepo", action="store", help="Github repo (Default: riffnshred/nhl-scoreboard)", default="riffnshred/nhl-led-scoreboard", type=str)
+    parser.add_argument("--updaterepo", action="store", help="Github repo (Default: falkyre/nhl-scoreboard)", default="falkyre/nhl-led-scoreboard", type=str)
     parser.add_argument("--ghtoken", action="store", help="Github API token for doing update checks(Default: blank)", default="", type=str)
     parser.add_argument("--logcolor", action="store_true", help="Display log in color (command line only)")
     parser.add_argument("--loglevel", action="store", help="log level to display (INFO,WARN,ERROR,CRITICAL,DEBUG)", type=str)

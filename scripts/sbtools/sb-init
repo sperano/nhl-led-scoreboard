@@ -107,6 +107,7 @@ if [ -n "$VIRTUAL_ENV" ]; then
   pip3 install bindings/python/ --use-pep517
 else
   sudo pip3 install bindings/python/ --use-pep517
+fi
 
 cd ../../ || exit
 
