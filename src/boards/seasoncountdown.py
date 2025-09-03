@@ -1,4 +1,5 @@
 import driver
+from renderer.matrix import Matrix
 
 if driver.is_hardware():
     from rgbmatrix import graphics
@@ -16,16 +17,19 @@ PATH = 'assets/logos'
 LOGO_LINK = "https://www-league.nhlstatic.com/images/logos/league-dark/133-flat.svg"
 
 class SeasonCountdown:
-    def __init__(self, data, matrix,sleepEvent):
+    def __init__(self, data, matrix: Matrix, sleepEvent):
         
         self.data = data
+        self.teams_info = data.teams_info
         self.matrix = matrix
         self.sleepEvent = sleepEvent
-        self.sleepEvent.clear()
+        self.layout = self.get_layout()
+
+        self.team_colors = data.config.team_colors
+        self.font_large_2 = data.config.layout.font_large_2
+        self.font_large = data.config.layout.font_large
         self.font = data.config.layout.font
-        self.font.large = data.config.layout.font_large_2
-        # Current season seems to not update until pre-season start so I will have to modify the Status and the nhl_api to get the coming season.
-        #self.season_start = datetime.date(2021,10,12)
+
         self.season_start = datetime.strptime(self.data.status.next_season_start(), '%Y-%m-%d').date()
         self.days_until_season = (self.season_start - date.today()).days
         self.scroll_pos = self.matrix.width
@@ -37,44 +41,83 @@ class SeasonCountdown:
         self.nextseason="{0}-{1}".format(current_year,next_year)
         self.nextseason_short="NHL {0}-{1}".format(str(current_year)[-2:],str(next_year)[-2:])
 
+    def get_layout(self):
+        """Get the layout for SeasonCountdown"""
+        layout = self.data.config.config.layout.get_board_layout('season_countdown')
+        return layout
+    
     def draw(self):
         
         debug.info("NHL Countdown Launched")
 
-        #for testing purposes
+        # for testing purposes
         #self.days_until_season = 0
+        #self.days_until_season = 2
+        #self.days_until_season = -1
 
         debug.info(str(self.days_until_season) + " days to NHL Season")
 
-        if self.days_until_season <= 0:
+        # season starts today
+        if self.days_until_season == 0:
             self.season_start_today()
 
-        else:
+        #still counting down to season
+        elif self.days_until_season > 0:
             self.season_countdown()
+
+        # dont show anything if season has started
+        # could show someething in the future if wanted
+        # like season day count, count down to playoffs, etc.
+
   
     
     def season_start_today(self) :
         #  it's just like Christmas!
         self.matrix.clear()
 
-        nhl_logo = Image.open(get_file('assets/logos/_local/nhl_logo_64x32.png'))
+        rows = self.matrix.height
+        cols = self.matrix.width
 
-        self.matrix.draw_image((15,0), nhl_logo)
+        nhl_logo = Image.open(get_file(f'assets/logos/_local/{cols}x{rows}_nhl_logo.png'))
+        black_gradiant = Image.open(get_file(f'assets/images/{cols}x{rows}_scoreboard_center_gradient.png'))
+
+        self.matrix.draw_image_layout(self.layout.logo, nhl_logo)
+        self.matrix.draw_image_layout(self.layout.gradient, black_gradiant)
         
-        debug.info("{0} season has begun".format(self.nextseason))
+        debug.info("Counting down to {0}".format(self.nextseason_short))
 
         self.matrix.render()
         self.sleepEvent.wait(0.5)
 
-
-        #draw bottom text        
-        self.matrix.draw_text(
-            (14,25), 
-            self.nextseason, 
-            font=self.font,
-            fill=(0,0,0),
+        #draw season
+        self.matrix.draw_text_layout(
+            self.layout.season_today_text, 
+            self.nextseason_short, 
+            fillColor=(0,0,0),
             backgroundColor=(155,155,155)
         )
+        
+        self.matrix.render()
+        self.sleepEvent.wait(1)
+
+        #draw bottom text
+        self.matrix.draw_text_layout(
+            self.layout.starts_text, 
+            "STARTS TODAY",
+            fillColor=(255,165,0)
+        )
+            
+        self.matrix.render()
+        self.sleepEvent.wait(1)
+
+        #draw bottom text  
+        self.matrix.draw_text_layout(
+            self.layout.lets_go_text, 
+            "LETS GO",
+            fillColor=(255,165,0)
+
+        )
+
         self.matrix.render()
         self.sleepEvent.wait(15)
 
@@ -82,45 +125,41 @@ class SeasonCountdown:
         
         self.matrix.clear()
 
-        nhl_logo = Image.open(get_file('assets/logos/_local/nhl_logo_64x32.png'))
-        black_gradiant = Image.open(get_file('assets/images/64x32_scoreboard_center_gradient.png'))
+        rows = self.matrix.height
+        cols = self.matrix.width
 
-        self.matrix.draw_image((34,0), nhl_logo)
-        self.matrix.draw_image((-5,0), black_gradiant)
+        nhl_logo = Image.open(get_file(f'assets/logos/_local/{cols}x{rows}_nhl_logo.png'))
+        black_gradiant = Image.open(get_file(f'assets/images/{cols}x{rows}_scoreboard_center_gradient.png'))
+
+        self.matrix.draw_image_layout(self.layout.logo, nhl_logo)
+        self.matrix.draw_image_layout(self.layout.gradient, black_gradiant)
         
         debug.info("Counting down to {0}".format(self.nextseason_short))
 
         self.matrix.render()
         self.sleepEvent.wait(0.5)
 
-        #draw days to xmas
-        self.matrix.draw_text(
-            (1,2),
-            str(self.days_until_season),
-             font=self.font.large,
-             fill=(255,165,0)
-        )
+        #draw days
+        self.matrix.draw_text_layout(self.layout.count_text,str(self.days_until_season), fillColor=(255,165,0))
         
         self.matrix.render()
         self.sleepEvent.wait(1)
 
-        #draw bottom text        
-        self.matrix.draw_text(
-            (1,18), 
-            "DAYS til", 
-            font=self.font,
-            fill=(255,165,0)
+        #draw bottom text
+        self.matrix.draw_text_layout(
+            self.layout.until_text, 
+            "DAYS TIL", 
+            fillColor=(255,165,0)
         )
 
         self.matrix.render()
         self.sleepEvent.wait(1)
 
-        #draw bottom text        
-        self.matrix.draw_text(
-            (1,25), 
+        #draw bottom text  
+        self.matrix.draw_text_layout(
+            self.layout.season_text, 
             self.nextseason_short, 
-            font=self.font,
-            fill=(0,0,0),
+            fillColor=(0,0,0),
             backgroundColor=(155,155,155)
         )
 

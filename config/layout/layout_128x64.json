@@ -741,5 +741,41 @@
       "align": "right-top",
       "font": "large"
     }
+  },
+  "season_countdown": {
+    "logo": {
+      "position": [72, 0],
+      "align": "left"
+    },
+    "gradient": {
+      "position": [-8, 0],
+      "align": "left"
+    },
+    "count_text": {
+      "position": [2, 1],
+      "align": "left-top",
+      "font": "large"
+    },
+    "until_text": {
+      "position": [1, 31],
+      "align": "left-top"
+    },
+    "season_text": {
+      "position": [1, 47],
+      "align": "left-top"
+    },
+    "season_today_text": {
+      "position": [2, 1],
+      "align": "left-top"
+    },
+    "starts_text": {
+      "position": [1, 20],
+      "align": "left-top"
+    },
+    "lets_go_text": {
+      "position": [1, 37],
+      "align": "left-top",
+      "font": "large"
+    }
   }
 }
