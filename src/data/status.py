@@ -35,7 +35,7 @@ class Status:
         #     # Arbitrarily set the regularSeasonStartDate to Oct 1 of current year
         #     self.next_season_info['regularSeasonStartDate'] = "{0}-10-01".format(date.today().year)
         
-        # self.refresh_next_season()
+        self.refresh_next_season()
         
 
     def is_scheduled(self, status):
