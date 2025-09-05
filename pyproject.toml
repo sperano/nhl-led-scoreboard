@@ -30,6 +30,7 @@ dependencies = [
     "rich>=13.9.4",
     "tk>=0.1.0",
     "tzlocal>=5.2",
+    "holidays",
 ]
 
 [tool.uv.sources]

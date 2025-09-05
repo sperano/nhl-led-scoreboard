@@ -194,6 +194,44 @@ class ScoreboardConfig:
         self.clock_date_rgb =  json["boards"]["clock"]["date_rgb"]
         self.clock_flash_seconds =  json["boards"]["clock"]["flash_seconds"]
 
+        # Holiday Countdown
+        self.holiday_countdown_ignored_holidays = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("ignored_holidays", [])
+        )
+        self.holiday_countdown_country_code = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("country_code", "US")
+        )
+        self.holiday_countdown_subdiv = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("subdiv", "")
+        )
+        self.holiday_countdown_categories = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("categories", None)
+        )
+        self.holiday_countdown_horizon_days = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("horizon_days", 90)
+        )
+        self.holiday_countdown_themes_path = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("themes_path", 'src/data/holiday_themes.json')
+        )
+        self.holiday_countdown_custom_csv = (
+            json.get("boards", {})
+                .get("holiday_countdown", {})
+                .get("custom_csv", 'src/data/custom_holidays.csv')
+        )
+        
+        
         # Fonts
         self.layout = Layout()
         
