@@ -161,6 +161,10 @@ src/renderer/boarddev
 config/custom_logos.json
 .vscode/settings.json
 
+# Holiday Board configs
+data/holiday_themes.json
+data/custom_holidays.csv
+
 nhl-api-client/
 
 
