@@ -21,7 +21,6 @@ from boards.player_stats import PlayerStatsRenderer
 from time import sleep
 from boards.ovi_tracker import OviTrackerRenderer
 from boards.stats_leaders import StatsLeaders
-from boards.holiday_countdown import HolidayCountdown
 
 import traceback
 
@@ -296,9 +295,6 @@ class Boards:
 
     def christmas(self, data, matrix, sleepEvent):
         Christmas(data, matrix, sleepEvent).draw()
-
-    def holiday_countdown(self, data, matrix, sleepEvent):
-        HolidayCountdown(data, matrix, sleepEvent).render()
 
     def seasoncountdown(self, data, matrix, sleepEvent):
         SeasonCountdown(data, matrix, sleepEvent).draw()

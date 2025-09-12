@@ -104,18 +104,6 @@
 				"assists",
 				"points"
 			]
-		},
-		"holiday_countdown": {
-			"country_code": "US",
-			"subdiv": "NY",
-			"categories": ["GOVERNMENT", "UNOFFICIAL"],
-			"horizon_days": 90,
-			"ignored_holidays": [
-				"Columbus Day",
-				"Veterans Day"
-			],
-			"themes_path": "src/data/holiday_themes.json",
-			"custom_csv": "src/data/custom_holidays.csv"
 		}
 	},
 	"sbio": {
