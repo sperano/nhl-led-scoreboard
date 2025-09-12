@@ -21,4 +21,3 @@ tk
 diskcache
 backoff
 env-canada>=0.6.1
-holidays
