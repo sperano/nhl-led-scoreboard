@@ -17,21 +17,32 @@
     ],
     "definitions": {
       	"boards_list": {
-          	"enum": [
-              "wxalert",
-              "wxforecast",
-              "scoreticker",
-              "seriesticker",
-              "standings",
-              "team_summary",
-              "stanley_cup_champions",
-              "christmas",
-              "seasoncountdown",
-              "clock",
-              "weather",
-              "player_stats",
-              "ovi_tracker",
-              "stats_leaders"
+            "anyOf": [
+                {
+                    "enum": [
+                        "wxalert",
+                        "wxforecast", 
+                        "scoreticker",
+                        "seriesticker",
+                        "standings",
+                        "team_summary",
+                        "stanley_cup_champions",
+                        "christmas",
+                        "holiday_countdown",
+                        "seasoncountdown",
+                        "clock",
+                        "weather",
+                        "player_stats",
+                        "ovi_tracker",
+                        "stats_leaders",
+                        "nfl_team"
+                    ]
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+                    "description": "Custom plugin board name"
+                }
             ]
         }
     },    
