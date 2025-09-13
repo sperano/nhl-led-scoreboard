@@ -35,7 +35,7 @@ class ExamplePlugin(BoardPlugin):
     
     def render(self):
         """
-        Render the example board content.
+        Render the example board content using the matrix renderer's layout system.
         """
         self.matrix.clear()
         
@@ -44,18 +44,30 @@ class ExamplePlugin(BoardPlugin):
         time_str = now.strftime("%H:%M:%S")
         date_str = now.strftime("%m/%d/%Y")
         
-        # Draw custom message
-        self.matrix.draw_text_centered(8, self.display_message, self.font, self.text_color)
+        # Get the layout for this plugin
+        layout = self.get_board_layout('example')
         
-        # Draw current time
-        self.matrix.draw_text_centered(20, time_str, self.font_large, self.text_color)
-        
-        # Draw current date
-        self.matrix.draw_text_centered(32, date_str, self.font, self.text_color)
-        
-        # Draw plugin info
-        info_text = f"Plugin: {self.plugin_name} v{self.plugin_version}"
-        self.matrix.draw_text_centered(44, info_text, self.font, "gray")
+        if layout:
+            # Use matrix renderer's layout-aware drawing methods
+            if 'message' in layout:
+                self.matrix.draw_text_layout(layout['message'], self.display_message, fillColor=self.text_color)
+            
+            if 'time' in layout:
+                self.matrix.draw_text_layout(layout['time'], time_str, fillColor='cyan')
+            
+            if 'date' in layout:
+                self.matrix.draw_text_layout(layout['date'], date_str, fillColor=self.text_color)
+            
+            # Show layout info
+            if 'plugin_info' in layout:
+                info_text = f"Layout: {self.display_width}x{self.display_height}"
+                self.matrix.draw_text_layout(layout['plugin_info'], info_text, fillColor='gray')
+        else:
+            # Fallback rendering without layout
+            self.matrix.draw_text_centered(16, self.display_message, self.font, self.text_color)
+            self.matrix.draw_text_centered(28, time_str, self.font_large, 'cyan')
+            self.matrix.draw_text_centered(40, date_str, self.font, self.text_color)
+            self.matrix.draw_text_centered(52, f"No layout ({self.display_width}x{self.display_height})", self.font, 'gray')
         
         # Render to display
         self.matrix.render()

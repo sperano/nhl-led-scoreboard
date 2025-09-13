@@ -15,6 +15,10 @@
     "file": "04B_24__.TTF",
     "size": 16
   },
+   "small": {
+    "file": "04B_24__.TTF",
+    "size": 8
+  },
   "large": {
     "file": "04B_24__.TTF",
     "size": 40
