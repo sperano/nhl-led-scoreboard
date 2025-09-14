@@ -1,13 +1,13 @@
 """
-Example board module implementation.
+Clock board module implementation.
 """
 from boards.base_board import BoardBase
 import datetime
 
 
-class ExamplePlugin(BoardBase):
+class ClockPlugin(BoardBase):
     """
-    Example board module that displays the current time and a custom message.
+    Clock board module that displays the current time and a custom message.
     
     This demonstrates:
     - Inheriting from BoardBase
@@ -20,9 +20,9 @@ class ExamplePlugin(BoardBase):
         super().__init__(data, matrix, sleepEvent)
         
         # Board metadata
-        self.board_name = "Example Board"
+        self.board_name = "Clock Board"
         self.board_version = "1.0.0"
-        self.board_description = "Demonstrates the board system with time display"
+        self.board_description = "Displays current time and date information"
         
         # Get configuration values with defaults
         self.display_message = self.board_config.get("message", "Hello World!")
@@ -45,7 +45,7 @@ class ExamplePlugin(BoardBase):
         date_str = now.strftime("%m/%d/%Y")
         
         # Get the layout for this plugin
-        layout = self.get_board_layout('example')
+        layout = self.get_board_layout('clock')
         
         if layout:
             # Use matrix renderer's layout-aware drawing methods
