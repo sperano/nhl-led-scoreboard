@@ -7,7 +7,7 @@ import os
 import importlib
 import inspect
 from pathlib import Path
-from .base_board import BoardBase, LegacyBoardAdapter
+from .base_board import BoardBase
 from boards.scoreticker import Scoreticker
 from boards.seriesticker import Seriesticker
 from boards.standings import Standings
@@ -17,7 +17,6 @@ from boards.pbdisplay import pbDisplay
 from boards.wxWeather import wxWeather
 from boards.wxAlert import wxAlert
 from boards.christmas import Christmas
-from boards.seasoncountdown import SeasonCountdown
 from boards.wxForecast import wxForecast
 from boards.screensaver import screenSaver
 from boards.stanley_cup_champions import StanleyCupChampions
@@ -411,9 +410,6 @@ class Boards:
 
     def christmas(self, data, matrix, sleepEvent):
         Christmas(data, matrix, sleepEvent).draw()
-
-    def seasoncountdown(self, data, matrix, sleepEvent):
-        SeasonCountdown(data, matrix, sleepEvent).draw()
 
     def player_stats(self, data, matrix, sleepEvent):
         PlayerStatsRenderer(data, matrix, sleepEvent).render()

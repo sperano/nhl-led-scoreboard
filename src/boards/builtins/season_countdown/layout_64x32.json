@@ -1,0 +1,42 @@
+{
+    "_default": {
+        "position": [0, 0],
+        "align": "left-top"
+    },
+    "season_countdown": {
+        "logo": {
+            "position": [38, 0],
+            "align": "left"
+        },
+        "gradient": {
+            "position": [-4, 0],
+            "align": "left"
+        },
+        "count_text": {
+            "position": [1, 1],
+            "align": "left-top",
+            "font": "large"
+        },
+        "until_text": {
+            "position": [1, 17],
+            "align": "left-top"
+        },
+        "season_text": {
+            "position": [1, 24],
+            "align": "left-top"
+        },
+        "season_today_text": {
+            "position": [2, 1],
+            "align": "left-top"
+        },
+        "starts_text": {
+            "position": [1, 11],
+            "align": "left-top"
+        },
+        "lets_go_text": {
+            "position": [1, 20],
+            "align": "left-top",
+            "font": "medium"
+        }
+    }
+}

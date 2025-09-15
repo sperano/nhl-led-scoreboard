@@ -1,17 +1,17 @@
 """
-Example board plugin demonstrating the plugin system.
+Example board module demonstrating the board system.
 
-This plugin shows how to create a simple board that displays text and uses configuration.
+This board module shows how to create a simple board that displays text and uses configuration.
 """
 
-# Plugin metadata
-PLUGIN_NAME = "example_plugin"
-PLUGIN_VERSION = "1.0.0"
-PLUGIN_DESCRIPTION = "Example board plugin for demonstration"
-PLUGIN_AUTHOR = "NHL LED Scoreboard"
+# Board metadata using standard Python package conventions
+__version__ = "1.0.0"
+__description__ = "Example board module for demonstration"
+__board_name__ = "Example Board"
+__author__ = "NHL LED Scoreboard"
 
-# Plugin requirements (optional)
-PLUGIN_REQUIREMENTS = []
+# Board requirements (optional)
+__requirements__ = []
 
 # Minimum application version required (optional)
-MIN_APP_VERSION = "1.0.0"
+__min_app_version__ = "1.0.0"

@@ -249,44 +249,44 @@ class BoardBase(ABC):
         return self.board_layout is not None
 
 
-class LegacyBoardAdapter(BoardBase):
-    """
-    Adapter class to wrap existing legacy boards.
+# class LegacyBoardAdapter(BoardBase):
+#     """
+#     Adapter class to wrap existing legacy boards.
     
-    This allows existing boards to work with the board loading system without modification.
-    """
+#     This allows existing boards to work with the board loading system without modification.
+#     """
     
-    def __init__(self, data, matrix, sleepEvent, board_class, *args, **kwargs):
-        """
-        Initialize the legacy board adapter.
+#     def __init__(self, data, matrix, sleepEvent, board_class, *args, **kwargs):
+#         """
+#         Initialize the legacy board adapter.
         
-        Args:
-            data: Application data object
-            matrix: Display matrix object  
-            sleepEvent: Threading event
-            board_class: The legacy board class to wrap
-            *args, **kwargs: Additional arguments to pass to the legacy board
-        """
-        super().__init__(data, matrix, sleepEvent)
+#         Args:
+#             data: Application data object
+#             matrix: Display matrix object  
+#             sleepEvent: Threading event
+#             board_class: The legacy board class to wrap
+#             *args, **kwargs: Additional arguments to pass to the legacy board
+#         """
+#         super().__init__(data, matrix, sleepEvent)
         
-        # Create instance of the legacy board
-        self.board_instance = board_class(data, matrix, sleepEvent, *args, **kwargs)
+#         # Create instance of the legacy board
+#         self.board_instance = board_class(data, matrix, sleepEvent, *args, **kwargs)
         
-        # Set board metadata based on the legacy board
-        self.board_name = board_class.__name__
-        self.board_description = f"Legacy board: {board_class.__name__}"
+#         # Set board metadata based on the legacy board
+#         self.board_name = board_class.__name__
+#         self.board_description = f"Legacy board: {board_class.__name__}"
     
-    def render(self):
-        """
-        Delegate rendering to the legacy board instance.
+#     def render(self):
+#         """
+#         Delegate rendering to the legacy board instance.
         
-        Handles different legacy board interfaces (render() method vs direct execution).
-        """
-        if hasattr(self.board_instance, 'render'):
-            self.board_instance.render()
-        elif hasattr(self.board_instance, 'draw'):
-            self.board_instance.draw()
-        else:
-            # Some legacy boards execute in their constructor
-            # In this case, the board has already been "rendered"
-            pass
+#         Handles different legacy board interfaces (render() method vs direct execution).
+#         """
+#         if hasattr(self.board_instance, 'render'):
+#             self.board_instance.render()
+#         elif hasattr(self.board_instance, 'draw'):
+#             self.board_instance.draw()
+#         else:
+#             # Some legacy boards execute in their constructor
+#             # In this case, the board has already been "rendered"
+#             pass

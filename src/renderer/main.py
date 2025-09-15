@@ -1,13 +1,9 @@
 from PIL import Image
 from time import sleep
-from datetime import datetime
 import debug
 from boards.boards import Boards
 from boards.clock import Clock
 from boards.stanley_cup_champions import StanleyCupChampions
-#from boards.seriesticker import Seriesticker
-from boards.team_summary import TeamSummary
-from boards.standings import Standings
 from data.scoreboard import Scoreboard
 from renderer.scoreboard import ScoreboardRenderer
 from renderer.goal import GoalRenderer

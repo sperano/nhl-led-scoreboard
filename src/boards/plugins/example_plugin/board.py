@@ -2,10 +2,11 @@
 Example board module implementation.
 """
 from boards.base_board import BoardBase
+from . import __version__, __description__, __board_name__
 import datetime
 
 
-class ExamplePlugin(BoardBase):
+class ExampleBoard(BoardBase):
     """
     Example board module that displays the current time and a custom message.
     
@@ -19,10 +20,10 @@ class ExamplePlugin(BoardBase):
     def __init__(self, data, matrix, sleepEvent):
         super().__init__(data, matrix, sleepEvent)
         
-        # Board metadata
-        self.board_name = "Example Board"
-        self.board_version = "1.0.0"
-        self.board_description = "Demonstrates the board system with time display"
+        # Board metadata from package
+        self.board_name = __board_name__
+        self.board_version = __version__
+        self.board_description = __description__
         
         # Get configuration values with defaults
         self.display_message = self.board_config.get("message", "Hello World!")

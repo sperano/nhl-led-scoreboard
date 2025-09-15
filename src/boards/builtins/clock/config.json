@@ -1,7 +1,0 @@
-{
-    "message": "Builtins System Works!",
-    "text_color": "green",
-    "display_seconds": 5,
-    "enabled": true,
-    "description": "Configuration for the example plugin"
-}
