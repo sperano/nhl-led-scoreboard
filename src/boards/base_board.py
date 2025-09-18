@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 from config.files.layout import LayoutConfig
 from config.file import ConfigFile
+from renderer.matrix import Matrix
 
 
 class BoardLayoutConfig(LayoutConfig):
@@ -51,7 +52,7 @@ class BoardBase(ABC):
     This ensures a consistent interface for the board loading system.
     """
     
-    def __init__(self, data, matrix, sleepEvent):
+    def __init__(self, data, matrix: Matrix, sleepEvent):
         """
         Initialize the board module.
         

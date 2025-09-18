@@ -101,6 +101,9 @@ def run():
     scheduler.add_listener(scheduler_event_listener, EVENT_JOB_MISSED | EVENT_JOB_ERROR)
     scheduler.start()
 
+    # Add APScheduler to data object so it's accessible throughout the applicatoion
+    data.scheduler = scheduler
+
     # Any tasks that are scheduled go below this line
 
     # Make sure we have a valid location for the data.latlng as the geocode can return a None
