@@ -4,8 +4,8 @@ ephem
 fastjsonschema>=2.14.4
 geopy
 ipinfo
-gpiozero==1.6.2
-nhl-api-py==2.1.8
+gpiozero
+nhl-api-py==2.18.0
 noaa-sdk>=0.1.18
 python-tsl2591==0.2.0
 regex>=2020.4.4
