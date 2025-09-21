@@ -483,55 +483,24 @@
       "align": "center-bottom"
     }
   },
-  "covid_19":{
-    "count":{
-      "position": [0, "50%"],
-      "font": "medium_2",
-      "align": "left-top"
-    },
-    "name":{
-      "position": [3, 0],
-      "align": "left-top",
-      "relative": {
-        "to": "location",
-        "align": "right"
-      }
-    },
-    "location":{
-      "position": [0, -3],
-      "align": "left-bottom",
-      "relative": {
-        "to": "count",
-        "align": "left-top"
-      }
-    },
-    "lastupdate":{
-      "position": [0, "100%"],
-      "align": "left-bottom"
-    },
-    "board_title":{
-      "position": [1, 1],
-      "align": "left-top"
-    }
-  },
   "wx_curr_temp":{
     "condition":{
-      "position": ["68%", "2%"],
-      "font": "wxicons_md",
+      "position": ["68%", "10%"],
+      "font": "wxicons_full",
       "align": "top-right"
     },
     "summary":{
-      "position": ["50%", "81%"],
+      "position": ["50%", "80%"],
       "font": "wx_medium",
       "align": "center-bottom"
     },
     "update":{
-      "position": ["50%", "100%"],
+      "position": ["50%", "97%"],
       "font": "wx_medium",
       "align": "center-bottom"
     },
     "temp":{
-      "position": [-2, 0],
+      "position": [-6, -4],
       "font": "wx_large",
       "align": "right",
       "relative": {
@@ -540,7 +509,7 @@
       }
     },
     "forecast_temp_hi":{
-      "position": [-3, 0],
+      "position": [-4, -2],
       "font": "wx_large",
       "align": "right",
       "relative": {
@@ -549,8 +518,8 @@
       }
     },
     "forecast_hi":{
-      "position": [2, 3],
-      "font": "wx_medium",
+      "position": [4, 5],
+      "font": "wx_large",
       "align": "left"
     },
 
@@ -564,8 +533,8 @@
       }
     },
     "forecast_lo":{
-      "position": [0, 6],
-      "font": "wx_medium",
+      "position": [0, 2],
+      "font": "wx_large",
       "align": "left",
       "relative": {
         "to": "forecast_hi",
@@ -602,8 +571,8 @@
   },
   "wx_curr_wind":{
     "condition":{
-      "position": ["75%", "29%"],
-      "font": "wxicons_lg",
+      "position": ["75%", "35%"],
+      "font": "wxicons_full",
       "align": "top-right"
     },
     "wind": {
@@ -612,7 +581,7 @@
       "align": "top"
     },
     "gust": {
-      "position": [0,8],
+      "position": [0,16],
       "font": "wx_medium",
       "align": "left",
       "relative": {
@@ -621,7 +590,7 @@
       }
     },
     "pressure": {
-      "position": [0,14],
+      "position": [0,28],
       "font": "wx_medium",
       "align": "left",
       "relative": {
@@ -630,7 +599,7 @@
       }
     },
     "visibility": {
-      "position": [0,14],
+      "position": [0,28],
       "font": "wx_medium",
       "align": "left",
       "relative": {
@@ -656,7 +625,7 @@
       "align": "left-top"
     },
     "humidity":{
-      "position": ["5%", "85%"],
+      "position": ["5%", "80%"],
       "font": "wx_medium",
       "align": "bottom-left"
     },
@@ -666,8 +635,8 @@
       "align": "top"
     },
     "tendency": {
-      "position": ["90%", "10%"],
-      "font": "wxicons_lg",
+      "position": ["80%", "10%"],
+      "font": "wxicons_full",
       "align": "right"
     },
     "dewpoint": {
