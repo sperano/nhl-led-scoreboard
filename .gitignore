@@ -169,3 +169,4 @@ nhl-api-client/
 
 # Local developer plugins (ignored)
 src/boards/plugins/
+*.ori
