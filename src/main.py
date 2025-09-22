@@ -29,7 +29,7 @@ install(show_locals=True)
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "2025.7.0"
+SCRIPT_VERSION = "2025.9.0"
 
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 
@@ -61,8 +61,8 @@ def run():
     
     # Initialize the matrix
     matrix = Matrix(RGBMatrix(options = matrixOptions))
-     #Riff to add loading screen here
-    loading = Loading(matrix)
+    
+    loading = Loading(matrix,SCRIPT_VERSION)
     loading.render()
 
     # Read scoreboard options from config.json if it exists
@@ -100,6 +100,9 @@ def run():
     scheduler = BackgroundScheduler(timezone=str(tzlocal.get_localzone()), job_defaults={'misfire_grace_time': None})
     scheduler.add_listener(scheduler_event_listener, EVENT_JOB_MISSED | EVENT_JOB_ERROR)
     scheduler.start()
+
+    # Add APScheduler to data object so it's accessible throughout the applicatoion
+    data.scheduler = scheduler
 
     # Any tasks that are scheduled go below this line
 

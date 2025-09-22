@@ -21,6 +21,8 @@ package "libopenblas0"
 package "libatlas-base-dev"
 package "libraqm-dev"
 package "direnv"
+#For building latest rgbmatrix python bindings
+package "cython3"
 #For the issueUpload.sh
 package "jq"
 package "pastebinit"

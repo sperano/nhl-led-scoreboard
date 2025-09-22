@@ -166,3 +166,7 @@ nhl-api-client/
 
 
 .codegpt
+
+# Local developer plugins (ignored)
+src/boards/plugins/
+*.ori

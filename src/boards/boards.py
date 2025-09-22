@@ -1,9 +1,13 @@
 """
 A Board is simply a display object with specific parameters made to be shown on screen.
-    TODO: Make the board system customizable so that all the user needs to do is paste a board file and modify the
-        config file to add the custom board.
+Board modules can be added by placing them in the src/boards/plugins/ or src/boards/builtins/ directories.
 """
 import debug
+import os
+import importlib
+import inspect
+from pathlib import Path
+from .base_board import BoardBase
 from boards.scoreticker import Scoreticker
 from boards.seriesticker import Seriesticker
 from boards.standings import Standings
@@ -13,7 +17,6 @@ from boards.pbdisplay import pbDisplay
 from boards.wxWeather import wxWeather
 from boards.wxAlert import wxAlert
 from boards.christmas import Christmas
-from boards.seasoncountdown import SeasonCountdown
 from boards.wxForecast import wxForecast
 from boards.screensaver import screenSaver
 from boards.stanley_cup_champions import StanleyCupChampions
@@ -26,7 +29,119 @@ import traceback
 
 class Boards:
     def __init__(self):
-        pass
+        self._boards = {}
+        self._load_boards()
+    
+    def _load_boards(self):
+        """
+        Dynamically load board modules from both plugins and builtins directories.
+        
+        Scans src/boards/plugins/ for third-party/user board modules and src/boards/builtins/
+        for system builtin board modules. Both follow the same structure and loading mechanism.
+        Each board directory should contain an __init__.py and a board.py with the board class.
+        """
+        # Load from plugins directory (third-party/user board modules)
+        self._load_boards_from_directory('plugins', 'plugin')
+        
+        # Load from builtins directory (system board modules)
+        self._load_boards_from_directory('builtins', 'builtin')
+    
+    def _load_boards_from_directory(self, directory_name: str, board_type: str):
+        """
+        Load boards from a specific directory.
+        
+        Args:
+            directory_name: Name of the directory ('plugins' or 'builtins')
+            board_type: Type description for logging ('plugin' or 'builtin')
+        """
+        boards_dir = Path(__file__).parent / directory_name
+        
+        if not boards_dir.exists():
+            debug.info(f"No {directory_name} directory found, skipping {board_type} loading")
+            return
+        
+        # Scan for board directories
+        for board_dir in boards_dir.iterdir():
+            if not board_dir.is_dir() or board_dir.name.startswith('_'):
+                continue
+            
+            board_name = board_dir.name
+            try:
+                self._load_single_board(board_name, board_dir, directory_name, board_type)
+            except Exception as e:
+                debug.warning(f"Failed to load {board_type} '{board_name}': {e}")
+    
+    def _load_single_board(self, board_name: str, board_dir: Path, directory_name: str, board_type: str):
+        """
+        Load a single board from its directory.
+        
+        Args:
+            board_name: Name of the board (directory name)
+            board_dir: Path to the board directory
+            directory_name: Parent directory name ('plugins' or 'builtins')
+            board_type: Type description for logging ('plugin' or 'builtin')
+        """
+        # Check for required files
+        init_file = board_dir / '__init__.py'
+        board_file = board_dir / 'board.py'
+        
+        if not init_file.exists():
+            debug.warning(f"{board_type.capitalize()} '{board_name}' missing __init__.py, skipping")
+            return
+        
+        if not board_file.exists():
+            debug.warning(f"{board_type.capitalize()} '{board_name}' missing board.py, skipping")
+            return
+        
+        # Import the board module
+        module_name = f'boards.{directory_name}.{board_name}.board'
+        try:
+            module = importlib.import_module(module_name)
+        except ImportError as e:
+            debug.warning(f"Failed to import {board_type} module '{module_name}': {e}")
+            return
+        
+        # Find board class (should inherit from BoardBase)
+        board_class = None
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if (obj != BoardBase and 
+                issubclass(obj, BoardBase) and 
+                obj.__module__ == module_name):
+                board_class = obj
+                break
+        
+        if not board_class:
+            debug.warning(f"No valid board class found in '{module_name}'")
+            return
+        
+        # Register the board (both plugins and builtins go in same registry)
+        self._boards[board_name] = board_class
+        
+        # Dynamically add method to this class
+        setattr(self, board_name, lambda data, matrix, sleepEvent, cls=board_class: cls(data, matrix, sleepEvent).render())
+        
+        debug.info(f"Loaded {board_type}: {board_name} ({board_class.__name__})")
+    
+    def get_available_boards(self) -> dict:
+        """
+        Get information about all loaded board modules.
+        
+        Returns:
+            Dict mapping board names to board classes
+        """
+        return self._boards.copy()
+    
+    def is_board_loaded(self, board_name: str) -> bool:
+        """
+        Check if a board module is loaded and available.
+        
+        Args:
+            board_name: Name of the board to check
+            
+        Returns:
+            True if board is loaded, False otherwise
+        """
+        return board_name in self._boards
 
     # Board handler for PushButton
     def _pb_board(self, data, matrix, sleepEvent):
@@ -295,9 +410,6 @@ class Boards:
 
     def christmas(self, data, matrix, sleepEvent):
         Christmas(data, matrix, sleepEvent).draw()
-
-    def seasoncountdown(self, data, matrix, sleepEvent):
-        SeasonCountdown(data, matrix, sleepEvent).draw()
 
     def player_stats(self, data, matrix, sleepEvent):
         PlayerStatsRenderer(data, matrix, sleepEvent).render()

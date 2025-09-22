@@ -15,29 +15,33 @@
     "file": "04B_24__.TTF",
     "size": 16
   },
+   "small": {
+    "file": "04B_24__.TTF",
+    "size": 8
+  },
   "large": {
     "file": "04B_24__.TTF",
     "size": 40
   },
   "wxicons_full": {
     "file": "weathericons.otf",
-    "size": 24
+    "size": 32
   },
   "wxicons_lg": {
     "file": "weathericons.otf",
-    "size": 20
+    "size": 26
   },
   "wxicons_md": {
     "file": "weathericons.otf",
-    "size": 18
+    "size": 24
   },
   "wx_medium": {
     "file": "04B_03B_.TTF",
-    "size": 8
+    "size": 14
   },
   "wx_large": {
     "file": "04B_03B_.TTF",
-    "size": 14
+    "size": 26
   },
   "wx_alert": {
     "file": "vcr_mono.ttf",
