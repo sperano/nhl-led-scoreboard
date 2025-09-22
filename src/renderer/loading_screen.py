@@ -24,14 +24,20 @@ class Loading:
 
     def render(self):
 
-        self.matrix.draw_image(
-            (0,0),
-            self.image
-        )
+        if self.matrix.width > 64:
+            self.matrix.draw_image(
+                (3,3),
+                self.image
+            )
+        else:
+            self.matrix.draw_image(
+                (4,2),
+                self.image)
+        
         
         if self.matrix.width > 64:
-            self.matrix.draw_text(["2%","3%"],f"V{self.version}",VERSION_FONT)
+            self.matrix.draw_text(["3%","3%"],f"V{self.version}",VERSION_FONT)
         else:
-            self.matrix.draw_text(["0%","1%"],f"V{self.version}",VERSION_FONT_64)
+            self.matrix.draw_text(["2%","2%"],f"V{self.version}",VERSION_FONT_64)
         
         self.matrix.render()

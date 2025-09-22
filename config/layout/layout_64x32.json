@@ -510,12 +510,17 @@
         "align": "left"
       }
     },
+    "forecast_condition":{
+      "position": ["68%", "2%"],
+      "font": "wxicons_md",
+      "align": "top-right"
+    },
     "forecast_temp_hi":{
       "position": [-3, 0],
       "font": "wx_large",
       "align": "right",
       "relative": {
-        "to": "condition",
+        "to": "forecast_condition",
         "align": "left"
       }
     },

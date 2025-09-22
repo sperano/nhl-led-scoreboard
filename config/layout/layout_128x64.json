@@ -485,7 +485,7 @@
   },
   "wx_curr_temp":{
     "condition":{
-      "position": ["68%", "10%"],
+      "position": ["63%", "2%"],
       "font": "wxicons_full",
       "align": "top-right"
     },
@@ -500,7 +500,7 @@
       "align": "center-bottom"
     },
     "temp":{
-      "position": [-6, -4],
+      "position": [-5, 1],
       "font": "wx_large",
       "align": "right",
       "relative": {
@@ -508,17 +508,22 @@
         "align": "left"
       }
     },
+    "forecast_condition":{
+      "position": ["72%", "7%"],
+      "font": "wxicons_full",
+      "align": "top-right"
+    },
     "forecast_temp_hi":{
-      "position": [-4, -2],
+      "position": [-4, 0],
       "font": "wx_large",
       "align": "right",
       "relative": {
-        "to": "condition",
+        "to": "forecast_condition",
         "align": "left"
       }
     },
     "forecast_hi":{
-      "position": [4, 5],
+      "position": [4, 4],
       "font": "wx_large",
       "align": "left"
     },
@@ -533,7 +538,7 @@
       }
     },
     "forecast_lo":{
-      "position": [0, 2],
+      "position": [0,2],
       "font": "wx_large",
       "align": "left",
       "relative": {
@@ -576,7 +581,7 @@
       "align": "top-right"
     },
     "wind": {
-      "position": ["3%","6%"],
+      "position": ["9%","6%"],
       "font": "wx_medium",
       "align": "top"
     },
@@ -610,27 +615,27 @@
   },
   "wx_curr_precip":{
     "preciptype":{
-      "position": ["75%", "22%"],
-      "font": "wxicons_lg",
+      "position": ["85%", "30%"],
+      "font": "wxicons_full",
       "align": "right"
     },
     "preciptype_na":{
-      "position": ["65%", "30%"],
+      "position": ["85%", "30%"],
       "font": "wxicons_full",
       "align": "right"
     },
     "precipchance":{
-      "position": ["5%", "2%"],
+      "position": ["10%", "2%"],
       "font": "wx_medium",
       "align": "left-top"
     },
     "humidity":{
-      "position": ["5%", "80%"],
+      "position": ["10%", "80%"],
       "font": "wx_medium",
       "align": "bottom-left"
     },
     "pressure": {
-      "position": ["5%","10%"],
+      "position": ["10%","10%"],
       "font": "wx_medium",
       "align": "top"
     },

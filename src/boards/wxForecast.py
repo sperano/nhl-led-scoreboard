@@ -77,11 +77,11 @@ class wxForecast:
             self.matrix.clear()
 
             # Get the current weather icon
-        
+
             curr_wx_icontext = self.data.wx_forecast[forecast_day][2]
 
             self.matrix.draw_text_layout(
-                self.layout.condition,
+                self.layout.forecast_condition,
                 curr_wx_icontext
             )  
 
