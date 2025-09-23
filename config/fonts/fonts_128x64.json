@@ -39,6 +39,10 @@
     "file": "04B_03B_.TTF",
     "size": 14
   },
+   "wx_small": {
+    "file": "04B_03B_.TTF",
+    "size": 8
+  },
   "wx_large": {
     "file": "04B_03B_.TTF",
     "size": 26
