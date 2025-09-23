@@ -168,8 +168,12 @@ class Boards:
             Cached board instance
         """
         if board_name not in self._board_instances:
-            self._board_instances[board_name] = board_class(data, matrix, sleepEvent)
-            debug.info(f"Created new instance for legacy board: {board_name}")
+            try:
+                self._board_instances[board_name] = board_class(data, matrix, sleepEvent)
+                debug.info(f"Created new instance for legacy board: {board_name}")
+            except Exception as exc:
+                debug.error(f"Failed to load board: {board_name}. Board doesnt exist or typo in config.")
+                return None
         return self._board_instances[board_name]
 
     def clear_board_cache(self, board_name: str = None):
@@ -225,7 +229,7 @@ class Boards:
     def _off_day(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_off_day[bord_index])
+            board = getattr(self, data.config.boards_off_day[bord_index], None)
             data.curr_board = data.config.boards_off_day[bord_index]
 
             if data.pb_trigger:
@@ -265,7 +269,11 @@ class Boards:
                 else:
                     data.pb_trigger = False
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_off_day[bord_index]}. Check board exists and config.json is correct")
+
 
             if bord_index >= (len(data.config.boards_off_day) - 1):
                 return
@@ -276,7 +284,7 @@ class Boards:
     def _scheduled(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_scheduled[bord_index])
+            board = getattr(self, data.config.boards_scheduled[bord_index], None)
             data.curr_board = data.config.boards_scheduled[bord_index]
             if data.pb_trigger:
                 debug.info('PushButton triggered....will display ' + data.config.pushbutton_state_triggered1 + ' board ' + "Overriding scheduled -> " + data.config.boards_scheduled[bord_index])
@@ -316,7 +324,10 @@ class Boards:
                 else:
                     data.pb_trigger = False
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_scheduled[bord_index]}. Check board exists and config.json is correct")
 
             if bord_index >= (len(data.config.boards_scheduled) - 1):
                 return
@@ -327,7 +338,7 @@ class Boards:
     def _intermission(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_intermission[bord_index])
+            board = getattr(self, data.config.boards_intermission[bord_index], None)
             data.curr_board = data.config.boards_intermission[bord_index]
 
             if data.pb_trigger:
@@ -367,7 +378,11 @@ class Boards:
             #     else:
             #         data.pb_trigger = False
         
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_intermission[bord_index]}. Check board exists and config.json is correct")
+
 
             if bord_index >= (len(data.config.boards_intermission) - 1):
                 return
@@ -378,7 +393,7 @@ class Boards:
     def _post_game(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_post_game[bord_index])
+            board = getattr(self, data.config.boards_post_game[bord_index], None)
             data.curr_board = data.config.boards_post_game[bord_index]
 
             if data.pb_trigger:
@@ -419,7 +434,10 @@ class Boards:
                     data.pb_trigger = False
 
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_post_game[bord_index]}. Check board exists and config.json is correct")
 
             if bord_index >= (len(data.config.boards_post_game) - 1):
                 return
