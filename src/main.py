@@ -23,6 +23,7 @@ from update_checker import UpdateChecker
 import tzlocal
 from apscheduler.schedulers.background import BackgroundScheduler
 from renderer.loading_screen import Loading
+import logging
 import debug
 from rich.traceback import install
 install(show_locals=True) 
@@ -37,6 +38,8 @@ if args().emulated:
     from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions
 
     driver.mode = driver.DriverMode.SOFTWARE_EMULATION
+    RGBME_logger = logging.getLogger("RGBME")
+    RGBME_logger.propagate = False
 else:
     try:
         from rgbmatrix import RGBMatrix, RGBMatrixOptions # type: ignore
@@ -50,6 +53,11 @@ else:
 
 def run():
     # Get supplied command line arguments
+    # Set some default log levels for otherlibraries to cut down on noise
+    # logging.getLogger("requests").setLevel(logging.WARNING)
+    # logging.getLogger("httpx").setLevel(logging.WARNING)
+    
+    
     commandArgs = args()
     if driver.is_hardware():
         # Kill the splash screen if active
@@ -74,12 +82,8 @@ def run():
     data = Data(config)
 
     #If we pass the logging arguments on command line, override what's in the config.json, else use what's in config.json (color will always be false in config.json)
-    if commandArgs.logcolor and commandArgs.loglevel is not None:
-        debug.set_debug_status(config,logcolor=commandArgs.logcolor,loglevel=commandArgs.loglevel)
-    elif not commandArgs.logcolor and commandArgs.loglevel is not None:
+    if commandArgs.loglevel is not None:
         debug.set_debug_status(config,loglevel=commandArgs.loglevel)
-    elif commandArgs.logcolor and commandArgs.loglevel is None:
-        debug.set_debug_status(config,logcolor=commandArgs.logcolor,loglevel=config.loglevel)
     else:
         debug.set_debug_status(config,loglevel=config.loglevel)
 

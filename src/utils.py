@@ -55,7 +55,7 @@ def get_lat_lng(location):
 
     if j_cache is not None:
         j = json.loads(j_cache)
-        debug.info(j)
+        #debug.info(j)
         # Get the time that the cache was created
         current_time = datetime.now().timestamp()
         # Calculate the remaining time in seconds
@@ -228,8 +228,7 @@ def args():
     parser.add_argument("--updatecheck", action="store_true", help="Check for updates (Default: False)", default=False)
     parser.add_argument("--updaterepo", action="store", help="Github repo (Default: falkyre/nhl-scoreboard)", default="falkyre/nhl-led-scoreboard", type=str)
     parser.add_argument("--ghtoken", action="store", help="Github API token for doing update checks(Default: blank)", default="", type=str)
-    parser.add_argument("--logcolor", action="store_true", help="Display log in color (command line only)")
-    parser.add_argument("--loglevel", action="store", help="log level to display (INFO,WARN,ERROR,CRITICAL,DEBUG)", type=str)
+    parser.add_argument("--loglevel", action="store", help="log level to display (DEBUG,INFO,WARN,ERROR,CRITICAL) - DEBUG shows the most, CRITICAL the least", type=str)
     
     parser.add_argument("--nhl-timeout", action="store", help="timeout for calls to the NHL API, defaults to 10 seconds", default=10, type=int)
     parser.add_argument("--nhl-ssl-verify", action="store_true", help="Disable SSL certificate verification for NHL API calls", default=False)

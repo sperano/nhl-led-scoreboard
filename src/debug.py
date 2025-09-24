@@ -1,56 +1,30 @@
-#import data.scoreboard_config
-import data
 import time
 import sys
 import logging
-from rich.logging import RichHandler
+from richcolorlog import setup_logging
 
 debug_enabled = False
 
-# Create a logger object.
 
-#logger = logging.getLogger(__name__)
-logger = logging.getLogger('scoreboard')
-#Don't send our logging messages up to the root logger (stops duplicates)
-logger.propagate = False
-
-logger.check = lambda msg, *args: logger._log(logging.CHECK, msg, args, stacklevel=2)
+newlogger = setup_logging(show_path=False,show_locals=True,rich_tracebacks=True,omit_repeated_times=False,level=logging.INFO)
+newlogger.propagate = False
 
 
-
-def set_debug_status(config,logcolor=False,loglevel='INFO'):
-	global debug_enabled
+def set_debug_status(config,loglevel='INFO'):
+	global debug_enabled	
+	
 	debug_enabled = config.debug
-	colorAvail = False
-
-	if sys.stdin.isatty() and logcolor:
-		try:
-			import coloredlogs
-			colorAvail = True
-		except Exception as e:
-			colorAvail = False
-			logger.error("ERROR: Unable to import module: {}  Did you install it?".format(e))
-
-
+	
 	if loglevel.lower() == "debug":
 		debug_enabled = True
 
 	if debug_enabled:
-		if colorAvail:
-			coloredlogs.install(level='DEBUG',fmt='%(asctime)s %(name)s %(levelname)s %(message)s',stream=sys.stdout)
-		else:
-			logging.basicConfig(format='%(message)s', level=logging.DEBUG, datefmt='%y-%m-%d %H:%M:%S',handlers=[RichHandler(omit_repeated_times=False,tracebacks_show_locals=True,rich_tracebacks=True)])
-
+		newlogger = setup_logging(show=True,show_path=True,show_locals=True,rich_tracebacks=True,omit_repeated_times=False,level='DEBUG')
+		newlogger.debug("Debug logging enabled")
 	else:
-		if colorAvail:
-			coloredlogs.install(level=loglevel,fmt='%(asctime)s %(levelname)s %(message)s',stream=sys.stdout,logger=logger)
-		else:
-			handler = logging.StreamHandler(sys.stdout)
-			formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-			handler.setFormatter(formatter)
-			#logger.addHandler(handler)
-			logger.addHandler(RichHandler(show_path=False,omit_repeated_times=False,tracebacks_show_locals=True,rich_tracebacks=True))
-			logger.setLevel(loglevel)
+		newlogger = setup_logging(show=True,name="scoreboard",show_path=False,show_locals=True,rich_tracebacks=True,omit_repeated_times=False,level=loglevel)
+		getattr(newlogger, loglevel.lower())("Logging level set to: {}".format(loglevel))
+	
 
 
 def __debugprint(text):
@@ -59,26 +33,22 @@ def __debugprint(text):
 
 def log(text):
 	if debug_enabled:
-		#__debugprint("DEBUG ({}): {}".format(__timestamp(), text))
-		logger.debug(text)
+		newlogger.debug(text)
 
 def critical(text):
-	logger.critical(text,stack_info=True)
+	newlogger.critical(text,stack_info=True)
 
 def exception(text,e):
-  logger.exception(text,exc_info=e)
+  newlogger.exception(text,exc_info=e)
 
 def warning(text):
-  #__debugprint("WARNING ({}): {}".format(__timestamp(), text))
-  logger.warn(text)
+  newlogger.warning(text)
 
 def error(text):
-	#__debugprint("ERROR ({}): {}".format(__timestamp(), text))
-	logger.error(text)
+	newlogger.error(text)
 
 def info(text):
-	#__debugprint("INFO ({}): {}".format(__timestamp(), text))
-	logger.info(text)
+	newlogger.info(text)
 
 def __timestamp():
 	return time.strftime("%H:%M:%S", time.localtime())

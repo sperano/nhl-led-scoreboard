@@ -17,6 +17,7 @@ dbus-python
 iso6709
 paho-mqtt
 rich
+richcolorlog
 RGBMatrixEmulator
 tk
 diskcache

@@ -17,6 +17,7 @@ class wxAlert:
         self.layout4 = self.data.config.config.layout.get_board_layout('wx_alert')
         self.matrix = matrix
         self.pos = self.matrix.width
+        self.banner_height = 8
         self.sleepEvent = sleepEvent
         self.scroll = self.data.config.wxalert_scroll_alert
 
@@ -35,6 +36,7 @@ class wxAlert:
             alert_info = self.matrix.draw_text(["50%", "50%"],self.data.wx_alerts[0],self.wxfont)
             #Set the width, add 3 to allow for text to scroll completely off screen
             self.alert_width = alert_info["size"][0] + 3
+            debug.log("Alert width: {0}".format(self.alert_width))
 
             if self.alert_width < self.pos:
                 self.alert_width = self.pos + 1
@@ -61,6 +63,7 @@ class wxAlert:
     def wxDrawAlerts(self):
 
         i = 0
+        
         while True:
             self.matrix.clear()
             #offscreen_canvas = self.matrix.CreateFrameCanvas()
@@ -80,13 +83,17 @@ class wxAlert:
 
             # Draw Alert boxes and numbers (warning,watch,advisory) for 64x32 board
             #self.matrix.draw.rectangle([60, 25, 64, 32], fill=(255,0,0)) # warning
+            
+            if self.matrix.height == 64:
+                self.banner_height = 16
+                
             if self.data.wx_alerts[1] == "warning":
                 if self.data.config.wxalert_alert_feed.lower() == "nws":
-                    self.matrix.draw.rectangle([0, 0, self.matrix.width, 8], fill=self.data.wx_alerts[5]) # warning
-                    self.matrix.draw.rectangle([0, self.matrix.height - 8, self.matrix.width, self.matrix.height], fill=self.data.wx_alerts[5]) # warning    
+                    self.matrix.draw.rectangle([0, 0, self.matrix.width, self.banner_height], fill=self.data.wx_alerts[5]) # warning
+                    self.matrix.draw.rectangle([0, self.matrix.height - self.banner_height, self.matrix.width, self.matrix.height], fill=self.data.wx_alerts[5]) # warning    
                 else:
-                    self.matrix.draw.rectangle([0, 0, self.matrix.width, 8], fill=(255,0,0)) # warning
-                    self.matrix.draw.rectangle([0, self.matrix.height - 8, self.matrix.width, self.matrix.height], fill=(255,0,0)) # warning
+                    self.matrix.draw.rectangle([0, 0, self.matrix.width, self.banner_height], fill=(255,0,0)) # warning
+                    self.matrix.draw.rectangle([0, self.matrix.height - self.banner_height, self.matrix.width, self.matrix.height], fill=(255,0,0)) # warning
                 
                 if self.drawtitle:     
                     self.matrix.draw_text_layout(
@@ -100,11 +107,11 @@ class wxAlert:
 
             elif self.data.wx_alerts[1] == "watch":
                 if self.data.config.wxalert_alert_feed.lower() == "nws":
-                    self.matrix.draw.rectangle([0, 0, self.matrix.width, 8], fill=self.data.wx_alerts[5]) # watch
-                    self.matrix.draw.rectangle([0, self.matrix.height - 8, self.matrix.width, self.matrix.height], fill=self.data.wx_alerts[5]) # watch
+                    self.matrix.draw.rectangle([0, 0, self.matrix.width, self.banner_height], fill=self.data.wx_alerts[5]) # watch
+                    self.matrix.draw.rectangle([0, self.matrix.height - self.banner_height, self.matrix.width, self.matrix.height], fill=self.data.wx_alerts[5]) # watch
                 else:
-                    self.matrix.draw.rectangle([0, 0, self.matrix.width, 8], fill=(255,255,0)) # watch canada
-                    self.matrix.draw.rectangle([0, self.matrix.height - 8, self.matrix.width, self.matrix.height], fill=(255,255,0)) # watch canada
+                    self.matrix.draw.rectangle([0, 0, self.matrix.width, self.banner_height], fill=(255,255,0)) # watch canada
+                    self.matrix.draw.rectangle([0, self.matrix.height - self.banner_height, self.matrix.width, self.matrix.height], fill=(255,255,0)) # watch canada
                 if self.drawtitle:   
                     self.matrix.draw_text_layout(
                         self.layout4.title_top,
@@ -117,11 +124,11 @@ class wxAlert:
             else:
                 if self.data.wx_alerts[1] == "advisory":
                     if self.data.config.wxalert_alert_feed.lower() == "nws":
-                        self.matrix.draw.rectangle([0, 0, self.matrix.width,8], fill=self.data.wx_alerts[5]) #advisory
-                        self.matrix.draw.rectangle([0, self.matrix.height - 8, self.matrix.width, self.matrix.height], fill=self.data.wx_alerts[5]) #advisory
+                        self.matrix.draw.rectangle([0, 0, self.matrix.width,self.banner_height], fill=self.data.wx_alerts[5]) #advisory
+                        self.matrix.draw.rectangle([0, self.matrix.height - self.banner_height, self.matrix.width, self.matrix.height], fill=self.data.wx_alerts[5]) #advisory
                     else:
-                        self.matrix.draw.rectangle([0, 0, self.matrix.width, 8], fill=(169,169,169)) #advisory canada
-                        self.matrix.draw.rectangle([0, self.matrix.height - 8, self.matrix.width, self.matrix.height], fill=(169,169,169)) #advisory canada
+                        self.matrix.draw.rectangle([0, 0, self.matrix.width, self.banner_height], fill=(169,169,169)) #advisory canada
+                        self.matrix.draw.rectangle([0, self.matrix.height - self.banner_height, self.matrix.width, self.matrix.height], fill=(169,169,169)) #advisory canada
                     
                     if self.drawtitle:
                         self.matrix.draw_text_layout(

@@ -244,7 +244,7 @@ class ScoreboardConfig:
 
         if base_filename == "config":
             # Validate against the config.json
-            debug.error("INFO: Validating config.json.....")
+            debug.info("Validating config.json.....")
             conffile = "config/config.json"
             schemafile = "config/config.schema.json"
 
@@ -252,10 +252,10 @@ class ScoreboardConfig:
             schemapath = get_file(schemafile)
             (valid,msg) = validateConf(confpath,schemapath)
             if valid:
-                debug.error("INFO: config.json passes validation")
+                debug.info("config.json passes validation")
             else:
-                debug.warning("WARN: config.json fails validation: error: [{0}]".format(msg))
-                debug.warning("WARN: Rerun the nhl_setup app to create a valid config.json")
+                debug.warning("config.json fails validation: error: [{0}]".format(msg))
+                debug.warning("Rerun the nhl_setup app to create a valid config.json")
                 sys.exit(1)
 
         return reference_config

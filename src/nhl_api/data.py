@@ -35,7 +35,7 @@ TIMEOUT_TESTING = 0.001  # TO DELETE
 
 @backoff.on_exception(backoff.expo,
                       httpx.HTTPError,
-                      logger='scoreboard')
+                      logger='scoreboard_backoff')
 
 def get_score_details(date):
     #client = NHLClient(verbose=False)

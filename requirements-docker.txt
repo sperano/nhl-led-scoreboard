@@ -16,6 +16,7 @@ nameparser>=1.0.6
 iso6709
 paho-mqtt
 rich
+richcolorlog
 RGBMatrixEmulator
 tk
 diskcache

@@ -544,7 +544,7 @@ class Data:
                     if self.playoffs.default_round == 4:
                         self.stanleycup_round = True
 
-                    debug.info("defaultround number is : {}".format(self.playoffs.default_round))
+                    debug.log("defaultround number is : {}".format(self.playoffs.default_round))
                     #8478996
                     try:
                         self.series = []
