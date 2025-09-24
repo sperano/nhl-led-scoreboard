@@ -18,7 +18,6 @@ class Clock:
     def __init__(self, data, matrix, sleepEvent ,duration=None):
 
         self.data = data
-        self.date = datetime.datetime.today()
         self.time = datetime.datetime.now()
 
         self.matrix = matrix
@@ -124,7 +123,7 @@ class Clock:
 
         self.matrix.draw_text_layout(
             self.layout.date,
-            self.date.strftime("%b %d %Y").upper(),
+            datetime.datetime.today().strftime("%b %d %Y").upper(),
             fillColor=self.wxdtfill
         )
 

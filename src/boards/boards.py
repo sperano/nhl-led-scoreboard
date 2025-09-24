@@ -30,6 +30,7 @@ import traceback
 class Boards:
     def __init__(self):
         self._boards = {}
+        self._board_instances = {}  # Cache for board instances
         self._load_boards()
     
     def _load_boards(self):
@@ -117,8 +118,19 @@ class Boards:
         # Register the board (both plugins and builtins go in same registry)
         self._boards[board_name] = board_class
         
-        # Dynamically add method to this class
-        setattr(self, board_name, lambda data, matrix, sleepEvent, cls=board_class: cls(data, matrix, sleepEvent).render())
+        # Dynamically add method to this class with caching
+        def create_board_method(name, cls):
+            def board_method(data, matrix, sleepEvent):
+                # Check if instance already exists in cache
+                if name not in self._board_instances:
+                    # Create new instance and cache it
+                    self._board_instances[name] = cls(data, matrix, sleepEvent)
+                    debug.info(f"Created new instance for board: {name}")
+                # Call render on cached instance
+                return self._board_instances[name].render()
+            return board_method
+
+        setattr(self, board_name, create_board_method(board_name, board_class))
         
         debug.info(f"Loaded {board_type}: {board_name} ({board_class.__name__})")
     
@@ -134,14 +146,66 @@ class Boards:
     def is_board_loaded(self, board_name: str) -> bool:
         """
         Check if a board module is loaded and available.
-        
+
         Args:
             board_name: Name of the board to check
-            
+
         Returns:
             True if board is loaded, False otherwise
         """
         return board_name in self._boards
+
+    def _get_cached_board_instance(self, board_name: str, board_class, data, matrix, sleepEvent):
+        """
+        Get or create a cached instance of a legacy board.
+
+        Args:
+            board_name: Name of the board for caching
+            board_class: Board class to instantiate
+            data, matrix, sleepEvent: Board constructor arguments
+
+        Returns:
+            Cached board instance
+        """
+        if board_name not in self._board_instances:
+            try:
+                self._board_instances[board_name] = board_class(data, matrix, sleepEvent)
+                debug.info(f"Created new instance for legacy board: {board_name}")
+            except Exception as exc:
+                debug.error(f"Failed to load board: {board_name}. Board doesnt exist or typo in config.")
+                return None
+        return self._board_instances[board_name]
+
+    def clear_board_cache(self, board_name: str = None):
+        """
+        Clear cached board instances and call cleanup.
+
+        Args:
+            board_name: Specific board to clear, or None to clear all
+        """
+        if board_name:
+            if board_name in self._board_instances:
+                board = self._board_instances[board_name]
+                if hasattr(board, 'cleanup'):
+                    board.cleanup()
+                del self._board_instances[board_name]
+                debug.info(f"Cleared cached instance for board: {board_name}")
+        else:
+            # Clear all cached instances
+            for name, board in self._board_instances.items():
+                if hasattr(board, 'cleanup'):
+                    board.cleanup()
+            self._board_instances.clear()
+            debug.info("Cleared all cached board instances")
+
+    def get_cached_boards(self) -> list:
+        """
+        Get list of currently cached board names.
+
+        Returns:
+            List of board names that have cached instances
+        """
+        return list(self._board_instances.keys())
 
     # Board handler for PushButton
     def _pb_board(self, data, matrix, sleepEvent):
@@ -165,7 +229,7 @@ class Boards:
     def _off_day(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_off_day[bord_index])
+            board = getattr(self, data.config.boards_off_day[bord_index], None)
             data.curr_board = data.config.boards_off_day[bord_index]
 
             if data.pb_trigger:
@@ -205,7 +269,11 @@ class Boards:
                 else:
                     data.pb_trigger = False
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_off_day[bord_index]}. Check board exists and config.json is correct")
+
 
             if bord_index >= (len(data.config.boards_off_day) - 1):
                 return
@@ -216,7 +284,7 @@ class Boards:
     def _scheduled(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_scheduled[bord_index])
+            board = getattr(self, data.config.boards_scheduled[bord_index], None)
             data.curr_board = data.config.boards_scheduled[bord_index]
             if data.pb_trigger:
                 debug.info('PushButton triggered....will display ' + data.config.pushbutton_state_triggered1 + ' board ' + "Overriding scheduled -> " + data.config.boards_scheduled[bord_index])
@@ -256,7 +324,10 @@ class Boards:
                 else:
                     data.pb_trigger = False
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_scheduled[bord_index]}. Check board exists and config.json is correct")
 
             if bord_index >= (len(data.config.boards_scheduled) - 1):
                 return
@@ -267,7 +338,7 @@ class Boards:
     def _intermission(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_intermission[bord_index])
+            board = getattr(self, data.config.boards_intermission[bord_index], None)
             data.curr_board = data.config.boards_intermission[bord_index]
 
             if data.pb_trigger:
@@ -307,7 +378,11 @@ class Boards:
             #     else:
             #         data.pb_trigger = False
         
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_intermission[bord_index]}. Check board exists and config.json is correct")
+
 
             if bord_index >= (len(data.config.boards_intermission) - 1):
                 return
@@ -318,7 +393,7 @@ class Boards:
     def _post_game(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_post_game[bord_index])
+            board = getattr(self, data.config.boards_post_game[bord_index], None)
             data.curr_board = data.config.boards_post_game[bord_index]
 
             if data.pb_trigger:
@@ -359,7 +434,10 @@ class Boards:
                     data.pb_trigger = False
 
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_post_game[bord_index]}. Check board exists and config.json is correct")
 
             if bord_index >= (len(data.config.boards_post_game) - 1):
                 return
@@ -371,11 +449,13 @@ class Boards:
         Clock(data, matrix, sleepEvent)
 
     def scoreticker(self, data, matrix, sleepEvent):
-        Scoreticker(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('scoreticker', Scoreticker, data, matrix, sleepEvent)
+        board.render()
 
     # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them. 
     def seriesticker(self, data, matrix, sleepEvent):
-        Seriesticker(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('seriesticker', Seriesticker, data, matrix, sleepEvent)
+        board.render()
     
     # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them. 
     def stanley_cup_champions(self, data, matrix, sleepEvent):
@@ -385,40 +465,46 @@ class Boards:
 
     def standings(self, data, matrix, sleepEvent):
         #Try making standings a thread
-        Standings(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('standings', Standings, data, matrix, sleepEvent)
+        board.render()
 
     def team_summary(self, data, matrix, sleepEvent):
-        TeamSummary(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('team_summary', TeamSummary, data, matrix, sleepEvent)
+        board.render()
 
     def clock(self, data, matrix, sleepEvent):
-        Clock(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('clock', Clock, data, matrix, sleepEvent)
 
     def pbdisplay(self, data, matrix, sleepEvent):
-        pbDisplay(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('pbdisplay', pbDisplay, data, matrix, sleepEvent)
 
     def weather(self, data, matrix, sleepEvent):
-        wxWeather(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('weather', wxWeather, data, matrix, sleepEvent)
 
     def wxalert(self, data, matrix, sleepEvent):
-        wxAlert(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('wxalert', wxAlert, data, matrix, sleepEvent)
 
     def wxforecast(self, data, matrix, sleepEvent):
-        wxForecast(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('wxforecast', wxForecast, data, matrix, sleepEvent)
 
     def screensaver(self, data, matrix, sleepEvent):
-        screenSaver(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('screensaver', screenSaver, data, matrix, sleepEvent)
 
     def christmas(self, data, matrix, sleepEvent):
-        Christmas(data, matrix, sleepEvent).draw()
+        board = self._get_cached_board_instance('christmas', Christmas, data, matrix, sleepEvent)
+        board.draw()
 
     def player_stats(self, data, matrix, sleepEvent):
-        PlayerStatsRenderer(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('player_stats', PlayerStatsRenderer, data, matrix, sleepEvent)
+        board.render()
 
     def ovi_tracker(self, data, matrix, sleepEvent):
-        OviTrackerRenderer(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('ovi_tracker', OviTrackerRenderer, data, matrix, sleepEvent)
+        board.render()
 
     def stats_leaders(self, data, matrix, sleepEvent):
-        StatsLeaders(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('stats_leaders', StatsLeaders, data, matrix, sleepEvent)
+        board.render()
 
     def _get_board_list(self):
         boards = []
