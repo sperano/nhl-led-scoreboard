@@ -163,10 +163,13 @@ config/custom_logos.json
 
 nhl-api-client/
 
-
-
 .codegpt
 
-# Local developer plugins (ignored)
-src/boards/plugins/
-*.ori
+# Ignore all plugin content
+/src/boards/plugins/**
+
+# But keep the empty folder so the path exists
+!/src/boards/plugins/.gitkeep
+
+# Allow a local .gitignore to live here too
+!/src/boards/plugins/.gitignore

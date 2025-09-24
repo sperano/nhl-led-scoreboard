@@ -704,7 +704,7 @@
     "title": {
       "position": [124, 1],
       "align": "right-top",
-      "font": "wx_medium"
+      "font": "wx_small"
     },
     "name": {
       "position": [125, 10],

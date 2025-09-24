@@ -37,18 +37,24 @@ class SeasonCountdownBoard(BoardBase):
         self.font = data.config.layout.font
         self.font_large = data.config.layout.font_large
 
-        # Set up season text
+        # Set up season text (static parts only)
         self.season_start = datetime.strptime(self.data.status.next_season_start(), '%Y-%m-%d').date()
-        self.days_until_season = (self.season_start - date.today()).days
 
-        current_year = date.today().year
-        next_year = current_year + 1
-
-        self.nextseason="{0}-{1}".format(current_year,next_year)
-        self.nextseason_short="NHL {0}-{1}".format(str(current_year)[-2:],str(next_year)[-2:])
+        # Date-dependent values will be computed fresh in render()
+        self.days_until_season = None
+        self.nextseason = None
+        self.nextseason_short = None
     
     def render(self):
-        
+        # Compute fresh date-dependent values
+        today = date.today()
+        self.days_until_season = (self.season_start - today).days
+
+        current_year = today.year
+        next_year = current_year + 1
+        self.nextseason = "{0}-{1}".format(current_year, next_year)
+        self.nextseason_short = "NHL {0}-{1}".format(str(current_year)[-2:], str(next_year)[-2:])
+
         debug.info("NHL Countdown Launched")
 
         # for testing purposes
