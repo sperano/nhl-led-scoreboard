@@ -173,3 +173,6 @@ nhl-api-client/
 
 # Allow a local .gitignore to live here too
 !/src/boards/plugins/.gitignore
+
+# Ignore all ori files
+*.ori
