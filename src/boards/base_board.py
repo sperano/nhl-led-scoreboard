@@ -114,7 +114,7 @@ class BoardBase(ABC):
                         with open(config_path, 'r') as f:
                             return json.load(f)
                     elif config_sample_path.exists():
-                        debug.warning(f"{board_name}: Config not found, falling back to sampel config")
+                        debug.warning(f"{board_name}: Config not found, falling back to sample config")
                         with open(config_sample_path, 'r') as f:
                             return json.load(f)
         except Exception as e:
