@@ -108,9 +108,14 @@ class BoardBase(ABC):
                     board_name = module_parts[2]  # board directory name
                     
                     config_path = Path(__file__).parent / board_type / board_name / 'config.json'
+                    config_sample_path = Path(__file__).parent / board_type / board_name / 'config.sample.json'
                     
                     if config_path.exists():
                         with open(config_path, 'r') as f:
+                            return json.load(f)
+                    elif config_sample_path.exists():
+                        debug.warning(f"{board_name}: Config not found, falling back to sampel config")
+                        with open(config_sample_path, 'r') as f:
                             return json.load(f)
         except Exception as e:
             debug.error(f"Error loading board config: {e}")
