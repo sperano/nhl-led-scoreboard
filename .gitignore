@@ -165,6 +165,9 @@ nhl-api-client/
 
 .codegpt
 
+# Ignore config.json files in builtin boards
+/src/boards/builtin/**/config.json
+
 # Ignore all plugin content
 /src/boards/plugins/
 /src/boards/plugins/**
