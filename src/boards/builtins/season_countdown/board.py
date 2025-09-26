@@ -9,13 +9,7 @@ from PIL import Image
 
 class SeasonCountdownBoard(BoardBase):
     """
-    Example board module that displays the current time and a custom message.
-    
-    This demonstrates:
-    - Inheriting from BoardBase
-    - Using board configuration
-    - Basic matrix rendering
-    - Standard board interface
+    Season Countdown Board.  Counts down the days until the NHL Season.
     """
 
 
@@ -89,7 +83,7 @@ class SeasonCountdownBoard(BoardBase):
         cols = self.matrix.width
 
         try:
-            nhl_logo = Image.open(f'assets/logos/_local/{cols}x{rows}_nhl_logo.png').convert("RGBA")
+            nhl_logo = Image.open(f'assets/images/{cols}x{rows}_nhl_logo.png').convert("RGBA")
             black_gradiant = Image.open(f'assets/images/{cols}x{rows}_scoreboard_center_gradient.png')
         except Exception:
             debug.error("Could not open image")
@@ -145,7 +139,7 @@ class SeasonCountdownBoard(BoardBase):
         cols = self.matrix.width
 
         try:
-            nhl_logo = Image.open(f'assets/logos/_local/{cols}x{rows}_nhl_logo.png').convert("RGBA")
+            nhl_logo = Image.open(f'assets/images/{cols}x{rows}_nhl_logo.png').convert("RGBA")
             black_gradiant = Image.open(f'assets/images/{cols}x{rows}_scoreboard_center_gradient.png')
         except Exception:
             debug.error("Could not open image")

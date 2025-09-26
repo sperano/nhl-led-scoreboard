@@ -125,6 +125,7 @@ class OviTrackerRenderer:
 
             # Render to matrix
             self.matrix.render()
-            self.sleepEvent.wait(15)
+            # Will make this a config item when moving to new board system
+            self.sleepEvent.wait(5)
         except Exception as e:
             debug.error(f"Error rendering Ovi tracker: {str(e)}\n{traceback.format_exc()}") 
