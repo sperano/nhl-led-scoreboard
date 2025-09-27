@@ -26,6 +26,11 @@ class MainRenderer:
         self.sog_display_frequency = data.config.sog_display_frequency
         self.alternate_data_counter = 1
 
+        # Pre-initialize boards that require early data fetching
+        # This allows boards to start background data processes
+        # before the render loop begins, ensuring data is available on first render
+        self.boards.initialize_boards_with_data_requirements(data, matrix, sleepEvent)
+
     def render(self):
 
         if self.data.config.testing_mode:

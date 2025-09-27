@@ -207,6 +207,37 @@ class Boards:
         """
         return list(self._board_instances.keys())
 
+    def initialize_boards_with_data_requirements(self, data, matrix, sleepEvent):
+        """
+        Pre-initialize boards that require early data fetching.
+
+        This method checks board classes for requires_early_initialization = True and
+        only instantiates those boards, allowing them to start background data fetching
+        before the render loop begins.
+
+        Args:
+            data: Application data object
+            matrix: Display matrix object
+            sleepEvent: Threading event for sleep/wake control
+        """
+        debug.info("Boards: Pre-initializing boards with data requirements")
+        initialized_count = 0
+
+        for board_name, board_class in self._boards.items():
+            try:
+                # Check class attribute directly - no need to instantiate to check
+                if getattr(board_class, 'requires_early_initialization', False):
+                    # Only instantiate boards that actually need early initialization
+                    board_instance = board_class(data, matrix, sleepEvent)
+                    self._board_instances[board_name] = board_instance
+                    debug.info(f"Boards: Pre-initialized board '{board_name}' for early data fetching")
+                    initialized_count += 1
+
+            except Exception as exc:
+                debug.error(f"Boards: Failed to pre-initialize board '{board_name}': {exc}")
+
+        debug.info(f"Boards: Pre-initialized {initialized_count} boards with data requirements")
+
     # Board handler for PushButton
     def _pb_board(self, data, matrix, sleepEvent):
 
