@@ -4,8 +4,10 @@ Season Countdown board module implementation.
 from boards.base_board import BoardBase
 from . import __version__, __description__, __board_name__
 from datetime import datetime, date
-import debug
+import logging
 from PIL import Image
+
+debug = logging.getLogger("scoreboard")
 
 class SeasonCountdownBoard(BoardBase):
     """

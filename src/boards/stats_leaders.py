@@ -1,8 +1,10 @@
 from PIL import Image, ImageDraw
 from utils import get_file
 from nhl_api.data import get_skater_stats_leaders
-import debug
+import logging
 import traceback
+
+debug = logging.getLogger("scoreboard")
 
 class StatsLeaders:
     def __init__(self, data, matrix, sleepEvent):

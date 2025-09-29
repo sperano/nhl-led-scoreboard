@@ -1,6 +1,8 @@
 from datetime import datetime, date
 from nhl_api import current_season_info, next_season_info
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class Status:
     def __init__(self):

@@ -8,8 +8,10 @@ else:
     from RGBMatrixEmulator import graphics
   
 import json
-import debug
+import logging
 import os.path
+
+debug = logging.getLogger("scoreboard")
 
 class Color:
   def __init__(self, color_json):

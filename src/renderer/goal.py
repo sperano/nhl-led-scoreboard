@@ -1,7 +1,9 @@
 from PIL import Image, ImageFont, ImageDraw, ImageSequence
 from utils import center_text, convert_date_format
 from renderer.matrix import MatrixPixels
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 """
     Show the details of a goal:
@@ -31,7 +33,7 @@ class GoalRenderer:
         self.team_txt_color = team_colors.color("{}.text".format(team.id))
 
     def render(self):
-        debug.log("rendering goal detail board.")
+        debug.debug("rendering goal detail board.")
         # Show the Scorer information 
         self.matrix.clear()
         self.draw_scorer()

@@ -6,7 +6,9 @@ from nhl_setup.validate_json import validateConf
 import json
 import os
 import sys
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class ScoreboardConfig:
     def __init__(self, filename_base, args, size):

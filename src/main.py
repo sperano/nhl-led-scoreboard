@@ -25,12 +25,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from renderer.loading_screen import Loading
 import logging
 import debug
+from rich.logging import RichHandler
 from rich.traceback import install
 install(show_locals=True) 
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
 SCRIPT_VERSION = "2025.9.0"
+
+# Initialize the logger with default settings
+debug.setup_logger()
+sb_logger = logging.getLogger("scoreboard")
 
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 
@@ -40,6 +45,7 @@ if args().emulated:
     driver.mode = driver.DriverMode.SOFTWARE_EMULATION
     RGBME_logger = logging.getLogger("RGBME")
     RGBME_logger.propagate = False
+    RGBME_logger.addHandler(RichHandler(rich_tracebacks=True))
 else:
     try:
         from rgbmatrix import RGBMatrix, RGBMatrixOptions # type: ignore
@@ -53,10 +59,6 @@ else:
 
 def run():
     # Get supplied command line arguments
-    # Set some default log levels for otherlibraries to cut down on noise
-    # logging.getLogger("requests").setLevel(logging.WARNING)
-    # logging.getLogger("httpx").setLevel(logging.WARNING)
-    
     
     commandArgs = args()
     if driver.is_hardware():
@@ -88,12 +90,12 @@ def run():
         debug.set_debug_status(config,loglevel=config.loglevel)
 
     # Print some basic info on startup
-    debug.info("{} - v{} ({}x{})".format(SCRIPT_NAME, SCRIPT_VERSION, matrix.width, matrix.height))
+    sb_logger.info("{} - v{} ({}x{})".format(SCRIPT_NAME, SCRIPT_VERSION, matrix.width, matrix.height))
     
     if data.latlng is not None:
-        debug.info(data.latlng_msg)
+        sb_logger.info(data.latlng_msg)
     else:
-        debug.error("Unable to find your location.")
+        sb_logger.error("Unable to find your location.")
 
     # Event used to sleep when rendering
     # Allows Web API (coming in V2) and pushbutton to cancel the sleep
@@ -120,7 +122,7 @@ def run():
              try:
                 asyncio.run(data.ecData.update())
              except Exception as e:
-                debug.error("Unable to connect to EC .. will try on next refresh : {}".format(e))
+                sb_logger.error("Unable to connect to EC .. will try on next refresh : {}".format(e))
             
     if data.config.weather_enabled:
         if data.config.weather_data_feed.lower() == "ec":
@@ -128,7 +130,7 @@ def run():
         elif data.config.weather_data_feed.lower() == "owm":
             owmWxWorker(data,scheduler)
         else:
-            debug.error("No valid weather providers selected, skipping weather feed")
+            sb_logger.error("No valid weather providers selected, skipping weather feed")
             data.config.weather_enabled = False
 
 
@@ -186,7 +188,7 @@ def run():
             from sbio.sbMQTT import sbMQTT
             pahoAvail = True
         except Exception as e:
-            debug.error("MQTT (paho-mqtt): is disabled.  Unable to import module: {}  Did you install paho-mqtt?".format(e))
+            sb_logger.error("MQTT (paho-mqtt): is disabled.  Unable to import module: {}  Did you install paho-mqtt?".format(e))
             pahoAvail = False   
         
         if pahoAvail:

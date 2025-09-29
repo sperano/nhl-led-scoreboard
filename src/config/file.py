@@ -1,7 +1,9 @@
 import json
 from utils import round_normal
 import copy
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class ConfigFile:
   def __init__(self, path, size=None, warn_if_missing=True):

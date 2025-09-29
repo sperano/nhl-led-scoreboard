@@ -1,7 +1,7 @@
 from PIL import Image, ImageFont, ImageDraw, ImageSequence
 
 import driver
-import debug
+import logging
 
 if driver.is_hardware():
     from rgbmatrix import graphics
@@ -9,6 +9,8 @@ else:
     from RGBMatrixEmulator import graphics
 
 from time import sleep
+
+debug = logging.getLogger("scoreboard")
 
 class Standings:
     """

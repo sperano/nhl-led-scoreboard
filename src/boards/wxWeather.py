@@ -9,7 +9,9 @@ else:
 
 from time import sleep
 from utils import center_text,get_file
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class wxWeather:
     def __init__(self, data, matrix,sleepEvent):

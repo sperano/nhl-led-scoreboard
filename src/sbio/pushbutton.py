@@ -1,5 +1,5 @@
 # Version 1.0 - initial version 03/01/20
-import debug
+import logging
 import time
 import os
 from gpiozero import Button
@@ -10,6 +10,8 @@ from sbio.screensaver import screenSaver
 VALID_PINS = [2,3,7,8,9,10,11,14,15,19,25]
 REBOOT_DEFAULT = 2
 AVAIL_BOARDS = ["team_summary","standings","scoreticker","seriesticker","clock","weather","wxalert","pbdisplay","wxforecast","screensaver","stanley_cup_champions","christmas"]
+
+debug = logging.getLogger("scoreboard")
 
 class PushButton(object):
     def __init__(self, data, matrix, sleepEvent):

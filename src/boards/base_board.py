@@ -1,7 +1,7 @@
 """
 Base class for board modules to ensure consistent interface and enable dynamic loading.
 """
-import debug
+import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 import json
@@ -10,7 +10,7 @@ from config.files.layout import LayoutConfig
 from config.file import ConfigFile
 from renderer.matrix import Matrix
 
-
+debug = logging.getLogger("scoreboard")
 class BoardLayoutConfig(LayoutConfig):
     """
     Extended LayoutConfig that loads layout files from board directories (plugins or builtins).

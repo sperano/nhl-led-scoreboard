@@ -1,11 +1,13 @@
 #from pyowm.owm import OWM
 import requests
 from env_canada import ECWeather
-import debug
+import logging
 from datetime import datetime,timedelta
 from time import sleep
 from api.weather.wx_utils import cadhumidex, wind_chill, get_csv, degrees_to_direction, temp_f, wind_mph
 import asyncio
+
+debug = logging.getLogger("scoreboard")
 
 class wxForecast(object):
     def __init__(self, data, scheduler):

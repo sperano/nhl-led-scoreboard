@@ -1,9 +1,11 @@
 import requests
 import json
-import debug
+import logging
 from datetime import datetime
 from utils import sb_cache
 from api.weather.wx_utils import wind_chill, get_csv, degrees_to_direction, dew_point, wind_kmph, usaheatindex, temp_f
+
+debug = logging.getLogger("scoreboard")
 
 class owmWxWorker(object):
     def __init__(self, data, scheduler):

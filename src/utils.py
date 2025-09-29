@@ -2,7 +2,7 @@ import collections
 import argparse
 import os
 import diskcache as dc
-import debug
+import logging
 from datetime import datetime, timezone
 import regex
 import math
@@ -14,6 +14,8 @@ from iso6709 import Location
 import platform
 import uuid
 import driver
+
+debug = logging.getLogger("scoreboard")
 
 uid = int(os.stat("./VERSION").st_uid)
 gid = int(os.stat("./VERSION").st_uid)

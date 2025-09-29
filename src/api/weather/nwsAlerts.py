@@ -1,10 +1,12 @@
 from noaa_sdk import noaa
-import debug
+import logging
 import datetime
 import json
 import requests
 from time import sleep
 from api.weather.wx_utils import get_csv
+
+debug = logging.getLogger("scoreboard")
 
 BASE_URL = 'https://api.weather.gov/'
 REQUEST_TIMEOUT = 5

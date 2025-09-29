@@ -1,9 +1,11 @@
-import debug
+import logging
 from gpiozero import MotionSensor
 from signal import pause
 from threading import Timer
 import time
 from sbio.screensaver import screenSaver
+
+debug = logging.getLogger("scoreboard")
 
 class Motion(object):
     def __init__(self, data, matrix,sleepEvent,scheduler,screenSaver):

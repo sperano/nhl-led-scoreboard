@@ -2,8 +2,10 @@ from data.team import TeamScore
 from data.periods import Periods
 from utils import convert_time
 from time import sleep
-import debug
+import logging
 from datetime import datetime
+
+debug = logging.getLogger("scoreboard")
 """
     TODO:
         Split the current Scoreboard class into two:

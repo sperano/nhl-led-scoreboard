@@ -1,7 +1,9 @@
 import ephem
-import debug
+import logging
 from datetime import datetime
 from utils import timeValidator
+
+debug = logging.getLogger("scoreboard")
 
 class Dimmer(object):
     def __init__(self, data, matrix,scheduler):

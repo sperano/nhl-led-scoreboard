@@ -1,6 +1,8 @@
 from PIL import Image
 from utils import get_file
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class StanleyCupChampions:
     def __init__(self, data, matrix, sleepEvent):

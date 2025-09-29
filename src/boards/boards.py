@@ -2,7 +2,7 @@
 A Board is simply a display object with specific parameters made to be shown on screen.
 Board modules can be added by placing them in the src/boards/plugins/ or src/boards/builtins/ directories.
 """
-import debug
+import logging
 import os
 import importlib
 import inspect
@@ -27,6 +27,7 @@ from boards.stats_leaders import StatsLeaders
 
 import traceback
 
+debug = logging.getLogger("scoreboard")
 class Boards:
     def __init__(self):
         self._boards = {}

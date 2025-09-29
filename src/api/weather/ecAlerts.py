@@ -1,6 +1,8 @@
-import debug
+import logging
 import datetime
 import asyncio
+
+debug = logging.getLogger("scoreboard")
 
 class ecWxAlerts(object):
     def __init__(self, data, scheduler,sleepEvent):

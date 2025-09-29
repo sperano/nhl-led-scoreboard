@@ -3,8 +3,10 @@ from utils import get_file
 from renderer.screen_config import screenConfig
 from nhl_api.player import PlayerStats
 from renderer.logos import LogoRenderer
-import debug
+import logging
 import traceback
+
+debug = logging.getLogger("scoreboard")
 
 class OviTrackerRenderer:
     def __init__(self, data, matrix, sleepEvent):

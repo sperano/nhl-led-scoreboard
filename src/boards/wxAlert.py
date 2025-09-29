@@ -9,7 +9,9 @@ else:
 
 from time import sleep
 from utils import center_text,get_file
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class wxAlert:
     def __init__(self, data, matrix,sleepEvent):
@@ -36,7 +38,7 @@ class wxAlert:
             alert_info = self.matrix.draw_text(["50%", "50%"],self.data.wx_alerts[0],self.wxfont)
             #Set the width, add 3 to allow for text to scroll completely off screen
             self.alert_width = alert_info["size"][0] + 3
-            debug.log("Alert width: {0}".format(self.alert_width))
+            debug.debug("Alert width: {0}".format(self.alert_width))
 
             if self.alert_width < self.pos:
                 self.alert_width = self.pos + 1

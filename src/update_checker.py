@@ -1,8 +1,10 @@
 import time
 import os, sys
-import debug
+import logging
 from lastversion import lastversion
 from packaging import version
+
+debug = logging.getLogger("scoreboard")
 
 class UpdateChecker(object):
     def __init__(self,data,scheduler,ghtoken):

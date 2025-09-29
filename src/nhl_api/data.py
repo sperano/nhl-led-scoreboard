@@ -1,10 +1,14 @@
 import json
 import requests
-import debug
+import logging
 from datetime import date
 from nhl_api.nhl_client import client
 import backoff
 import httpx
+
+
+
+debug = logging.getLogger("scoreboard")
 
 """
     TODO:

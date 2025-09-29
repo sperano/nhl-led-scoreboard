@@ -1,6 +1,6 @@
 from PIL import Image
 from time import sleep
-import debug
+import logging
 from boards.boards import Boards
 from boards.clock import Clock
 from boards.stanley_cup_champions import StanleyCupChampions
@@ -11,6 +11,8 @@ from renderer.penalty import PenaltyRenderer
 from utils import get_file
 import random
 import glob
+
+debug = logging.getLogger("scoreboard")
 
 
 
@@ -122,7 +124,7 @@ class MainRenderer:
         while not self.sleepEvent.is_set():
 
             if self.data._is_new_day():
-                debug.log('This is a new day')
+                debug.debug('This is a new day')
                 return
 
             # Display the pushbutton board
@@ -299,7 +301,7 @@ class MainRenderer:
 
 
     def check_new_goals(self):
-        debug.log("Check new goal")
+        debug.debug("Check new goal")
         pref_team_only = self.data.config.goal_anim_pref_team_only
         away_id = self.scoreboard.away_team.id
         away_name = self.scoreboard.away_team.name
@@ -358,7 +360,7 @@ class MainRenderer:
             self._draw_event_animation("goal", home_id, home_name)
 
     def check_new_penalty(self):
-        debug.log("Check new penalty")
+        debug.debug("Check new penalty")
 
         #pref_team_only = self.data.config.penalty_anim_pref_team_only
         away_id = self.scoreboard.away_team.id

@@ -2,7 +2,9 @@ from PIL import ImageFont
 from utils import get_file
 from renderer.screen_config import screenConfig
 from nhl_api.player import PlayerStats
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class PlayerStatsRenderer:
     def __init__(self, data, matrix, sleepEvent):
