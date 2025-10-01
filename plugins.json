@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    {
+      "name": "holiday_countdown",
+      "url": "https://github.com/kas21/holiday-countdown-board.git",
+      "ref": "main"
+    },
+    {
+      "name": "nfl_board",
+      "url": "https://github.com/kas21/nfl-board.git",
+      "ref": "main"
+    }
+  ]
+}

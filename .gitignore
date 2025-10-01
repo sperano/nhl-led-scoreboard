@@ -178,5 +178,8 @@ nhl-api-client/
 # Allow a local .gitignore to live here too
 !/src/boards/plugins/.gitignore
 
+# Plugin manager lock file (auto-generated)
+plugins.lock.json
+
 # Ignore all ori files
 *.ori
