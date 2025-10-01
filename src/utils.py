@@ -240,7 +240,7 @@ def args():
 
 def led_matrix_options(args):
     
-    print(driver.mode)
+    debug.info(f"Using: {driver.mode}")
     if driver.is_hardware():
         from rgbmatrix import RGBMatrixOptions
     else:

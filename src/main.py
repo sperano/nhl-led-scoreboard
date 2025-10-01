@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 import driver
 from sbio.screensaver import screenSaver
 from sbio.dimmer import Dimmer
@@ -37,15 +38,17 @@ SCRIPT_VERSION = "2025.9.0"
 debug.setup_logger()
 sb_logger = logging.getLogger("scoreboard")
 
+
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 
 if args().emulated:
     from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions
-
+    
     driver.mode = driver.DriverMode.SOFTWARE_EMULATION
     RGBME_logger = logging.getLogger("RGBME")
     RGBME_logger.propagate = False
     RGBME_logger.addHandler(RichHandler(rich_tracebacks=True))
+    
 else:
     try:
         from rgbmatrix import RGBMatrix, RGBMatrixOptions # type: ignore
@@ -68,6 +71,13 @@ def run():
     # Check for led configuration arguments
     matrixOptions = led_matrix_options(commandArgs)
     matrixOptions.drop_privileges = False
+    
+    if driver.is_emulated():
+        # Set up favico and tab title for browser emulator
+        matrixOptions.emulator_title = f"{SCRIPT_NAME} v{SCRIPT_VERSION}"
+        matrixOptions.icon_path = (Path(__file__).parent / ".." / "assets" / "images" / "favicon.ico").resolve()
+        sb_logger.debug(matrixOptions.emulator_title)
+        sb_logger.debug(f"Favicon path: {matrixOptions.icon_path}")
     
     # Initialize the matrix
     matrix = Matrix(RGBMatrix(options = matrixOptions))

@@ -1,16 +1,78 @@
 
-# NHL-LED-scoreboard (Sort of limping along) 
+# NHL-LED-scoreboard
 
 ![scoreboard demo](assets/images/scoreboard.jpg)
 
 # NHL LED Scoreboard Raspberry Pi Image 
-### Now updated to 2025.7.0 ... 
 
 [![Create Release - Image](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml/badge.svg)](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml)
 [![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard-img?label=Version)](https://github.com/falkyre/nhl-led-scoreboard-img/releases/latest)
 
 [![discord button](assets/images/discord_button.png)](https://discord.gg/CWa5CzK)
 # IMPORTANT (PLEASE READ)
+## No seriously, really read the next lines
+> [!WARNING]
+> I mean it, don't say I didn't warn you
+
+# HARD REQUIREMENTS
+## Only Supported Raspberry Pi Hardware
+* Raspberry Pi Zero 2w
+* Raspberry Pi 3A+, 3B
+* Raspberry Pi 4
+## Only Supported RGB Adapters
+* Adafruit RGB Bonnet or HAT
+* [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
+## Only Supported OS (these have been tested)
+* rpi OS Bookworm or higher (arm64 version preferred)
+* Dietpi V9.9.0 or higher (dietpi is already at Debian trixie and the board has been tested under 64bit Trixie)
+## Only supported Python
+* Python 3.11 or higher
+* Running in a virtual environment
+
+
+# Required skills for hardware installation
+[Skills needed](#skill-requirements-please-read)
+
+# Installation
+The following makes the assumption that you are comfortable with a Linux terminal and command line and the ability to use git.  You are also expected to know how to edit a json file to create a config.json. 
+> [!NOTE]
+> The _nhl_setup_ binary may or may not work.  It has not been updated to reflect all new releases and additions to the config.json.  At some point, this tool will be replaced.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
+
+## Clean Install
+1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
+2. Clone this repository with git
+3. Change to the nhl-led-scoreboard directory
+4. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any failures.
+5. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
+   
+## Upgrade
+>[!CAUTION]
+> You can only upgrade over top of this repository's code. If you are running someone else's fork, or the original nhl-led-scoreboard, you will not be able to upgrade.  You will quickly run into some very obvious pain points.
+
+The scripts/install.sh will offer a new install or upgrade.  It should work on an upgrade **unless you are directed to do a _clean install_ in the release notes (see point 1 of clean install)**
+
+## Directed to do clean install
+1. Make a copy of your config.json file.
+2. Delete the /home/pi/nhlsb_venv folder
+3. Delete the /home/pi/nhl-led-scoreboard folder
+4. Follow the steps for a clean install
+
+# Troubleshooting
+**Rule #1:  W.A.E.F.R.T.F.M ---> read the readme again**
+If you need help, there is a Discord that still runs.  See above for the link.  However, please be prepared with some information other than a generic, my board has crashed.  There is a script in the scripts/sbtools folder called issueUpload.sh.  This will gather information from your installation and paste it to a pastebin.  Plewse do that and provide the pastebin link that the script gives you.  Also, ensure that you have read the latest release notes in case there is something there you have missed.
+
+>[!IMPORTANT]
+> The NHL API, which drives the data for the scoreboard is unofficially publically available and can be unreliable at times.  We have no control over it nor if it will still remain open to the public.  We joke that the NHL Interns are breaking it when things go wrong, but who knows?  We were caught in a blind side in 2023 when the NHL switched to a new API.  It's great that the community came together and mapped out the new version.
+
+# Releases
+| Latest Stable | Latest Pre-release |
+| --- | --- |
+|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard/stable?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|
+
+
+<details>
+<summary>Old Readme sections, read if you want some history</summary>
+
 ## (2025-07-08) We now have an image and some Mammoth team names.
 Effective release 2025.7.0, the minimum supported version of Python is 3.11.  If you run the latest rpiOS built on Debian Bookworm, you are ok.  Anything lower than Python 3.11, the install script WILL NOT COMPLETE with the proper Python libraries required to run the scoreboard.
 
@@ -175,3 +237,4 @@ You all can thank [Drew Hynes](https://gitlab.com/dword4) for his hard work on d
 ## Licensing
 
 This project uses the GNU Public License. If you intend to sell these, the code must remain open source.
+</details>
