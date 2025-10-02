@@ -1,5 +1,0 @@
-fastjsonschema
-printtools
-PyInstaller
-questionary
-regex
