@@ -85,7 +85,7 @@ if [ "$SUPERVISOR_INSTALLED" = true ]; then
 fi
 
 url=$(/usr/bin/pastebinit -b pastebin.com -t "nhl-led-scoreboard issue logs and config" < /tmp/issue.txt)
-echo "Take this url and paste it into your issue.  You can create an issue @ https://github.com/riffnshred/nhl-led-scoreboard/issues"
+echo "Take this url and paste it into your issue.  You can create an issue @ https://github.com/falkyre/nhl-led-scoreboard/issues"
 echo "${url}"
 
 if [ "$SUPERVISOR_INSTALLED" = false ]; then
