@@ -2,7 +2,7 @@ from utils import get_file
 from data.layout import Layout
 from data.colors import Color
 from config.main import Config  
-from validate_json import validateConf
+from .validate_json import validateConf
 import json
 import os
 import sys
