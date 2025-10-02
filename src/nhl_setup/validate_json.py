@@ -1,5 +1,6 @@
 import fastjsonschema
 import os
+import sys
 import json
 
 def validateConf(confpath,schemapath):
@@ -8,6 +9,10 @@ def validateConf(confpath,schemapath):
     conf = {}
     schema = {}
     
+    
+
+    print(f"Looking for config.json in {confpath}")
+
     if os.path.isfile(confpath) and os.path.isfile(schemapath):
         try:
             conf = json.load(open(confpath))

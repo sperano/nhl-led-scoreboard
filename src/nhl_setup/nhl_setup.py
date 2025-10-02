@@ -12,13 +12,12 @@ import os
 import sys
 import shutil
 
-
 from time import sleep
 
-SCRIPT_VERSION = "1.6.3"
+SCRIPT_VERSION = "2025.10.0"
 
-TEAMS = ['Avalanche','Blackhawks','Blues','Blue Jackets','Bruins','Canadiens','Canucks','Capitals','Coyotes','Devils','Ducks','Flames','Flyers',
-    'Golden Knights','Hurricanes','Islanders','Jets','Kings','Kraken','Maple Leafs','Lightning','Oilers','Panthers','Penguins','Predators',
+TEAMS = ['Avalanche','Blackhawks','Blues','Blue Jackets','Bruins','Canadiens','Canucks','Capitals','Devils','Ducks','Flames','Flyers',
+    'Golden Knights','Hurricanes','Islanders','Jets','Kings','Kraken','Mammoth','Maple Leafs','Lightning','Oilers','Panthers','Penguins','Predators',
     'Rangers','Red Wings','Sabres','Senators','Sharks','Stars','Wild']
 
 #Everything that can be configured in the config.json
@@ -28,6 +27,9 @@ STATES = ['off_day','scheduled','intermission','post_game']
 # These are boards that have configuration.  If your board does not have any config, you don't need to add it
 BOARDS = ['clock','weather','wxalert','scoreticker','seriesticker','standings']
 SBIO = ['pushbutton','dimmer','screensaver']
+
+#Get path if frozen, required for newest PyInstaller so we don't get the /tmp
+
 
 def getVersion():
     
@@ -400,7 +402,7 @@ def states_settings(default_config,qmark,setup_type):
         thestates = STATES
 
     for astate in thestates:
-        board_list = ['clock','weather','wxalert','wxforecast','scoreticker','seriesticker','standings','team_summary','stanley_cup_champions','christmas','seasoncountdown']
+        board_list = ['clock','weather','wxalert','wxforecast','scoreticker','seriesticker','standings','team_summary','stanley_cup_champions','christmas','season_countdown']
 
         boards_selected = []
         board = None
@@ -1179,6 +1181,13 @@ def sbio_settings(default_config,qmark,setup_type):
 
 def main():
 
+    # Check if we are running from a pyinstaller onefile
+    if getattr(sys, 'frozen', False):
+        app_path = os.path.dirname(sys.executable)
+    else:
+        # we are running in a normal Python environment
+        app_path = os.path.dirname(os.path.abspath(__file__))
+
     parser = argparse.ArgumentParser()
     parser.add_argument('confdir', nargs='?',default="config", type=str, help='Input dir for config.json (defaults to config)')
     parser.add_argument('--version','-v', action='version', version='%(prog)s ' + SCRIPT_VERSION)
@@ -1194,7 +1203,7 @@ def main():
         mainVersion="nhl led scoreboard V{}".format(getVersion())
         print(mainVersion,UNDERLINE,GREEN,BOLD)
         
-    if not os.path.exists(args.confdir):
+    if not os.path.exists(f"{app_path}/{args.confdir}"):
         # Get current working directory
         setup_cwd = os.getcwd()
         print("Directory {0}/{1} does not exist.  Are you running in the right directory?".format(setup_cwd,args.confdir),RED)
@@ -1207,13 +1216,13 @@ def main():
 
     #Check for existence of config/.default/firstrun file, if one exists, don't try to validate
 
-    firstrun = "{0}/.default/firstrun".format(args.confdir)
+    firstrun = f"{app_path}/{args.confdir}/.default/firstrun"
     if not args.simple:
         if not os.path.exists(firstrun):
-            conffile = "{0}/config.json".format(args.confdir)
-            schemafile = "{0}/config.schema.json".format(args.confdir)
+            conffile = f"{app_path}/{args.confdir}/config.json"
+            schemafile = f"{app_path}/{args.confdir}/config.schema.json"
             if not os.path.exists(schemafile):
-                schemafile = "{0}/.default/config.schema.json".format(args.confdir)
+                schemafile = f"{app_path}/{args.confdir}/.default/config.schema.json"
 
             confpath = get_file(conffile)
             schemapath = get_file(schemafile)
