@@ -15,10 +15,10 @@ python plugins.py list
 python plugins.py sync
 
 # Add a new plugin - plugin name is auto-detected from __plugin_id__
-python plugins.py add https://github.com/user/wvu-score.git --ref v1.2.0
+python plugins.py add https://github.com/kas21/nls-plugin-nfl_board.git --ref v1.2.0
 
 # Add with custom name override (advanced)
-python plugins.py add https://github.com/user/wvu-score.git --name wvu_score
+python plugins.py add https://github.com/kas21/nls-plugin-nfl_board.git --name wvu_score
 
 # Remove a plugin (preserves user files if --keep-config is used)
 python plugins.py rm nfl_board --keep-config
@@ -29,9 +29,9 @@ python plugins.py --verbose sync
 
 ## Configuration Files
 
-- **`plugins.json.example`** - Template with recommended plugins (committed to git)
-- **`plugins.json`** - Your customized plugin list (gitignored - won't conflict on pulls)
-- **`plugins.lock.json`** - Auto-generated lock file with exact commit SHAs (gitignored)
+- **`plugins.json.example`** - Template with recommended plugins
+- **`plugins.json`** - Your customized plugin list
+- **`plugins.lock.json`** - Auto-generated lock file with exact commit SHAs
 
 ## User File Preservation
 
@@ -69,12 +69,12 @@ __preserve_files__ = [
 python plugins.py sync
 
 # Remove plugin but preserve all user-modified files
-python plugins.py rm holiday_countdown --keep-config
+python plugins.py rm holiday_countdown_board --keep-config
 
 # Force fresh install (no preservation)
 # First remove without preserving, then re-add
-python plugins.py rm holiday_countdown
-python plugins.py add holiday_countdown https://github.com/user/holiday-countdown.git
+python plugins.py rm holiday_countdown_board
+python plugins.py add holiday_countdown_board https://github.com/kas21/nls-plugin-holiday-countdown.git
 ```
 
 ## How It Works
@@ -90,18 +90,6 @@ python plugins.py add holiday_countdown https://github.com/user/holiday-countdow
 1. Clone the repo - it includes `plugins.json.example` with recommended plugins
 2. Copy `plugins.json.example` to `plugins.json` (or let `add` create it)
 3. Run `python plugins.py sync` to install all plugins
-
-### Customizing Your Setup
-- `plugins.json` is gitignored, so your customizations won't conflict when you `git pull`
-- `add` and `rm` commands automatically create/update your `plugins.json`
-- The lock file pins exact commits for reproducibility
-- Plugin names are auto-detected from `__plugin_id__` for consistency
-
-### Developer Workflow
-- Update `plugins.json.example` to change recommended plugins for all users
-- Individual users' `plugins.json` won't be affected by your changes
-- Similar to `config/config.json.sample` pattern already used in this project
-- **Always include `__plugin_id__` in your plugin's `__init__.py`**
 
 ## Creating a Plugin
 
@@ -139,17 +127,5 @@ __preserve_files__ = [
 ### Plugin ID Rules
 - Must be a valid Python module name (lowercase, underscores only)
 - Should match your local folder structure expectations
-- Examples: `nfl_board`, `holiday_countdown`, `wvu_score`
-- **NOT**: `NFL-Board`, `holiday countdown`, `wvu.score`
-
-## Gitignore
-
-Already configured in `.gitignore`:
-```
-src/boards/plugins/*
-!src/boards/plugins/.gitkeep
-plugins.json
-plugins.lock.json
-```
-
-This prevents plugin code and user customizations from being committed while tracking recommended plugins via `plugins.json.example`.
+- Examples: `nfl_board`, `holiday_countdown_board`, `other_board`
+- **NOT**: `NFL-Board`, `holiday countdown`, `other.board`

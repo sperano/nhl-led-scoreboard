@@ -15,7 +15,7 @@ __author__ = "NHL LED Scoreboard"
 __requirements__ = []
 
 # Minimum application version required (optional)
-__min_app_version__ = "1.0.0"
+__min_app_version__ = "2025.9.0"
 
 # Files to preserve during plugin updates/removals (optional)
 # The plugin manager will preserve these files when updating or removing with --keep-config

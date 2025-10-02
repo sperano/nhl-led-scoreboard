@@ -4,6 +4,7 @@ Example board module implementation.
 from boards.base_board import BoardBase
 from . import __version__, __description__, __board_name__
 import datetime
+import logging
 
 debug = logging.getLogger("scoreboard")
 class ExampleBoard(BoardBase):
