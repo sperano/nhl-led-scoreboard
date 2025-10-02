@@ -34,3 +34,9 @@ dependencies = [
 
 [tool.uv.sources]
 rgbmatrix = { path = "submodules/matrix/bindings/python" }
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "W", "I"] # Example: enable error, flake8-style, warning, and import sorting rules
+#ignore = ["E501"] # Example: ignore line length errors
+
