@@ -28,6 +28,8 @@ import logging
 import debug
 from rich.logging import RichHandler
 from rich.traceback import install
+from richcolorlog import setup_logging
+
 install(show_locals=True) 
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
@@ -35,9 +37,8 @@ SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 SCRIPT_VERSION = "2025.10.0"
 
 # Initialize the logger with default settings
-debug.setup_logger(loglevel="INFO", logtofile=args().logtofile)
+debug.setup_logger(logtofile=args().logtofile)
 sb_logger = logging.getLogger("scoreboard")
-
 
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 

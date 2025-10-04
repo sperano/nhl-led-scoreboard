@@ -2,29 +2,32 @@ import logging
 from richcolorlog import setup_logging
 
 debug_enabled = False
-logger = logging.getLogger("scoreboard")
-logger.propagate = False
+#logger = logging.getLogger("scoreboard")
+#logger.propagate = False
 
 def setup_logger(loglevel='INFO', debug=False,logtofile=False):
     """Sets up the logger."""
     global logger
     level = loglevel
     show_path = False
+    template = "%(asctime)s | %(levelname)s | %(message)s"
     if debug:
-        level = 'DEBUG'
         show_path = True
+        level = 'DEBUG'
+        template = "%(asctime)s | %(name)s | %(levelname)s | %(funcName)s() | %(message)s | %(filename)s:%(lineno)d"
 
     # setup_logging from richcolorlog configures the logger instance
     logger = setup_logging(
         name="scoreboard",
         level=level,
-        show_path=show_path,
+        show_path = show_path,
         show_locals=True,
+        show_icon=False,
         rich_tracebacks=True,
         omit_repeated_times=False,
         log_file=logtofile,
         log_file_name="scoreboard.log",
-        show=True
+        format_template=template
     )
     logger.propagate = False
 
