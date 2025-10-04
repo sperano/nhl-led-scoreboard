@@ -22,7 +22,7 @@ def setup_logger(loglevel='INFO', debug=False,logtofile=False):
         level=level,
         show_path = show_path,
         show_locals=True,
-        show_icon=False,
+        show_icon=True,
         rich_tracebacks=True,
         omit_repeated_times=False,
         log_file=logtofile,
