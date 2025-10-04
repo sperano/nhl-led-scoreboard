@@ -68,6 +68,17 @@ echo "" >>/tmp/issue.txt
 /usr/bin/jq '.boards.weather.owm_apikey=""' "${ROOT}"/config/config.json >> /tmp/issue.txt
 echo "" >> /tmp/issue.txt
 
+if [ -f "$HOME/nhl-led-scoreboard/scoreboard.log" ]; then
+    echo "------------------------------------------------------" >> /tmp/issue.txt
+    echo "scoreboard.log" >> /tmp/issue.txt
+    echo "=================================" >> /tmp/issue.txt
+    cat "$HOME/nhl-led-scoreboard/scoreboard.log" >> /tmp/issue.txt
+    SUPERVISOR_INSTALLED=true
+
+    # We've read the log file, now delete it
+    rm $HOME/nhl-led-scoreboard/scoreboard.log
+fi
+
 if [ "$SUPERVISOR_INSTALLED" = true ]; then
     echo "------------------------------------------------------" >> /tmp/issue.txt
     echo "supervisorctl status" >> /tmp/issue.txt
@@ -84,12 +95,13 @@ if [ "$SUPERVISOR_INSTALLED" = true ]; then
     /usr/local/bin/supervisorctl tail -50000 $scoreboard_proc >> /tmp/issue.txt
 fi
 
-url=$(/usr/bin/pastebinit -b pastebin.com -t "nhl-led-scoreboard issue logs and config" < /tmp/issue.txt)
-echo "Take this url and paste it into your issue.  You can create an issue @ https://github.com/falkyre/nhl-led-scoreboard/issues"
-echo "${url}"
-
 if [ "$SUPERVISOR_INSTALLED" = false ]; then
-    echo "supervisorctl not found. Please run the scoreboard manually and paste the output in the issue."
+    echo "supervisorctl not found. Please run the scoreboard with the --logtofile option to generate a scoreboard.log. Once the issue happens again, rerun this script"
+else
+    url=$(/usr/bin/pastebinit -b pastebin.com -t "nhl-led-scoreboard issue logs and config" < /tmp/issue.txt)
+    echo "Take this url and paste it into your issue.  You can create an issue @ https://github.com/falkyre/nhl-led-scoreboard/issues"
+    echo "${url}"
 fi
+
 
 rm /tmp/issue.txt

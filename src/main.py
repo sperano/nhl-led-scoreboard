@@ -35,7 +35,7 @@ SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 SCRIPT_VERSION = "2025.10.0"
 
 # Initialize the logger with default settings
-debug.setup_logger()
+debug.setup_logger(loglevel="INFO", logtofile=args().logtofile)
 sb_logger = logging.getLogger("scoreboard")
 
 
@@ -95,9 +95,9 @@ def run():
 
     #If we pass the logging arguments on command line, override what's in the config.json, else use what's in config.json (color will always be false in config.json)
     if commandArgs.loglevel is not None:
-        debug.set_debug_status(config,loglevel=commandArgs.loglevel)
+        debug.set_debug_status(config,loglevel=commandArgs.loglevel,logtofile=commandArgs.logtofile)
     else:
-        debug.set_debug_status(config,loglevel=config.loglevel)
+        debug.set_debug_status(config,loglevel=config.loglevel,logtofile=commandArgs.logtofile)
 
     # Print some basic info on startup
     sb_logger.info("{} - v{} ({}x{})".format(SCRIPT_NAME, SCRIPT_VERSION, matrix.width, matrix.height))
