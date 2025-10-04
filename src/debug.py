@@ -5,7 +5,7 @@ debug_enabled = False
 logger = logging.getLogger("scoreboard")
 logger.propagate = False
 
-def setup_logger(loglevel='INFO', debug=False):
+def setup_logger(loglevel='INFO', debug=False,logtogile=False):
     """Sets up the logger."""
     global logger
     level = loglevel
@@ -22,6 +22,8 @@ def setup_logger(loglevel='INFO', debug=False):
         show_locals=True,
         rich_tracebacks=True,
         omit_repeated_times=False,
+        log_file=logtogile,
+        log_file_name="scoreboard.log",
         show=True
     )
     logger.propagate = False
