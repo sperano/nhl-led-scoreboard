@@ -32,7 +32,7 @@ install(show_locals=True)
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "2025.9.0"
+SCRIPT_VERSION = "2025.10.0"
 
 # Initialize the logger with default settings
 debug.setup_logger()
