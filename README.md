@@ -23,7 +23,9 @@
 * Adafruit RGB Bonnet or HAT
 * [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
 ## Only Supported OS (these have been tested)
-* rpi OS Bookworm or higher (arm64 version preferred)
+* rpi OS Bookworm or higher (32 bit or 64 bit)
+>[!NOTE]
+> If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
 * Dietpi V9.9.0 or higher (dietpi is already at Debian trixie and the board has been tested under 64bit Trixie)
 ## Only supported Python
 * Python 3.11 or higher
@@ -40,7 +42,7 @@ The following makes the assumption that you are comfortable with a Linux termina
 
 ## Clean Install
 1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
-2. Clone this repository with git
+2. Clone this repository with git 
 3. Change to the nhl-led-scoreboard directory
 4. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any failures.
 5. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
@@ -59,10 +61,11 @@ The scripts/install.sh will offer a new install or upgrade.  It should work on a
 
 # Troubleshooting
 **Rule #1:  W.A.E.F.R.T.F.M ---> read the readme again**
+
 If you need help, there is a Discord that still runs.  See above for the link.  However, please be prepared with some information other than a generic, my board has crashed.  There is a script in the scripts/sbtools folder called issueUpload.sh.  This will gather information from your installation and paste it to a pastebin.  Plewse do that and provide the pastebin link that the script gives you.  Also, ensure that you have read the latest release notes in case there is something there you have missed.
 
 >[!IMPORTANT]
-> The NHL API, which drives the data for the scoreboard is unofficially publically available and can be unreliable at times.  We have no control over it nor if it will still remain open to the public.  We joke that the NHL Interns are breaking it when things go wrong, but who knows?  We were caught in a blind side in 2023 when the NHL switched to a new API.  It's great that the community came together and mapped out the new version.
+> The NHL API, which drives the data for the scoreboard is unofficially publically available and can be unreliable at times.  We have no control over it nor if it will still remain open to the public.  We joke that the NHL Interns are breaking it when things go wrong, but who knows?  We were blind sided in 2023 when the NHL switched to a new API.  It's great that the community came together and mapped out the new version.
 
 # Releases
 | Latest Stable | Latest Pre-release |

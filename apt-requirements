@@ -17,10 +17,8 @@ package "python3-gpiozero"
 package "python3-lxml"
 #For building latest rgbmatrix python bindings
 package "cython3"
-#package "libatlas-base-dev"
 package "libcairo2"
 package "libopenblas0"
-#package "libatlas-base-dev"
 package "libraqm-dev"
 package "direnv"
 #For the issueUpload.sh
@@ -38,7 +36,7 @@ package "libdbus-1-dev"
 package "python3-tk"
 package "libsixel-bin"
 package "python3-pygame"
-package "libgirepository1.0-dev"
+
 
 # you can also execute arbitrary bash
 echo "🚨  ALL GOOD TO GO"
