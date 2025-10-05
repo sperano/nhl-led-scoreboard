@@ -46,6 +46,7 @@ def get_lat_lng(location):
     loc_cache = {}
     today = datetime.today()#gets current time
     latlng = []
+    g = {}
     
     sb_useragent = f"scoreboard-{uuid.uuid4()}"
     geolocator = Nominatim(user_agent=sb_useragent)
@@ -231,6 +232,7 @@ def args():
     parser.add_argument("--updaterepo", action="store", help="Github repo (Default: falkyre/nhl-scoreboard)", default="falkyre/nhl-led-scoreboard", type=str)
     parser.add_argument("--ghtoken", action="store", help="Github API token for doing update checks(Default: blank)", default="", type=str)
     parser.add_argument("--loglevel", action="store", help="log level to display (DEBUG,INFO,WARN,ERROR,CRITICAL) - DEBUG shows the most, CRITICAL the least", type=str)
+    parser.add_argument("--logtofile", action="store_true", help="Generate scoreboard.log file to be used with scripts/sbtools/issueUpload.sh", default=False)
     
     parser.add_argument("--nhl-timeout", action="store", help="timeout for calls to the NHL API, defaults to 10 seconds", default=10, type=int)
     parser.add_argument("--nhl-ssl-verify", action="store_true", help="Disable SSL certificate verification for NHL API calls", default=False)

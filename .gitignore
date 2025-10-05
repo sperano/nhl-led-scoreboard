@@ -164,19 +164,21 @@ config/custom_logos.json
 nhl-api-client/
 
 .codegpt
+**/.claude
 
 # Ignore config.json files in builtin boards
 /src/boards/builtins/**/config.json
 
-# Ignore all plugin content
-/src/boards/plugins/
-/src/boards/plugins/**
-
-# But keep the empty folder so the path exists
+# Plugin directory: ignore all plugins (user-installed or symlinked for development)
+/src/boards/plugins/*
 !/src/boards/plugins/.gitkeep
+!/src/boards/plugins/*.md
+!/src/boards/plugins/example_board
 
-# Allow a local .gitignore to live here too
-!/src/boards/plugins/.gitignore
+# Plugin manager files (auto-generated or user-customized)
+plugins.json
+plugins.lock.json
 
 # Ignore all ori files
 *.ori
+.devcontainer.json

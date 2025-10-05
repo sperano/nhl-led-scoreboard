@@ -143,7 +143,10 @@ class wxAlert:
                         )  
 
             if self.scroll:
-                self.matrix.draw_text([self.pos,9],self.data.wx_alerts[0],self.wxfont,fill=(255,255,255))
+                if self.matrix.height == 32:
+                    self.matrix.draw_text([self.pos,9],self.data.wx_alerts[0],self.wxfont,fill=(255,255,255))
+                else:
+                    self.matrix.draw_text([self.pos,24],self.data.wx_alerts[0],self.wxfont,fill=(255,255,255))
                 
 
                 if self.alert_width > self.pos:

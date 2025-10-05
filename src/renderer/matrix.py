@@ -8,47 +8,46 @@ else:
     from RGBMatrixEmulator import graphics
 
 import math
-from utils import round_normal
 import sys
+
 import numpy as np
+
+from utils import round_normal
 
 DEBUG = False
 
 
-class Matrix:
-    def __init__(self, matrix):
-        self.matrix = matrix
-        self.graphics = graphics
-        self.brightness = None
+class MatrixDrawer:
+    """
+    Core drawing functionality for matrices and buffers.
+    Handles all drawing operations on a PIL image canvas.
+    """
 
+    def __init__(self, width, height, image=None, draw=None):
+        """
+        Initialize the drawer with a canvas.
+
+        Args:
+            width: Canvas width in pixels
+            height: Canvas height in pixels
+            image: Optional existing PIL Image (creates new if None)
+            draw: Optional existing ImageDraw instance (creates new if None)
+        """
+        self.width = width
+        self.height = height
+        self.image = image or Image.new('RGBA', (self.width, self.height))
+        self.draw = draw or ImageDraw.Draw(self.image)
+        self.pixels = self.image.load()
         self.position_cache = {}
 
-        # Create a new data image.
-        self.width = matrix.width
-        self.height = matrix.height
-
-        self.image = Image.new('RGBA', (self.width, self.height))
-        self.draw = ImageDraw.Draw(self.image)
-
-        self.pixels = self.image.load()
-
-        self.use_canvas = False
-
-        if (self.use_canvas):
-            self.canvas = matrix.CreateFrameCanvas()
-
-    def set_brightness(self, brightness):
-        self.brightness = brightness
-        self.matrix.brightness = self.brightness
-
     def parse_location(self, value, dimension):
-        # Check if number is percentage and calculate pixels
+        """Check if number is percentage and calculate pixels"""
         if (isinstance(value, str) and value.endswith('%')):
             return round_normal((float(value[:-1]) / 100.0) * (dimension - 1))
-
         return value
 
     def align_position(self, align, position, size):
+        """Calculate aligned position based on alignment string"""
         align = align.split("-")
         x, y = position
 
@@ -76,6 +75,7 @@ class Matrix:
 
     def draw_text(self, position, text, font, fill=None, align="left",
                 backgroundColor=None, backgroundOffset=[1, 1, 1, 1]):
+        """Draw text on the canvas"""
         width = 0
         height = 0
         text_chars = text.split("\n")
@@ -83,11 +83,6 @@ class Matrix:
 
         for index, chars in enumerate(text_chars):
             spacing = 0 if index == 0 else 1
-
-            # This requires pillow V9.5.0 or less
-            #offset = font.getoffset(chars)
-            #offset_x = offset[0]
-            #offset_y = offset[1] - height - spacing
 
             # This requires pillow V10.0.0 or greater
             left, top, right, bottom = font.getbbox(chars)
@@ -101,19 +96,16 @@ class Matrix:
                 width = bounding_box[2] if bounding_box[2] > width else width
                 height += bounding_box[3] + spacing
 
-        #width -= 1
-        #height -= 1
         size = (width, height)
-
         x, y = self.align_position(align, position, size)
 
-        if (backgroundColor != None):
+        if (backgroundColor is not None):
             self.draw_rectangle(
-            (x - backgroundOffset[0], y - backgroundOffset[1]),
-            (width + backgroundOffset[0] + backgroundOffset[2], height + backgroundOffset[1] + backgroundOffset[3]),
-            backgroundColor
-        )
-        
+                (x - backgroundOffset[0], y - backgroundOffset[1]),
+                (width + backgroundOffset[0] + backgroundOffset[2], height + backgroundOffset[1] + backgroundOffset[3]),
+                backgroundColor
+            )
+
         for index, chars in enumerate(text_chars):
             offset = offsets[index]
             chars_position = (x - offset[0], y - offset[1])
@@ -125,22 +117,10 @@ class Matrix:
             )
 
         if (DEBUG):
-            self.draw_pixel(
-                (x, y),
-                (0, 255, 0)
-            )
-            self.draw_pixel(
-                (x, y + height),
-                (0, 255, 0)
-            )
-            self.draw_pixel(
-                (x + width, y + height),
-                (0, 255, 0)
-            )
-            self.draw_pixel(
-                (x + width, y),
-                (0, 255, 0)
-            )
+            self.draw_pixel((x, y), (0, 255, 0))
+            self.draw_pixel((x, y + height), (0, 255, 0))
+            self.draw_pixel((x + width, y + height), (0, 255, 0))
+            self.draw_pixel((x + width, y), (0, 255, 0))
 
         return {
             "position": (x, y),
@@ -148,11 +128,12 @@ class Matrix:
         }
 
     def draw_image(self, position, image, align="left"):
+        """Draw an image on the canvas"""
         position = self.align_position(align, position, image.size)
 
         try:
             self.image.paste(image, position, image)
-        except:
+        except Exception:
             self.image.paste(image, position)
 
         return {
@@ -161,22 +142,15 @@ class Matrix:
         }
 
     def draw_rectangle(self, position, size, fill=None, outline=None):
-        """Draw a rectangle on the matrix
-        
-        Args:
-            position (tuple): (x, y) top-left corner position
-            size (tuple): (width, height) of rectangle
-            fill (tuple): RGB color tuple for fill (optional)
-            outline (tuple): RGB color tuple for outline (optional)
-        """
+        """Draw a rectangle on the canvas"""
         x, y = position
         width, height = size
         draw = ImageDraw.Draw(self.image)
-        
+
         # Calculate bottom-right corner from position and size
         right = x + width - 1
         bottom = y + height - 1
-        
+
         # Draw rectangle [(left, top), (right, bottom)]
         draw.rectangle([(x, y), (right, bottom)], fill=fill, outline=outline)
 
@@ -186,12 +160,14 @@ class Matrix:
         }
 
     def draw_pixel(self, position, color):
+        """Draw a single pixel"""
         try:
             self.pixels[position] = color
-        except:
+        except Exception:
             print(position, "out of range!")
 
     def draw_pixels(self, position, pixels, size, align="left"):
+        """Draw multiple pixels"""
         x, y = self.align_position(align, position, size)
 
         for pixel in pixels:
@@ -203,8 +179,17 @@ class Matrix:
                 pixel.color
             )
 
-    def draw_text_layout(self, layout, text, align="left", fillColor=None, backgroundColor=None, backgroundOffset=[1, 1, 1, 1]):
-        if fillColor == None:
+    def draw_text_layout(
+        self,
+        layout,
+        text,
+        align="left",
+        fillColor=None,
+        backgroundColor=None,
+        backgroundOffset=[1, 1, 1, 1]
+    ):
+        """Draw text using layout configuration"""
+        if fillColor is None:
             fillColor = layout.color
         self.cache_position(
             layout.id,
@@ -213,14 +198,14 @@ class Matrix:
                 text,
                 fill=fillColor,
                 font=layout.font,
-                backgroundColor=backgroundColor, #layout.backgroundColor if hasattr(layout, 'backgroundColor') else None,
+                backgroundColor=backgroundColor,
                 backgroundOffset=backgroundOffset,
-
                 align=layout.align
             )
         )
 
     def draw_image_layout(self, layout, image, offset=(0, 0)):
+        """Draw image using layout configuration"""
         self.cache_position(
             layout.id,
             self.draw_image(
@@ -231,6 +216,7 @@ class Matrix:
         )
 
     def draw_pixels_layout(self, layout, pixels, size):
+        """Draw pixels using layout configuration"""
         self.cache_position(
             layout.id,
             self.draw_pixels(
@@ -242,6 +228,7 @@ class Matrix:
         )
 
     def draw_rectangle_layout(self, layout, fillColor=None, outline=None):
+        """Draw rectangle using layout configuration"""
         size = (layout.size[0], layout.size[1])
         self.cache_position(
             layout.id,
@@ -251,6 +238,7 @@ class Matrix:
         )
 
     def layout_position(self, layout, offset=(0, 0)):
+        """Calculate position from layout with relative positioning support"""
         x = layout.position[0] + offset[0]
         y = layout.position[1] + offset[1]
 
@@ -271,7 +259,122 @@ class Matrix:
         return (x, y)
 
     def cache_position(self, id, position):
+        """Cache a position for relative layout positioning"""
         self.position_cache[id] = position
+
+    def get_text_center_position(self, text, font, y_pos):
+        """Get the x,y coordinates to center text horizontally at given y position"""
+        bbox = font.getbbox(text)
+        text_width = bbox[2] - bbox[0]
+        x_pos = (self.width - text_width) // 2
+        return (x_pos, y_pos)
+
+    def draw_text_centered(self, y_pos, text, font, fill=None, backgroundColor=None):
+        """Draw text centered horizontally at given y position"""
+        pos = self.get_text_center_position(text, font, y_pos)
+        self.draw_text(pos, text, font=font, fill=fill, backgroundColor=backgroundColor)
+
+
+class Matrix:
+    def __init__(self, matrix):
+        self.matrix = matrix
+        self.graphics = graphics
+        self.brightness = None
+
+        # Create a new data image.
+        self.width = matrix.width
+        self.height = matrix.height
+
+        # Use MatrixDrawer for all drawing operations
+        self.drawer = MatrixDrawer(self.width, self.height)
+
+        # Expose common properties for backward compatibility
+        self.image = self.drawer.image
+        self.draw = self.drawer.draw
+        self.pixels = self.drawer.pixels
+        self.position_cache = self.drawer.position_cache
+
+        self.use_canvas = False
+
+        if (self.use_canvas):
+            self.canvas = matrix.CreateFrameCanvas()
+
+    def create_offscreen_buffer(self, width=None, height=None):
+        """
+        Create an offscreen buffer (larger canvas) for rendering scrollable content.
+        Returns a new OffscreenBuffer object that can use all the same drawing methods,
+        but renders to a larger image that can be scrolled.
+
+        Args:
+            width: Width of buffer (defaults to matrix width)
+            height: Height of buffer (required for offscreen rendering)
+
+        Returns:
+            OffscreenBuffer object with same drawing interface as Matrix
+
+        Example:
+            buffer = matrix.create_offscreen_buffer(height=80)
+            buffer.draw_text_layout(layout.header, "TITLE")
+            scrolling_image = buffer.get_image()
+            # Then scroll the image using matrix.draw_image() with different y offsets
+        """
+        if height is None:
+            raise ValueError("height parameter is required for offscreen buffer")
+
+        return OffscreenBuffer(self, width or self.width, height)
+
+    def set_brightness(self, brightness):
+        self.brightness = brightness
+        self.matrix.brightness = self.brightness
+
+    # Delegate all drawing methods to MatrixDrawer
+    def parse_location(self, value, dimension):
+        return self.drawer.parse_location(value, dimension)
+
+    def align_position(self, align, position, size):
+        return self.drawer.align_position(align, position, size)
+
+    def draw_text(self, position, text, font, fill=None, align="left",
+                backgroundColor=None, backgroundOffset=[1, 1, 1, 1]):
+        return self.drawer.draw_text(position, text, font, fill, align, backgroundColor, backgroundOffset)
+
+    def draw_image(self, position, image, align="left"):
+        return self.drawer.draw_image(position, image, align)
+
+    def draw_rectangle(self, position, size, fill=None, outline=None):
+        return self.drawer.draw_rectangle(position, size, fill, outline)
+
+    def draw_pixel(self, position, color):
+        return self.drawer.draw_pixel(position, color)
+
+    def draw_pixels(self, position, pixels, size, align="left"):
+        return self.drawer.draw_pixels(position, pixels, size, align)
+
+    def draw_text_layout(
+        self,
+        layout,
+        text,
+        align="left",
+        fillColor=None,
+        backgroundColor=None,
+        backgroundOffset=[1, 1, 1, 1]
+    ):
+        return self.drawer.draw_text_layout(layout, text, align, fillColor, backgroundColor, backgroundOffset)
+
+    def draw_image_layout(self, layout, image, offset=(0, 0)):
+        return self.drawer.draw_image_layout(layout, image, offset)
+
+    def draw_pixels_layout(self, layout, pixels, size):
+        return self.drawer.draw_pixels_layout(layout, pixels, size)
+
+    def draw_rectangle_layout(self, layout, fillColor=None, outline=None):
+        return self.drawer.draw_rectangle_layout(layout, fillColor, outline)
+
+    def layout_position(self, layout, offset=(0, 0)):
+        return self.drawer.layout_position(layout, offset)
+
+    def cache_position(self, id, position):
+        return self.drawer.cache_position(id, position)
 
     def render(self):
         if (DEBUG):
@@ -313,16 +416,91 @@ class Matrix:
         self.graphics.DrawLine(self.matrix, 0, 0, self.matrix.width,0, green)
 
     def get_text_center_position(self, text, font, y_pos):
-        """Get the x,y coordinates to center text horizontally at given y position"""
-        bbox = font.getbbox(text)
-        text_width = bbox[2] - bbox[0]
-        x_pos = (self.width - text_width) // 2
-        return (x_pos, y_pos)
+        return self.drawer.get_text_center_position(text, font, y_pos)
 
     def draw_text_centered(self, y_pos, text, font, fill=None, backgroundColor=None):
-        """Draw text centered horizontally at given y position"""
-        pos = self.get_text_center_position(text, font, y_pos)
-        self.draw_text(pos, text, font=font, fill=fill, backgroundColor=backgroundColor)
+        return self.drawer.draw_text_centered(y_pos, text, font, fill, backgroundColor)
+
+
+class OffscreenBuffer:
+    """
+    An offscreen rendering buffer that provides the same drawing interface as Matrix
+    but renders to a larger canvas for scrolling content.
+    """
+
+    def __init__(self, parent_matrix, width, height):
+        """
+        Initialize offscreen buffer.
+
+        Args:
+            parent_matrix: The parent Matrix instance
+            width: Width of the buffer
+            height: Height of the buffer
+        """
+        self.parent_matrix = parent_matrix
+        self.width = width
+        self.height = height
+        self.graphics = parent_matrix.graphics
+
+        # Use MatrixDrawer for all drawing operations
+        self.drawer = MatrixDrawer(self.width, self.height)
+
+        # Expose common properties for backward compatibility
+        self.image = self.drawer.image
+        self.draw = self.drawer.draw
+        self.pixels = self.drawer.pixels
+        self.position_cache = self.drawer.position_cache
+
+    def get_image(self):
+        """Return the rendered image for scrolling."""
+        return self.drawer.image
+
+    # Delegate all drawing methods to MatrixDrawer
+    def parse_location(self, value, dimension):
+        return self.drawer.parse_location(value, dimension)
+
+    def align_position(self, align, position, size):
+        return self.drawer.align_position(align, position, size)
+
+    def draw_text(self, position, text, font, fill=None, align="left",
+                backgroundColor=None, backgroundOffset=[1, 1, 1, 1]):
+        return self.drawer.draw_text(position, text, font, fill, align, backgroundColor, backgroundOffset)
+
+    def draw_image(self, position, image, align="left"):
+        return self.drawer.draw_image(position, image, align)
+
+    def draw_rectangle(self, position, size, fill=None, outline=None):
+        return self.drawer.draw_rectangle(position, size, fill, outline)
+
+    def draw_pixel(self, position, color):
+        return self.drawer.draw_pixel(position, color)
+
+    def draw_pixels(self, position, pixels, size, align="left"):
+        return self.drawer.draw_pixels(position, pixels, size, align)
+
+    def draw_text_layout(self, layout, text, align="left", fillColor=None, backgroundColor=None, backgroundOffset=[1, 1, 1, 1]):
+        return self.drawer.draw_text_layout(layout, text, align, fillColor, backgroundColor, backgroundOffset)
+
+    def draw_image_layout(self, layout, image, offset=(0, 0)):
+        return self.drawer.draw_image_layout(layout, image, offset)
+
+    def draw_pixels_layout(self, layout, pixels, size):
+        return self.drawer.draw_pixels_layout(layout, pixels, size)
+
+    def draw_rectangle_layout(self, layout, fillColor=None, outline=None):
+        return self.drawer.draw_rectangle_layout(layout, fillColor, outline)
+
+    def layout_position(self, layout, offset=(0, 0)):
+        return self.drawer.layout_position(layout, offset)
+
+    def cache_position(self, id, position):
+        return self.drawer.cache_position(id, position)
+
+    def get_text_center_position(self, text, font, y_pos):
+        return self.drawer.get_text_center_position(text, font, y_pos)
+
+    def draw_text_centered(self, y_pos, text, font, fill=None, backgroundColor=None):
+        return self.drawer.draw_text_centered(y_pos, text, font, fill, backgroundColor)
 
 
 class MatrixPixels:
