@@ -2,8 +2,6 @@ import logging
 from richcolorlog import setup_logging
 
 debug_enabled = False
-#logger = logging.getLogger("scoreboard")
-#logger.propagate = False
 
 def setup_logger(loglevel='INFO', debug=False,logtofile=False):
     """Sets up the logger."""
@@ -14,6 +12,8 @@ def setup_logger(loglevel='INFO', debug=False,logtofile=False):
     if debug:
         show_path = True
         level = 'DEBUG'
+        # This is broken under richcolorlog 1.44.5 as the function, filename and line only show the richcolorlog 
+        # and not the calling python script
         template = "%(asctime)s | %(name)s | %(levelname)s | %(funcName)s() | %(message)s | %(filename)s:%(lineno)d"
 
     # setup_logging from richcolorlog configures the logger instance

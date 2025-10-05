@@ -46,6 +46,7 @@ def get_lat_lng(location):
     loc_cache = {}
     today = datetime.today()#gets current time
     latlng = []
+    g = {}
     
     sb_useragent = f"scoreboard-{uuid.uuid4()}"
     geolocator = Nominatim(user_agent=sb_useragent)

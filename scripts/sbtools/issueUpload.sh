@@ -96,7 +96,7 @@ if [ "$SUPERVISOR_INSTALLED" = true ]; then
 fi
 
 if [ "$SUPERVISOR_INSTALLED" = false ]; then
-    echo "supervisorctl not found. Please run the scoreboard with the --logtofile option to generate a scoreboard.log. Once the issue happens again, rerun this script"
+    echo "supervisorctl not found. Please run the scoreboard with the --logtofile and the --loglevel=DEBUG option to generate a scoreboard.log. Once the issue happens again, rerun this script"
 else
     url=$(/usr/bin/pastebinit -b pastebin.com -t "nhl-led-scoreboard issue logs and config" < /tmp/issue.txt)
     echo "Take this url and paste it into your issue.  You can create an issue @ https://github.com/falkyre/nhl-led-scoreboard/issues"

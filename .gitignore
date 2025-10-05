@@ -181,3 +181,4 @@ plugins.lock.json
 
 # Ignore all ori files
 *.ori
+.devcontainer.json
