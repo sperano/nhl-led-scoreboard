@@ -43,7 +43,7 @@
 # Installation
 The following makes the assumption that you are comfortable with a Linux terminal and command line and the ability to use git.  You are also expected to know how to edit a json file to create a config.json. 
 > [!NOTE]
-> The _nhl_setup_ binary may or may not work and only works on the 32 bit version of the OS.  It has not been updated to reflect all new releases and additions to the config.json.  At some point, this tool will be replaced.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
+> The _nhl_setup_ binary may or may not work and only works on the 32 bit version of the OS.  It has not been updated to reflect all new releases and additions to the config.json.  It also still has the Coyotes and not the MammothAt some point, this tool will be replaced.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
 
 ## Clean Install
 1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
