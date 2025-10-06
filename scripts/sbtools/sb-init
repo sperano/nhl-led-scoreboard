@@ -49,6 +49,11 @@ tput bold; echo "$(tput setaf 2)Installing required OS dependencies. This may ta
 
 #Install all apt requirements using aptfile
 sudo $DIR/aptfile apt-requirements
+# Check the exit code of the command above
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to install all apt requirements. Try rerunning install.sh again." >&2
+    exit 1
+fi
 
 install_fastfetch
 
