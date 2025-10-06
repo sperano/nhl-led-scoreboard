@@ -47,10 +47,11 @@ The following makes the assumption that you are comfortable with a Linux termina
 
 ## Clean Install
 1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
-2. Clone this repository with git :  `git clone --depth 1 https://github.com/falkyre/nhl-led-scoreboard.git` for only latest version (quickest way to clone but you don't get any other branches)
-3. Change to the nhl-led-scoreboard directory
-4. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any errors.
-5. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
+2. Install git on your fresh OS.  `sudo apt install git -y`
+3. Clone this repository with git :  `git clone --depth 1 https://github.com/falkyre/nhl-led-scoreboard.git` for only latest version (quickest way to clone but you don't get any other branches)
+4. Change to the nhl-led-scoreboard directory
+5. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any errors.
+6. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
 > [!NOTE]
 > Under Debian 13 Trxie, you will get this error from the install script.  It can be safely ignored
 
