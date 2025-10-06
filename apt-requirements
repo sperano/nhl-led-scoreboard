@@ -36,7 +36,6 @@ package "python3-pygame"
 #For the issueUpload.sh
 package "jq"
 package "pastebinit"
-package "fastfetch"
 
 
 # you can also execute arbitrary bash

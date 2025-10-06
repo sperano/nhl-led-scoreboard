@@ -5,6 +5,34 @@ py_ver () {
   pyver="$(command -p python3 -V | sed 's/Python //g')"
   echo $pyver
 }
+# Function to install fastfetch based on Debian version and architecture
+install_fastfetch() {
+    echo "Checking Debian version..."
+    DEBIAN_VERSION=$(cat /etc/debian_version)
+    
+    if [[ "$DEBIAN_VERSION" == "13"* ]]; then
+        echo "Debian 13 (trixie) detected. Installing fastfetch from apt..."
+        sudo apt-get install -y fastfetch
+    elif [[ "$DEBIAN_VERSION" == "12"* ]]; then
+        echo "Debian 12 (bookworm) detected. Checking architecture..."
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "aarch64" ]; then
+            echo "64-bit ARM architecture detected. Downloading and installing fastfetch..."
+            wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-aarch64.deb -O /tmp/fastfetch.deb
+            sudo dpkg -i /tmp/fastfetch.deb
+            rm /tmp/fastfetch.deb
+        elif [ "$ARCH" = "armv7l" ]; then
+            echo "32-bit ARM architecture detected. Downloading and installing fastfetch..."
+            wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-armv7l.deb -O /tmp/fastfetch.deb
+            sudo dpkg -i /tmp/fastfetch.deb
+            rm /tmp/fastfetch.deb
+        else
+            echo "Unsupported architecture for Debian 12: $ARCH"
+        fi
+    else
+        echo "Unsupported Debian version: $DEBIAN_VERSION"
+    fi
+}
 
 # Make script work regardless of where it is run from
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -18,8 +46,11 @@ fi
 
 tput bold; echo "$(tput setaf 2)Installing required OS dependencies. This may take some time (10-20 minutes-ish)...$(tput setaf 9)" ; tput sgr0
 
+
 #Install all apt requirements using aptfile
 sudo $DIR/aptfile apt-requirements
+
+install_fastfetch
 
 # Update system pip3 to latest version
 if $(dpkg --compare-versions $(py_ver) "gt" "3.10.0"); then
