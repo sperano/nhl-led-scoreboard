@@ -236,7 +236,7 @@ def playoff_info(season):
 
         output['rounds'] = rounds
     except Exception:
-        debug.error("No data for {} Playoff".format(season))
+        debug.warning("No data for {} Playoff".format(season))
         output['rounds'] = False
         return output
 
