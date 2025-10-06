@@ -22,9 +22,9 @@ echo "nhl-led-scoreboard issue data ${currdate}" > /tmp/issue.txt
 echo "=============================" >>/tmp/issue.txt
 echo "" >> /tmp/issue.txt
 echo "Running V${version} on a " >> /tmp/issue.txt
-/usr/bin/neofetch --off --stdout | grep Host >> /tmp/issue.txt
+/usr/bin/fastfetch -l none  | grep Host >> /tmp/issue.txt
 echo "Running OS: " >> /tmp/issue.txt
-/usr/bin/neofetch --off --stdout | grep "OS:" >> /tmp/issue.txt
+/usr/bin/fastfetch -l none  | grep "OS:" >> /tmp/issue.txt
 
 echo "------------------------------------------------------" >> /tmp/issue.txt
 echo "Git Remotes" >> /tmp/issue.txt

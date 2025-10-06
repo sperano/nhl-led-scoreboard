@@ -133,7 +133,7 @@ sudo depmod -a
 
 if ! grep -q isolcpus /boot/firmware/cmdline.txt; then
  tput bold; echo "$(tput setaf 4)Optimizing pi for python (isolating cpus)...$(tput setaf 9)" ; tput sgr0
- sudo sed -i 's/$/ isolcpus=3/' /boot/cmdline.txt
+ sudo sed -i 's/$/ isolcpus=3/' /boot/firmware/cmdline.txt
 fi
 
 git config --global user.email "first@example.com"

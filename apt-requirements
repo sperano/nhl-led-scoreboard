@@ -21,21 +21,22 @@ package "libcairo2"
 package "libopenblas0"
 package "libraqm-dev"
 package "direnv"
-#For the issueUpload.sh
-package "jq"
-package "pastebinit"
-package "neofetch"
 #For the sb-upgrade
 package "zsh"
 #For dietpi users without dbus
+package "cmake"
 package "dbus"
+package "libdbus-1-dev"
 package "libdbus-glib-1-dev"
 package "libgirepository1.0-dev" 
-package "libdbus-1-dev"
 #For RGBMatrixEmulator
 package "python3-tk"
 package "libsixel-bin"
 package "python3-pygame"
+#For the issueUpload.sh
+package "jq"
+package "pastebinit"
+package "fastfetch"
 
 
 # you can also execute arbitrary bash
