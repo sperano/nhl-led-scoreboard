@@ -222,21 +222,23 @@ def next_season():
 
 
 def playoff_info(season):
-    client = NHLClient(verbose = False)
-    data = client.playoffs.carousel(season)
-    parsed = data
-    season = parsed["seasonId"]
-    output = {'season': season}
     try:
+        output = {'season': season}
+        client = NHLClient(verbose = False)
+        data = client.playoffs.carousel(season)
+        parsed = data
+        season = parsed["seasonId"]
+
         playoff_rounds = parsed["rounds"]
         rounds = {}
         for r in range(len(playoff_rounds)):
             rounds[str(playoff_rounds[r]["roundNumber"])] = playoff_rounds[r]
-        
+
         output['rounds'] = rounds
-    except KeyError:
-        debug.error("No data for {} Playoff".format(season))
+    except Exception:
+        debug.warning("No data for {} Playoff".format(season))
         output['rounds'] = False
+        return output
 
     try:
         currentRound = parsed["currentRound"]
@@ -405,7 +407,7 @@ class Wildcard:
 class Playoff():
     def __init__(self, data):
         self.season = data['season']
-        self.default_round = data['currentRound']
+        self.default_round = data.get('currentRound', None)
         self.rounds = data['rounds']
 
     def __str__(self):
