@@ -43,7 +43,7 @@
 # Installation
 The following makes the assumption that you are comfortable with a Linux terminal and command line and the ability to use git.  You are also expected to know how to edit a json file to create a config.json. 
 > [!NOTE]
-> The _nhl_setup_ binary may or may not work and only works on the 32 bit version of the OS.  It has not been updated to reflect all new releases and additions to the config.json.  It also still has the Coyotes and not the MammothAt some point, this tool will be replaced.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
+> The _nhl_setup_ binary has been removed from this repository and into it's own.  It has been updated to allow for selecion of Mammoth as a team and there are also now 2 binarries, a 32 bit and 64 bit.  The install.sh will download the proper version for the OS you are running.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
 
 ## Clean Install
 1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
@@ -90,10 +90,9 @@ If you need help, there is a Discord that still runs.  See above for the link.  
 > The NHL API, which drives the data for the scoreboard is unofficially publically available and can be unreliable at times.  We have no control over it nor if it will still remain open to the public.  We joke that the NHL Interns are breaking it when things go wrong, but who knows?  We were blind sided in 2023 when the NHL switched to a new API.  It's great that the community came together and mapped out the new version.
 
 # Releases
-| Latest Stable | Latest Pre-release |
-| --- | --- |
-|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard/stable?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|
-
+| Latest Stable | Latest Pre-release | Latest nhl_setup |
+| --- | --- | --- |
+|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard/stable?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-setup/stable?label=Version)](https://github.com/falkyre/nhl-setup/releases/latest) |
 
 <details>
 <summary>Old Readme sections, read if you want some history</summary>

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEBIAN_VERSION=$(cat /etc/debian_version)
+ARCH9=$(uname -m)
 # Functions
 py_ver () {
   pyver="$(command -p python3 -V | sed 's/Python //g')"
@@ -15,7 +16,6 @@ install_fastfetch() {
         sudo apt-get install -y fastfetch
     elif [[ "$DEBIAN_VERSION" == "12"* ]]; then
         echo "Debian 12 (bookworm) detected. Checking architecture..."
-        ARCH=$(uname -m)
         if [ "$ARCH" = "aarch64" ]; then
             echo "64-bit ARM architecture detected. Downloading and installing fastfetch..."
             wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-aarch64.deb -O /tmp/fastfetch.deb
@@ -183,6 +183,20 @@ git reset --hard
 git fetch origin --prune
 git pull
 
+# Install nhl_setup binary based on architecture
+tput bold; echo "$(tput setaf 2)Installing nhl_setup binary...$(tput setaf 9)" ; tput sgr0
+if [ "$ARCH" = "aarch64" ]; then
+    echo "64-bit ARM architecture detected. Downloading and installing nhl_setup..."
+    wget https://github.com/falkyre/nhl-setup/releases/download/V2025.10.0/nhl_setup.64 -O nhl_setup
+    chmod +x nhl_setup
+elif [ "$ARCH" = "armv7l" ]; then
+    echo "32-bit ARM architecture detected. Downloading and installing nhl_setup..."
+    wget https://github.com/falkyre/nhl-setup/releases/download/V2025.10.0/nhl_setup.32 -O nhl_setup
+    chmod +x nhl_setup
+else
+    echo "Unsupported architecture for nhl_setup: $ARCH"
+fi
+  
 tput bold; echo "$(tput setaf 6)If you didn't see any errors above, everything should be installed!"; tput sgr0
 echo "$(tput bold)$(tput smso)$(tput setaf 2)Installation complete!$(tput sgr0) Reboot, then Play around with the examples in nhl-led-scoreboard/submodules/matrix/bindings/python/samples to make sure your matrix is working."
 

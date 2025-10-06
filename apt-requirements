@@ -5,7 +5,6 @@ update
 
 # install some packages
 package "build-essential"
-package "git"
 package "python3-setuptools"
 package "python3-pip"
 package "python3-dev"
