@@ -51,6 +51,13 @@ The following makes the assumption that you are comfortable with a Linux termina
 3. Change to the nhl-led-scoreboard directory
 4. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any failures.
 5. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
+> [!NOTE]
+> Under Debian 13 Trxie, you will get this error from the install script.  It can be ignored
+
+`ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+types-requests 2.32 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
+types-docker 7.1 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
+types-influxdb-client 1.45 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.`
    
 ## Upgrade
 >[!CAUTION]
