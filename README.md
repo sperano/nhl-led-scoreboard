@@ -24,10 +24,10 @@
 * [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
 ## Only Supported OS (these have been tested)
 * rpi OS Bookworm or higher (32 bit or 64 bit)
-    >[!NOTE]
+    > [!NOTE]
     > If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
-* Dietpi V9.9.0 or higher (dietpi V9.17.2 is Debian trixie and the board has been tested under 64bit Trixie)
-    >[!NOTE]
+* Dietpi V9.9.0 or higher (dietpi V9.17.2 is Debian trixie and the board has been tested under this OS)
+    > [!NOTE]
     > Make sure when you setup your dietpi installation for the first time, change this setting in the /boot/dietpi.txt:
     > AUTO_UNMASK_LOGIND=0 to AUTO_UNMASK_LOGIND=1
     > This makes sure that the systemd-logind is running which provides dbus. 
@@ -43,21 +43,22 @@
 # Installation
 The following makes the assumption that you are comfortable with a Linux terminal and command line and the ability to use git.  You are also expected to know how to edit a json file to create a config.json. 
 > [!NOTE]
-> The _nhl_setup_ binary may or may not work.  It has not been updated to reflect all new releases and additions to the config.json.  At some point, this tool will be replaced.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
+> The _nhl_setup_ binary may or may not work and only works on the 32 bit version of the OS.  It has not been updated to reflect all new releases and additions to the config.json.  At some point, this tool will be replaced.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
 
 ## Clean Install
 1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
-2. Clone this repository with git 
+2. Clone this repository with git :  `git clone --depth 1 https://github.com/falkyre/nhl-led-scoreboard.git` for only latest version (quickest way to clone but you don't get any other branches)
 3. Change to the nhl-led-scoreboard directory
-4. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any failures.
+4. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any errors.
 5. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
 > [!NOTE]
-> Under Debian 13 Trxie, you will get this error from the install script.  It can be ignored
+> Under Debian 13 Trxie, you will get this error from the install script.  It can be safely ignored
 
 `ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
 types-requests 2.32 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
 types-docker 7.1 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
 types-influxdb-client 1.45 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.`
+
    
 ## Upgrade
 >[!CAUTION]
@@ -70,6 +71,14 @@ The scripts/install.sh will offer a new install or upgrade.  It should work on a
 2. Delete the /home/pi/nhlsb_venv folder
 3. Delete the /home/pi/nhl-led-scoreboard folder
 4. Follow the steps for a clean install
+
+## Random notes on the install
+Some of the python libraries that we are using are created using an older method of packing.  As a result, you may see warnings in the output of the install.sh script similar to this:
+
+`DEPRECATION: Wheel filename 'regex-2013_12_31-cp37-cp37m-linux_armv6l.whl' is not correctly normalised. Future versions of pip will raise the following error:
+  Invalid wheel filename (invalid version): 'regex-2013_12_31-cp37-cp37m-linux_armv6l'`
+
+These warnings can be ignored.
 
 # Troubleshooting
 **Rule #1:  W.A.E.F.R.T.F.M ---> read the readme again**
