@@ -111,6 +111,12 @@ TEXT0
 
   tput bold; echo "$(tput setaf 2)Installing scoreboard python requirements in virtual environment...$(tput setaf 9)" ; tput sgr0
   pip3 install -U -r requirements.txt
+
+  # Check the exit code of the command above
+  if [ $? -ne 0 ]; then
+      echo "❌ Error: Failed to install all python requirements. Try rerunning install.sh again." >&2
+      exit 1
+  fi
   
   tput bold; echo "$(tput setaf 4)...................................................$(tput setaf 9)" ; tput sgr0
   tput bold; echo "$(tput setaf 4)TAKE NOTE OF NEXT LINES...$(tput setaf 9)" ; tput sgr0  
@@ -121,6 +127,11 @@ TEXT0
   tput bold; echo "$(tput setaf 4)...................................................$(tput setaf 9)" ; tput sgr0
 else
   sudo pip3 install -U -r requirements.txt
+   # Check the exit code of the command above
+  if [ $? -ne 0 ]; then
+      echo "❌ Error: Failed to install all python requirements. Try rerunning install.sh again." >&2
+      exit 1
+  fi
 fi
 # Pull submodule and ignore changes from script
 git submodule update --init --recursive
