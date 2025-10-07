@@ -80,6 +80,12 @@ The scripts/install.sh will offer a new install or upgrade.  It should work on a
 2. Delete the /home/pi/nhlsb_venv folder
 3. Delete the /home/pi/nhl-led-scoreboard folder
 4. Follow the steps for a clean install
+  
+**OR - if you want really clean install:**
+
+1. Make a copy of your config.json file to local computer
+2. Download OS of choice (32 or 64 bit raspiOS), set that up
+3. Follow steps for clean install
 
 ## Random notes on the install
 Some of the python libraries that we are using are created using an older method of packing.  As a result, you may see warnings in the output of the install.sh script similar to this:
