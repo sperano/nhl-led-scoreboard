@@ -32,7 +32,7 @@ class screenSaver:
         self.draw_screenSaver()
 
 
-    def draw_screenSaver(self):
+    def render(self):
 
         self.data.screensaver_displayed = True
         show_gif = self.data.config.screensaver_animations
