@@ -3,12 +3,12 @@
     {
       "name": "holiday_countdown_board",
       "url": "https://github.com/kas21/nls-plugin-holiday-countdown-board.git",
-      "ref": "v2025.10.01"
+      "ref": "latest"
     },
     {
       "name": "nfl_board",
       "url": "https://github.com/kas21/nls-plugin-nfl-board.git",
-      "ref": "v2025.10.01"
+      "ref": "latest"
     }
   ]
 }
