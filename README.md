@@ -3,6 +3,14 @@
 
 ![scoreboard demo](assets/images/scoreboard.jpg)
 
+# Releases
+
+Click on button to go to release notes.
+
+| Latest Stable | Latest nhl_setup |
+| --- | --- |
+|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard/stable?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-setup/stable?label=Version)](https://github.com/falkyre/nhl-setup/releases/latest) |
+
 # NHL LED Scoreboard Raspberry Pi Image 
 
 [![Create Release - Image](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml/badge.svg)](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml)
@@ -89,10 +97,6 @@ If you need help, there is a Discord that still runs.  See above for the link.  
 >[!IMPORTANT]
 > The NHL API, which drives the data for the scoreboard is unofficially publically available and can be unreliable at times.  We have no control over it nor if it will still remain open to the public.  We joke that the NHL Interns are breaking it when things go wrong, but who knows?  We were blind sided in 2023 when the NHL switched to a new API.  It's great that the community came together and mapped out the new version.
 
-# Releases
-| Latest Stable | Latest Pre-release | Latest nhl_setup |
-| --- | --- | --- |
-|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard/stable?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-setup/stable?label=Version)](https://github.com/falkyre/nhl-setup/releases/latest) |
 
 <details>
 <summary>Old Readme sections, read if you want some history</summary>
