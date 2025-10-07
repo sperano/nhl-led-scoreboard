@@ -34,6 +34,9 @@ class wxAlert:
         #Make sure there's an alert active before showing. 
         #Check so wxalert can be used as a standalone board
 
+        # To test the alert board uncomment the line below
+        #self.data.wx_alerts = ['Rainfall', 'warning', '10/05 10:38 AM']
+        
         if len(self.data.wx_alerts) > 0:
             #Get size of summary text for looping 
             alert_info = self.matrix.draw_text(["50%", "50%"],self.data.wx_alerts[0],self.wxfont)
