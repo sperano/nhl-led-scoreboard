@@ -263,7 +263,8 @@ class Boards:
         while True:
             board = getattr(self, data.config.boards_off_day[bord_index], None)
             data.curr_board = data.config.boards_off_day[bord_index]
-
+            debug.debug(f"Off Day Board Index: {bord_index} Board: {data.config.boards_off_day[bord_index]}")
+            
             if data.pb_trigger:
                 debug.info('PushButton triggered....will display ' + data.config.pushbutton_state_triggered1 + ' board ' + "Overriding off_day -> " + data.config.boards_off_day[bord_index])
                 if not data.screensaver:
@@ -302,6 +303,7 @@ class Boards:
                     data.pb_trigger = False
 
             if board:
+                debug.debug(f"Displaying Off Day Board: {data.config.boards_off_day[bord_index]}")
                 board(data, matrix, sleepEvent)
             else :
                 debug.error(f"Board not found: {data.config.boards_off_day[bord_index]}. Check board exists and config.json is correct")
