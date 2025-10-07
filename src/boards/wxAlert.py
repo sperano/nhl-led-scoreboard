@@ -30,6 +30,7 @@ class wxAlert:
         
         self.wxfont = data.config.layout.wxalert_font
 
+    def render(self):    
         #Make sure there's an alert active before showing. 
         #Check so wxalert can be used as a standalone board
 

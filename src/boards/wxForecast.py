@@ -33,6 +33,8 @@ class wxForecast:
         #     self.duration = 30
 
         self.duration = self.data.config.weather_forecast_days * 6
+
+    def render(self):
         display_wx = 0
         show_day = 0
         display_sleep = 10
