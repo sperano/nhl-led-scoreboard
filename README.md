@@ -31,7 +31,7 @@ Click on button to go to release notes.
 * Adafruit RGB Bonnet or HAT
 * [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
 ## Only Supported OS (these have been tested)
-* rpi OS Bookworm or higher (32 bit or 64 bit)
+* rpi OS Bookworm or higher (32 bit or 64 bit) - **lite vesion only**
 > [!NOTE]
 > If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
 * Dietpi V9.9.0 or higher (dietpi V9.17.2 is Debian trixie and the board has been tested under this OS)
