@@ -9,7 +9,9 @@ else:
 
 from time import sleep
 from utils import center_text,get_file
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class wxWeather:
     def __init__(self, data, matrix,sleepEvent):
@@ -39,6 +41,7 @@ class wxWeather:
             debug.error("Duration is less than 30 seconds, defaulting to 30 seconds")
             self.duration = 30
 
+    def render(self):
         display_wx = 0
         display_sleep = self.duration/3
         if self.data.wx_updated:

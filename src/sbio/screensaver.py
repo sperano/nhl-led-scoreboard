@@ -1,7 +1,9 @@
-import debug
+import logging
 from datetime import datetime,date,time,timedelta
 from utils import timeValidator
 from time import sleep
+
+debug = logging.getLogger("scoreboard")
 
 class screenSaver(object):
     def __init__(self, data, matrix,sleepEvent, scheduler):

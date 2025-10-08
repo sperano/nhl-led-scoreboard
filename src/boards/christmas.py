@@ -8,9 +8,11 @@ else:
 from PIL import ImageFont, Image
 from utils import center_text
 import datetime
-import debug
+import logging
 from time import sleep
 from utils import get_file
+
+debug = logging.getLogger("scoreboard")
 
 class Christmas:
     def __init__(self, data, matrix,sleepEvent):

@@ -1,16 +1,112 @@
 
-# NHL-LED-scoreboard (Sort of limping along) 
+# NHL-LED-scoreboard
 
 ![scoreboard demo](assets/images/scoreboard.jpg)
 
+# Releases
+
+Click on button to go to release notes.
+
+| Latest Stable | Latest nhl_setup |
+| --- | --- |
+|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard/stable?label=Version)](https://github.com/falkyre/nhl-led-scoreboard/releases/latest)|[![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-setup/stable?label=Version)](https://github.com/falkyre/nhl-setup/releases/latest) |
+
 # NHL LED Scoreboard Raspberry Pi Image 
-### Now updated to 2025.7.0 ... 
 
 [![Create Release - Image](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml/badge.svg)](https://github.com/falkyre/nhl-led-scoreboard-img/actions/workflows/main.yml)
 [![GitHub release (latest by date)](https://badgen.net/github/release/falkyre/nhl-led-scoreboard-img?label=Version)](https://github.com/falkyre/nhl-led-scoreboard-img/releases/latest)
 
 [![discord button](assets/images/discord_button.png)](https://discord.gg/CWa5CzK)
 # IMPORTANT (PLEASE READ)
+## No seriously, really read the next lines
+> [!WARNING]
+> I mean it, don't say I didn't warn you
+
+# HARD REQUIREMENTS
+## Only Supported Raspberry Pi Hardware
+* Raspberry Pi Zero 2w
+* Raspberry Pi 3A+, 3B
+* Raspberry Pi 4
+## Only Supported RGB Adapters
+* Adafruit RGB Bonnet or HAT
+* [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
+## Only Supported OS (these have been tested)
+* rpi OS Bookworm or higher (32 bit or 64 bit)
+    > [!NOTE]
+    > If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
+* Dietpi V9.9.0 or higher (dietpi V9.17.2 is Debian trixie and the board has been tested under this OS)
+    > [!NOTE]
+    > Make sure when you setup your dietpi installation for the first time, change this setting in the /boot/dietpi.txt:
+    > AUTO_UNMASK_LOGIND=0 to AUTO_UNMASK_LOGIND=1
+    > This makes sure that the systemd-logind is running which provides dbus. 
+    > Or run sudo systemctl unmask systemd-logind.service if you didn't put that in your original setup
+## Only supported Python
+* Python 3.11 or higher
+* Running in a virtual environment
+
+
+# Required skills for hardware installation
+[Skills needed](#skill-requirements-please-read)
+
+# Installation
+The following makes the assumption that you are comfortable with a Linux terminal and command line and the ability to use git.  You are also expected to know how to edit a json file to create a config.json. 
+> [!NOTE]
+> The _nhl_setup_ binary has been removed from this repository and into it's own.  It has been updated to allow for selecion of Mammoth as a team and there are also now 2 binarries, a 32 bit and 64 bit.  The install.sh will download the proper version for the OS you are running.  Although a little dated, the configuration items in config.json are listed here:  https://github.com/riffnshred/nhl-led-scoreboard/wiki/Configuration
+
+## Clean Install
+1. Read the release notes of the release you are installing.  There can be information on breaking changes or procedures that are needed for the release.
+2. Install git on your fresh OS.  `sudo apt install git -y`
+3. Clone this repository with git :  `git clone --depth 1 https://github.com/falkyre/nhl-led-scoreboard.git` for only latest version (quickest way to clone but you don't get any other branches)
+4. Change to the nhl-led-scoreboard directory
+5. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any errors.
+6. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
+> [!NOTE]
+> Under Debian 13 Trxie, you will get this error from the install script.  It can be safely ignored
+
+`ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+types-requests 2.32 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
+types-docker 7.1 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
+types-influxdb-client 1.45 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.`
+
+   
+## Upgrade
+>[!CAUTION]
+> You can only upgrade over top of this repository's code. If you are running someone else's fork, or the original nhl-led-scoreboard, you will not be able to upgrade.  You will quickly run into some very obvious pain points.
+
+The scripts/install.sh will offer a new install or upgrade.  It should work on an upgrade **unless you are directed to do a _clean install_ in the release notes (see point 1 of clean install)**
+
+## Directed to do clean install
+1. Make a copy of your config.json file.
+2. Delete the /home/pi/nhlsb_venv folder
+3. Delete the /home/pi/nhl-led-scoreboard folder
+4. Follow the steps for a clean install
+  
+**OR - if you want really clean install:**
+
+1. Make a copy of your config.json file to local computer
+2. Download OS of choice (32 or 64 bit raspiOS), set that up
+3. Follow steps for clean install
+
+## Random notes on the install
+Some of the python libraries that we are using are created using an older method of packing.  As a result, you may see warnings in the output of the install.sh script similar to this:
+
+`DEPRECATION: Wheel filename 'regex-2013_12_31-cp37-cp37m-linux_armv6l.whl' is not correctly normalised. Future versions of pip will raise the following error:
+  Invalid wheel filename (invalid version): 'regex-2013_12_31-cp37-cp37m-linux_armv6l'`
+
+These warnings can be ignored.
+
+# Troubleshooting
+**Rule #1:  W.A.E.F.R.T.F.M ---> read the readme again**
+
+If you need help, there is a Discord that still runs.  See above for the link.  However, please be prepared with some information other than a generic, my board has crashed.  There is a script in the scripts/sbtools folder called issueUpload.sh.  This will gather information from your installation and paste it to a pastebin.  Plewse do that and provide the pastebin link that the script gives you.  Also, ensure that you have read the latest release notes in case there is something there you have missed.
+
+>[!IMPORTANT]
+> The NHL API, which drives the data for the scoreboard is unofficially publically available and can be unreliable at times.  We have no control over it nor if it will still remain open to the public.  We joke that the NHL Interns are breaking it when things go wrong, but who knows?  We were blind sided in 2023 when the NHL switched to a new API.  It's great that the community came together and mapped out the new version.
+
+
+<details>
+<summary>Old Readme sections, read if you want some history</summary>
+
 ## (2025-07-08) We now have an image and some Mammoth team names.
 Effective release 2025.7.0, the minimum supported version of Python is 3.11.  If you run the latest rpiOS built on Debian Bookworm, you are ok.  Anything lower than Python 3.11, the install script WILL NOT COMPLETE with the proper Python libraries required to run the scoreboard.
 
@@ -175,3 +271,4 @@ You all can thank [Drew Hynes](https://gitlab.com/dword4) for his hard work on d
 ## Licensing
 
 This project uses the GNU Public License. If you intend to sell these, the code must remain open source.
+</details>

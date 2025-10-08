@@ -702,9 +702,9 @@
       "align": "left"
     },
     "title": {
-      "position": [124, 1],
+      "position": [124, 2],
       "align": "right-top",
-      "font": "wx_medium"
+      "font": "wx_small"
     },
     "name": {
       "position": [125, 10],

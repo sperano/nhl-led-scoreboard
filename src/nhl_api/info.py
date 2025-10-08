@@ -1,11 +1,13 @@
 import nhl_api.data
 from nhl_api.object import Object, MultiLevelObject
 from nameparser import HumanName
-import debug
+import logging
 import datetime
 import json
 
 from nhlpy import NHLClient
+
+debug = logging.getLogger("scoreboard")
 
 
 def team_info():
@@ -65,19 +67,19 @@ def team_info():
     #         try:
     #             previous_game = pg
     #         except:
-    #             debug.log("No next game detected for {}".format(name))
+    #             debug.debug("No next game detected for {}".format(name))
     #             previous_game = False
 
     #         try:
     #             next_game = ng
     #         except:
-    #             debug.log("No next game detected for {}".format(team_name))
+    #             debug.debug("No next game detected for {}".format(team_name))
     #             next_game = False
 
     #         # try:
     #         #     stats = team['teamStats'][0]['splits'][0]['stat']
     #         # except:
-    #         #     debug.log("No Stats detected for {}".format(team_name))
+    #         #     debug.debug("No Stats detected for {}".format(team_name))
     #         #     stats = False
 
     #         # roster = {}
@@ -220,21 +222,23 @@ def next_season():
 
 
 def playoff_info(season):
-    client = NHLClient(verbose = False)
-    data = client.playoffs.carousel(season)
-    parsed = data
-    season = parsed["seasonId"]
-    output = {'season': season}
     try:
+        output = {'season': season}
+        client = NHLClient(verbose = False)
+        data = client.playoffs.carousel(season)
+        parsed = data
+        season = parsed["seasonId"]
+
         playoff_rounds = parsed["rounds"]
         rounds = {}
         for r in range(len(playoff_rounds)):
             rounds[str(playoff_rounds[r]["roundNumber"])] = playoff_rounds[r]
-        
+
         output['rounds'] = rounds
-    except KeyError:
-        debug.error("No data for {} Playoff".format(season))
+    except Exception:
+        debug.warning("No data for {} Playoff".format(season))
         output['rounds'] = False
+        return output
 
     try:
         currentRound = parsed["currentRound"]
@@ -403,7 +407,7 @@ class Wildcard:
 class Playoff():
     def __init__(self, data):
         self.season = data['season']
-        self.default_round = data['currentRound']
+        self.default_round = data.get('currentRound', None)
         self.rounds = data['rounds']
 
     def __str__(self):

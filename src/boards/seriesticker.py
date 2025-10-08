@@ -8,10 +8,12 @@ from utils import center_obj
 from data.scoreboard import Scoreboard
 from data.data import Data
 from renderer.matrix import MatrixPixels, Matrix
-import debug
+import logging
 from PIL import Image
 from utils import get_file
 # import nhlpy
+
+debug = logging.getLogger("scoreboard")
 
 class Seriesticker:
     def __init__(self, data: Data, matrix: Matrix, sleepEvent):
@@ -74,7 +76,7 @@ class Seriesticker:
 
     def render(self):
         if not self.data.current_round:
-            debug.log("No Playoff to render on seriesticker")
+            debug.debug("No Playoff to render on seriesticker")
             return
         playoff_series = self.data.series
         self.index = 0

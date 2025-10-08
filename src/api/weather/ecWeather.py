@@ -1,7 +1,9 @@
-import debug
+import logging
 import datetime
 import asyncio
 from api.weather.wx_utils import cadhumidex, wind_chill, get_csv, degrees_to_direction, temp_f, wind_mph
+
+debug = logging.getLogger("scoreboard")
 
 class ecWxWorker(object):
     def __init__(self, data, scheduler):

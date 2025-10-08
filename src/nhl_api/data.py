@@ -1,10 +1,14 @@
 import json
 import requests
-import debug
+import logging
 from datetime import date
 from nhl_api.nhl_client import client
 import backoff
 import httpx
+
+
+
+debug = logging.getLogger("scoreboard")
 
 """
     TODO:
@@ -35,7 +39,7 @@ TIMEOUT_TESTING = 0.001  # TO DELETE
 
 @backoff.on_exception(backoff.expo,
                       httpx.HTTPError,
-                      logger='scoreboard')
+                      logger='scoreboard_backoff')
 
 def get_score_details(date):
     #client = NHLClient(verbose=False)

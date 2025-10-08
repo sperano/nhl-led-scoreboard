@@ -8,10 +8,12 @@ else:
     from RGBMatrixEmulator import graphics
 
 from time import sleep
-import debug
+import logging
 from utils import center_text,get_file
 import glob
 import random
+
+debug = logging.getLogger("scoreboard")
 
 DISPLAY_DURATION = 5
 
@@ -30,7 +32,7 @@ class screenSaver:
         self.draw_screenSaver()
 
 
-    def draw_screenSaver(self):
+    def render(self):
 
         self.data.screensaver_displayed = True
         show_gif = self.data.config.screensaver_animations

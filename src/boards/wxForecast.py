@@ -9,7 +9,9 @@ else:
 
 from time import sleep
 from utils import center_text,get_file
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class wxForecast:
     def __init__(self, data, matrix,sleepEvent):
@@ -31,6 +33,8 @@ class wxForecast:
         #     self.duration = 30
 
         self.duration = self.data.config.weather_forecast_days * 6
+
+    def render(self):
         display_wx = 0
         show_day = 0
         display_sleep = 10

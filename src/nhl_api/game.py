@@ -36,7 +36,7 @@ class GameScoreboard(object):
 
 @backoff.on_exception(backoff.expo,
                       httpx.HTTPError,
-                      logger='scoreboard')
+                      logger='scoreboard_backoff')
 def overview(game_id):
     
     #client = NHLClient(verbose=False)

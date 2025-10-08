@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 import driver
 from sbio.screensaver import screenSaver
 from sbio.dimmer import Dimmer
@@ -23,20 +24,32 @@ from update_checker import UpdateChecker
 import tzlocal
 from apscheduler.schedulers.background import BackgroundScheduler
 from renderer.loading_screen import Loading
+import logging
 import debug
+from rich.logging import RichHandler
 from rich.traceback import install
+from richcolorlog import setup_logging
+
 install(show_locals=True) 
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "2025.9.0"
+SCRIPT_VERSION = "2025.10.0"
+
+# Initialize the logger with default settings
+debug.setup_logger(logtofile=args().logtofile)
+sb_logger = logging.getLogger("scoreboard")
 
 # Conditionally load the appropriate driver classes and set the global driver mode based on command line flags
 
 if args().emulated:
     from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions
-
+    
     driver.mode = driver.DriverMode.SOFTWARE_EMULATION
+    RGBME_logger = logging.getLogger("RGBME")
+    RGBME_logger.propagate = False
+    RGBME_logger.addHandler(RichHandler(rich_tracebacks=True))
+    
 else:
     try:
         from rgbmatrix import RGBMatrix, RGBMatrixOptions # type: ignore
@@ -50,6 +63,7 @@ else:
 
 def run():
     # Get supplied command line arguments
+    
     commandArgs = args()
     if driver.is_hardware():
         # Kill the splash screen if active
@@ -58,6 +72,13 @@ def run():
     # Check for led configuration arguments
     matrixOptions = led_matrix_options(commandArgs)
     matrixOptions.drop_privileges = False
+    
+    if driver.is_emulated():
+        # Set up favico and tab title for browser emulator
+        matrixOptions.emulator_title = f"{SCRIPT_NAME} v{SCRIPT_VERSION}"
+        matrixOptions.icon_path = (Path(__file__).parent / ".." / "assets" / "images" / "favicon.ico").resolve()
+        sb_logger.debug(matrixOptions.emulator_title)
+        sb_logger.debug(f"Favicon path: {matrixOptions.icon_path}")
     
     # Initialize the matrix
     matrix = Matrix(RGBMatrix(options = matrixOptions))
@@ -74,22 +95,18 @@ def run():
     data = Data(config)
 
     #If we pass the logging arguments on command line, override what's in the config.json, else use what's in config.json (color will always be false in config.json)
-    if commandArgs.logcolor and commandArgs.loglevel is not None:
-        debug.set_debug_status(config,logcolor=commandArgs.logcolor,loglevel=commandArgs.loglevel)
-    elif not commandArgs.logcolor and commandArgs.loglevel is not None:
-        debug.set_debug_status(config,loglevel=commandArgs.loglevel)
-    elif commandArgs.logcolor and commandArgs.loglevel is None:
-        debug.set_debug_status(config,logcolor=commandArgs.logcolor,loglevel=config.loglevel)
+    if commandArgs.loglevel is not None:
+        debug.set_debug_status(config,loglevel=commandArgs.loglevel,logtofile=commandArgs.logtofile)
     else:
-        debug.set_debug_status(config,loglevel=config.loglevel)
+        debug.set_debug_status(config,loglevel=config.loglevel,logtofile=commandArgs.logtofile)
 
     # Print some basic info on startup
-    debug.info("{} - v{} ({}x{})".format(SCRIPT_NAME, SCRIPT_VERSION, matrix.width, matrix.height))
+    sb_logger.info("{} - v{} ({}x{})".format(SCRIPT_NAME, SCRIPT_VERSION, matrix.width, matrix.height))
     
     if data.latlng is not None:
-        debug.info(data.latlng_msg)
+        sb_logger.info(data.latlng_msg)
     else:
-        debug.error("Unable to find your location.")
+        sb_logger.error("Unable to find your location.")
 
     # Event used to sleep when rendering
     # Allows Web API (coming in V2) and pushbutton to cancel the sleep
@@ -116,7 +133,7 @@ def run():
              try:
                 asyncio.run(data.ecData.update())
              except Exception as e:
-                debug.error("Unable to connect to EC .. will try on next refresh : {}".format(e))
+                sb_logger.error("Unable to connect to EC .. will try on next refresh : {}".format(e))
             
     if data.config.weather_enabled:
         if data.config.weather_data_feed.lower() == "ec":
@@ -124,7 +141,7 @@ def run():
         elif data.config.weather_data_feed.lower() == "owm":
             owmWxWorker(data,scheduler)
         else:
-            debug.error("No valid weather providers selected, skipping weather feed")
+            sb_logger.error("No valid weather providers selected, skipping weather feed")
             data.config.weather_enabled = False
 
 
@@ -182,7 +199,7 @@ def run():
             from sbio.sbMQTT import sbMQTT
             pahoAvail = True
         except Exception as e:
-            debug.error("MQTT (paho-mqtt): is disabled.  Unable to import module: {}  Did you install paho-mqtt?".format(e))
+            sb_logger.error("MQTT (paho-mqtt): is disabled.  Unable to import module: {}  Did you install paho-mqtt?".format(e))
             pahoAvail = False   
         
         if pahoAvail:

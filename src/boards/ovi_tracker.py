@@ -3,8 +3,10 @@ from utils import get_file
 from renderer.screen_config import screenConfig
 from nhl_api.player import PlayerStats
 from renderer.logos import LogoRenderer
-import debug
+import logging
 import traceback
+
+debug = logging.getLogger("scoreboard")
 
 class OviTrackerRenderer:
     def __init__(self, data, matrix, sleepEvent):
@@ -125,6 +127,7 @@ class OviTrackerRenderer:
 
             # Render to matrix
             self.matrix.render()
-            self.sleepEvent.wait(15)
+            # Will make this a config item when moving to new board system
+            self.sleepEvent.wait(5)
         except Exception as e:
             debug.error(f"Error rendering Ovi tracker: {str(e)}\n{traceback.format_exc()}") 

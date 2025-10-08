@@ -1,11 +1,13 @@
 import paho.mqtt.client as sbmqtt
-import debug
+import logging
 import json
 import uuid
 from sbio.screensaver import screenSaver
 
 
-AVAIL_BOARDS = ["team_summary","standings","scoreticker","seriesticker","clock","weather","wxalert","pbdisplay","wxforecast","screensaver","stanley_cup_champions","christmas","seasoncountdown","ovi_tracker","player_stats","stats_leaders"]
+AVAIL_BOARDS = ["team_summary","standings","scoreticker","seriesticker","clock","weather","wxalert","pbdisplay","wxforecast","screensaver","stanley_cup_champions","christmas","season_countdown","ovi_tracker","player_stats","stats_leaders"]
+
+debug = logging.getLogger("scoreboard")
 class sbMQTT(object):
     def on_connect(self,client,userdata,flags,rc):
         if rc == 0:

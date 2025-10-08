@@ -2,36 +2,35 @@
 A Board is simply a display object with specific parameters made to be shown on screen.
 Board modules can be added by placing them in the src/boards/plugins/ or src/boards/builtins/ directories.
 """
-import debug
-import os
 import importlib
 import inspect
+import logging
 from pathlib import Path
-from .base_board import BoardBase
+
+from boards.christmas import Christmas
+from boards.clock import Clock
+from boards.ovi_tracker import OviTrackerRenderer
+from boards.pbdisplay import pbDisplay
+from boards.player_stats import PlayerStatsRenderer
 from boards.scoreticker import Scoreticker
+from boards.screensaver import screenSaver
 from boards.seriesticker import Seriesticker
 from boards.standings import Standings
-from boards.team_summary import TeamSummary
-from boards.clock import Clock
-from boards.pbdisplay import pbDisplay
-from boards.wxWeather import wxWeather
-from boards.wxAlert import wxAlert
-from boards.christmas import Christmas
-from boards.wxForecast import wxForecast
-from boards.screensaver import screenSaver
-from boards.stanley_cup_champions import StanleyCupChampions
-from boards.player_stats import PlayerStatsRenderer
-from time import sleep
-from boards.ovi_tracker import OviTrackerRenderer
 from boards.stats_leaders import StatsLeaders
+from boards.team_summary import TeamSummary
+from boards.wxAlert import wxAlert
+from boards.wxForecast import wxForecast
+from boards.wxWeather import wxWeather
 
-import traceback
+from .base_board import BoardBase
 
+debug = logging.getLogger("scoreboard")
 class Boards:
     def __init__(self):
         self._boards = {}
+        self._board_instances = {}  # Cache for board instances
         self._load_boards()
-    
+
     def _load_boards(self):
         """
         Dynamically load board modules from both plugins and builtins directories.
@@ -42,10 +41,10 @@ class Boards:
         """
         # Load from plugins directory (third-party/user board modules)
         self._load_boards_from_directory('plugins', 'plugin')
-        
+
         # Load from builtins directory (system board modules)
         self._load_boards_from_directory('builtins', 'builtin')
-    
+
     def _load_boards_from_directory(self, directory_name: str, board_type: str):
         """
         Load boards from a specific directory.
@@ -55,22 +54,22 @@ class Boards:
             board_type: Type description for logging ('plugin' or 'builtin')
         """
         boards_dir = Path(__file__).parent / directory_name
-        
+
         if not boards_dir.exists():
             debug.info(f"No {directory_name} directory found, skipping {board_type} loading")
             return
-        
+
         # Scan for board directories
         for board_dir in boards_dir.iterdir():
             if not board_dir.is_dir() or board_dir.name.startswith('_'):
                 continue
-            
+
             board_name = board_dir.name
             try:
                 self._load_single_board(board_name, board_dir, directory_name, board_type)
             except Exception as e:
                 debug.warning(f"Failed to load {board_type} '{board_name}': {e}")
-    
+
     def _load_single_board(self, board_name: str, board_dir: Path, directory_name: str, board_type: str):
         """
         Load a single board from its directory.
@@ -84,15 +83,15 @@ class Boards:
         # Check for required files
         init_file = board_dir / '__init__.py'
         board_file = board_dir / 'board.py'
-        
+
         if not init_file.exists():
             debug.warning(f"{board_type.capitalize()} '{board_name}' missing __init__.py, skipping")
             return
-        
+
         if not board_file.exists():
             debug.warning(f"{board_type.capitalize()} '{board_name}' missing board.py, skipping")
             return
-        
+
         # Import the board module
         module_name = f'boards.{directory_name}.{board_name}.board'
         try:
@@ -100,28 +99,39 @@ class Boards:
         except ImportError as e:
             debug.warning(f"Failed to import {board_type} module '{module_name}': {e}")
             return
-        
+
         # Find board class (should inherit from BoardBase)
         board_class = None
         for name, obj in inspect.getmembers(module, inspect.isclass):
-            if (obj != BoardBase and 
-                issubclass(obj, BoardBase) and 
+            if (obj != BoardBase and
+                issubclass(obj, BoardBase) and
                 obj.__module__ == module_name):
                 board_class = obj
                 break
-        
+
         if not board_class:
             debug.warning(f"No valid board class found in '{module_name}'")
             return
-        
+
         # Register the board (both plugins and builtins go in same registry)
         self._boards[board_name] = board_class
-        
-        # Dynamically add method to this class
-        setattr(self, board_name, lambda data, matrix, sleepEvent, cls=board_class: cls(data, matrix, sleepEvent).render())
-        
+
+        # Dynamically add method to this class with caching
+        def create_board_method(name, cls):
+            def board_method(data, matrix, sleepEvent):
+                # Check if instance already exists in cache
+                if name not in self._board_instances:
+                    # Create new instance and cache it
+                    self._board_instances[name] = cls(data, matrix, sleepEvent)
+                    debug.info(f"Created new instance for board: {name}")
+                # Call render on cached instance
+                return self._board_instances[name].render()
+            return board_method
+
+        setattr(self, board_name, create_board_method(board_name, board_class))
+
         debug.info(f"Loaded {board_type}: {board_name} ({board_class.__name__})")
-    
+
     def get_available_boards(self) -> dict:
         """
         Get information about all loaded board modules.
@@ -130,18 +140,103 @@ class Boards:
             Dict mapping board names to board classes
         """
         return self._boards.copy()
-    
+
     def is_board_loaded(self, board_name: str) -> bool:
         """
         Check if a board module is loaded and available.
-        
+
         Args:
             board_name: Name of the board to check
-            
+
         Returns:
             True if board is loaded, False otherwise
         """
         return board_name in self._boards
+
+    def _get_cached_board_instance(self, board_name: str, board_class, data, matrix, sleepEvent):
+        """
+        Get or create a cached instance of a legacy board.
+
+        Args:
+            board_name: Name of the board for caching
+            board_class: Board class to instantiate
+            data, matrix, sleepEvent: Board constructor arguments
+
+        Returns:
+            Cached board instance
+        """
+        if board_name not in self._board_instances:
+            try:
+                self._board_instances[board_name] = board_class(data, matrix, sleepEvent)
+                debug.info(f"Created new instance for legacy board: {board_name}")
+            except Exception:
+                debug.error(f"Failed to load board: {board_name}. Board doesnt exist or typo in config.")
+                return None
+        else:
+            debug.debug(f"Using cached instance for legacy board: {board_name}")
+        return self._board_instances[board_name]
+
+    def clear_board_cache(self, board_name: str = None):
+        """
+        Clear cached board instances and call cleanup.
+
+        Args:
+            board_name: Specific board to clear, or None to clear all
+        """
+        if board_name:
+            if board_name in self._board_instances:
+                board = self._board_instances[board_name]
+                if hasattr(board, 'cleanup'):
+                    board.cleanup()
+                del self._board_instances[board_name]
+                debug.info(f"Cleared cached instance for board: {board_name}")
+        else:
+            # Clear all cached instances
+            for name, board in self._board_instances.items():
+                if hasattr(board, 'cleanup'):
+                    board.cleanup()
+            self._board_instances.clear()
+            debug.info("Cleared all cached board instances")
+
+    def get_cached_boards(self) -> list:
+        """
+        Get list of currently cached board names.
+
+        Returns:
+            List of board names that have cached instances
+        """
+        return list(self._board_instances.keys())
+
+    def initialize_boards_with_data_requirements(self, data, matrix, sleepEvent):
+        """
+        Pre-initialize boards that require early data fetching.
+
+        This method checks board classes for requires_early_initialization = True and
+        only instantiates those boards, allowing them to start background data fetching
+        before the render loop begins.
+
+        Args:
+            data: Application data object
+            matrix: Display matrix object
+            sleepEvent: Threading event for sleep/wake control
+        """
+        debug.info("Boards: Pre-initializing boards with data requirements")
+        initialized_count = 0
+
+        for board_name, board_class in self._boards.items():
+            try:
+                # Check class attribute directly - no need to instantiate to check
+                if getattr(board_class, 'requires_early_initialization', False):
+                    # Only instantiate boards that actually need early initialization
+                    board_instance = board_class(data, matrix, sleepEvent)
+                    self._board_instances[board_name] = board_instance
+                    debug.info(f"Boards: Pre-initialized board '{board_name}' for early data fetching")
+                    initialized_count += 1
+
+            except Exception as exc:
+                debug.error(f"Boards: Failed to pre-initialize board '{board_name}': {exc}")
+
+        debug.info(f"Boards: Pre-initialized {initialized_count} boards with data requirements")
 
     # Board handler for PushButton
     def _pb_board(self, data, matrix, sleepEvent):
@@ -165,9 +260,10 @@ class Boards:
     def _off_day(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_off_day[bord_index])
+            board = getattr(self, data.config.boards_off_day[bord_index], None)
             data.curr_board = data.config.boards_off_day[bord_index]
-
+            debug.debug(f"Off Day Board Index: {bord_index} Board: {data.config.boards_off_day[bord_index]}")
+            
             if data.pb_trigger:
                 debug.info('PushButton triggered....will display ' + data.config.pushbutton_state_triggered1 + ' board ' + "Overriding off_day -> " + data.config.boards_off_day[bord_index])
                 if not data.screensaver:
@@ -205,7 +301,12 @@ class Boards:
                 else:
                     data.pb_trigger = False
 
-            board(data, matrix, sleepEvent)
+            if board:
+                debug.debug(f"Displaying Off Day Board: {data.config.boards_off_day[bord_index]}")
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_off_day[bord_index]}. Check board exists and config.json is correct")
+
 
             if bord_index >= (len(data.config.boards_off_day) - 1):
                 return
@@ -216,7 +317,7 @@ class Boards:
     def _scheduled(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_scheduled[bord_index])
+            board = getattr(self, data.config.boards_scheduled[bord_index], None)
             data.curr_board = data.config.boards_scheduled[bord_index]
             if data.pb_trigger:
                 debug.info('PushButton triggered....will display ' + data.config.pushbutton_state_triggered1 + ' board ' + "Overriding scheduled -> " + data.config.boards_scheduled[bord_index])
@@ -256,7 +357,10 @@ class Boards:
                 else:
                     data.pb_trigger = False
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_scheduled[bord_index]}. Check board exists and config.json is correct")
 
             if bord_index >= (len(data.config.boards_scheduled) - 1):
                 return
@@ -267,7 +371,7 @@ class Boards:
     def _intermission(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_intermission[bord_index])
+            board = getattr(self, data.config.boards_intermission[bord_index], None)
             data.curr_board = data.config.boards_intermission[bord_index]
 
             if data.pb_trigger:
@@ -306,8 +410,12 @@ class Boards:
             #         bord_index -= 1
             #     else:
             #         data.pb_trigger = False
-        
-            board(data, matrix, sleepEvent)
+
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_intermission[bord_index]}. Check board exists and config.json is correct")
+
 
             if bord_index >= (len(data.config.boards_intermission) - 1):
                 return
@@ -318,7 +426,7 @@ class Boards:
     def _post_game(self, data, matrix, sleepEvent):
         bord_index = 0
         while True:
-            board = getattr(self, data.config.boards_post_game[bord_index])
+            board = getattr(self, data.config.boards_post_game[bord_index], None)
             data.curr_board = data.config.boards_post_game[bord_index]
 
             if data.pb_trigger:
@@ -359,7 +467,10 @@ class Boards:
                     data.pb_trigger = False
 
 
-            board(data, matrix, sleepEvent)
+            if board:
+                board(data, matrix, sleepEvent)
+            else :
+                debug.error(f"Board not found: {data.config.boards_post_game[bord_index]}. Check board exists and config.json is correct")
 
             if bord_index >= (len(data.config.boards_post_game) - 1):
                 return
@@ -371,13 +482,15 @@ class Boards:
         Clock(data, matrix, sleepEvent)
 
     def scoreticker(self, data, matrix, sleepEvent):
-        Scoreticker(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('scoreticker', Scoreticker, data, matrix, sleepEvent)
+        board.render()
 
-    # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them. 
+    # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them.
     def seriesticker(self, data, matrix, sleepEvent):
-        Seriesticker(data, matrix, sleepEvent).render()
-    
-    # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them. 
+        board = self._get_cached_board_instance('seriesticker', Seriesticker, data, matrix, sleepEvent)
+        board.render()
+
+    # Since 2024, the playoff features are removed as we have not colected the new API endpoint for them.
     def stanley_cup_champions(self, data, matrix, sleepEvent):
         debug.info("stanley_cup_champions is disabled. This feature is not available right now")
         pass
@@ -385,46 +498,58 @@ class Boards:
 
     def standings(self, data, matrix, sleepEvent):
         #Try making standings a thread
-        Standings(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('standings', Standings, data, matrix, sleepEvent)
+        board.render()
 
     def team_summary(self, data, matrix, sleepEvent):
-        TeamSummary(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('team_summary', TeamSummary, data, matrix, sleepEvent)
+        board.render()
 
     def clock(self, data, matrix, sleepEvent):
-        Clock(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('clock', Clock, data, matrix, sleepEvent)
+        board.render()
 
     def pbdisplay(self, data, matrix, sleepEvent):
-        pbDisplay(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('pbdisplay', pbDisplay, data, matrix, sleepEvent)
+        board.draw()
 
     def weather(self, data, matrix, sleepEvent):
-        wxWeather(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('weather', wxWeather, data, matrix, sleepEvent)
+        board.render()
 
     def wxalert(self, data, matrix, sleepEvent):
-        wxAlert(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('wxalert', wxAlert, data, matrix, sleepEvent)
+        board.render()
 
     def wxforecast(self, data, matrix, sleepEvent):
-        wxForecast(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('wxforecast', wxForecast, data, matrix, sleepEvent)
+        board.render()
 
     def screensaver(self, data, matrix, sleepEvent):
-        screenSaver(data, matrix, sleepEvent)
+        board = self._get_cached_board_instance('screensaver', screenSaver, data, matrix, sleepEvent)
+        board.render()
 
     def christmas(self, data, matrix, sleepEvent):
-        Christmas(data, matrix, sleepEvent).draw()
+        board = self._get_cached_board_instance('christmas', Christmas, data, matrix, sleepEvent)
+        board.draw()
 
     def player_stats(self, data, matrix, sleepEvent):
-        PlayerStatsRenderer(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('player_stats', PlayerStatsRenderer, data, matrix, sleepEvent)
+        board.render()
 
     def ovi_tracker(self, data, matrix, sleepEvent):
-        OviTrackerRenderer(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('ovi_tracker', OviTrackerRenderer, data, matrix, sleepEvent)
+        board.render()
 
     def stats_leaders(self, data, matrix, sleepEvent):
-        StatsLeaders(data, matrix, sleepEvent).render()
+        board = self._get_cached_board_instance('stats_leaders', StatsLeaders, data, matrix, sleepEvent)
+        board.render()
 
     def _get_board_list(self):
         boards = []
-        
+
         # Add stats leaders board check
         if self.data.config.boards_enabled["stats_leaders"]:
             boards.append(self.stats_leaders)
-            
+
         return boards

@@ -6,7 +6,9 @@ from utils import center_obj
 from data.scoreboard import GameSummaryBoard
 from renderer.scoreboard import ScoreboardRenderer
 from renderer.matrix import MatrixPixels
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class Scoreticker:
     def __init__(self, data, matrix, sleepEvent):

@@ -5,7 +5,7 @@
 
 from datetime import datetime, date, timedelta
 from time import sleep
-import debug
+import logging
 import nhl_api
 from data.playoffs import Series
 from data.status import Status
@@ -13,6 +13,8 @@ from utils import get_lat_lng
 import json
 
 NETWORK_RETRY_SLEEP_TIME = 0.5
+
+debug = logging.getLogger("scoreboard")
 
 
 def filter_list_of_games(games, teams):
@@ -544,7 +546,7 @@ class Data:
                     if self.playoffs.default_round == 4:
                         self.stanleycup_round = True
 
-                    debug.info("defaultround number is : {}".format(self.playoffs.default_round))
+                    debug.debug("defaultround number is : {}".format(self.playoffs.default_round))
                     #8478996
                     try:
                         self.series = []

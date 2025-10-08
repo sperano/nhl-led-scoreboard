@@ -1,5 +1,7 @@
 import json
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class Periods:
     PLAYOFF = 'P'

@@ -1,13 +1,15 @@
 from datetime import datetime, date
 from nhl_api import current_season_info, next_season_info
-import debug
+import logging
+
+debug = logging.getLogger("scoreboard")
 
 class Status:
     def __init__(self):
         game_status = [] # game_status_info()
         # self.season_info = current_season_info()['seasons'][0]
         #self.next_season_info = next_season_info()['seasons'][0]
-        self.season_id = 20242025 # self.season_info["seasonId"]
+        self.season_id = 20252026 # self.season_info["seasonId"]
         self.Preview = []
         self.Live = []
         self.GameOver = []

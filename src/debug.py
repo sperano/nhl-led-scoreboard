@@ -1,84 +1,48 @@
-#import data.scoreboard_config
-import data
-import time
-import sys
 import logging
-from rich.logging import RichHandler
+from richcolorlog import setup_logging
 
 debug_enabled = False
 
-# Create a logger object.
+def setup_logger(loglevel='INFO', debug=False,logtofile=False):
+    """Sets up the logger."""
+    global logger
+    level = loglevel
+    show_path = False
+    template = "%(asctime)s | %(levelname)s | %(message)s"
+    if debug:
+        show_path = True
+        level = 'DEBUG'
+        # This is broken under richcolorlog 1.44.5 as the function, filename and line only show the richcolorlog 
+        # and not the calling python script
+        template = "%(asctime)s | %(name)s | %(levelname)s | %(funcName)s() | %(message)s | %(filename)s:%(lineno)d"
 
-#logger = logging.getLogger(__name__)
-logger = logging.getLogger('scoreboard')
-#Don't send our logging messages up to the root logger (stops duplicates)
-logger.propagate = False
-
-logger.check = lambda msg, *args: logger._log(logging.CHECK, msg, args, stacklevel=2)
-
-
-
-def set_debug_status(config,logcolor=False,loglevel='INFO'):
-	global debug_enabled
-	debug_enabled = config.debug
-	colorAvail = False
-
-	if sys.stdin.isatty() and logcolor:
-		try:
-			import coloredlogs
-			colorAvail = True
-		except Exception as e:
-			colorAvail = False
-			logger.error("ERROR: Unable to import module: {}  Did you install it?".format(e))
-
-
-	if loglevel.lower() == "debug":
-		debug_enabled = True
-
-	if debug_enabled:
-		if colorAvail:
-			coloredlogs.install(level='DEBUG',fmt='%(asctime)s %(name)s %(levelname)s %(message)s',stream=sys.stdout)
-		else:
-			logging.basicConfig(format='%(message)s', level=logging.DEBUG, datefmt='%y-%m-%d %H:%M:%S',handlers=[RichHandler(omit_repeated_times=False,tracebacks_show_locals=True,rich_tracebacks=True)])
-
-	else:
-		if colorAvail:
-			coloredlogs.install(level=loglevel,fmt='%(asctime)s %(levelname)s %(message)s',stream=sys.stdout,logger=logger)
-		else:
-			handler = logging.StreamHandler(sys.stdout)
-			formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-			handler.setFormatter(formatter)
-			#logger.addHandler(handler)
-			logger.addHandler(RichHandler(show_path=False,omit_repeated_times=False,tracebacks_show_locals=True,rich_tracebacks=True))
-			logger.setLevel(loglevel)
+    # setup_logging from richcolorlog configures the logger instance
+    logger = setup_logging(
+        name="scoreboard",
+        level=level,
+        show_path = show_path,
+        show_locals=True,
+        show_icon=True,
+        show_background=False,
+        rich_tracebacks=True,
+        omit_repeated_times=False,
+        log_file=logtofile,
+        log_file_name="scoreboard.log",
+        format_template=template
+    )
+    logger.propagate = False
 
 
-def __debugprint(text):
-	print(text)
-	sys.stdout.flush()
+def set_debug_status(config, loglevel='INFO',logtofile=False):
+    """Sets the debug status and reconfigures the logger."""
+    global debug_enabled
+    debug_enabled = config.debug
+    if loglevel.lower() == "debug":
+        debug_enabled = True
 
-def log(text):
-	if debug_enabled:
-		#__debugprint("DEBUG ({}): {}".format(__timestamp(), text))
-		logger.debug(text)
+    setup_logger(loglevel, debug_enabled,logtofile)
 
-def critical(text):
-	logger.critical(text,stack_info=True)
-
-def exception(text,e):
-  logger.exception(text,exc_info=e)
-
-def warning(text):
-  #__debugprint("WARNING ({}): {}".format(__timestamp(), text))
-  logger.warn(text)
-
-def error(text):
-	#__debugprint("ERROR ({}): {}".format(__timestamp(), text))
-	logger.error(text)
-
-def info(text):
-	#__debugprint("INFO ({}): {}".format(__timestamp(), text))
-	logger.info(text)
-
-def __timestamp():
-	return time.strftime("%H:%M:%S", time.localtime())
+    if debug_enabled:
+        logger.debug("Debug logging enabled")
+    else:
+        getattr(logger, loglevel.lower())(f"Logging level set to: {loglevel}")

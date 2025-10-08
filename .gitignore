@@ -163,10 +163,22 @@ config/custom_logos.json
 
 nhl-api-client/
 
-
-
 .codegpt
+**/.claude
 
-# Local developer plugins (ignored)
-src/boards/plugins/
+# Ignore config.json files in builtin boards
+/src/boards/builtins/**/config.json
+
+# Plugin directory: ignore all plugins (user-installed or symlinked for development)
+/src/boards/plugins/*
+!/src/boards/plugins/.gitkeep
+!/src/boards/plugins/*.md
+!/src/boards/plugins/example_board
+
+# Plugin manager files (auto-generated or user-customized)
+plugins.json
+plugins.lock.json
+
+# Ignore all ori files
 *.ori
+.devcontainer.json

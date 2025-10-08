@@ -1,7 +1,7 @@
 """
 Base class for board modules to ensure consistent interface and enable dynamic loading.
 """
-import debug
+import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 import json
@@ -10,7 +10,7 @@ from config.files.layout import LayoutConfig
 from config.file import ConfigFile
 from renderer.matrix import Matrix
 
-
+debug = logging.getLogger("scoreboard")
 class BoardLayoutConfig(LayoutConfig):
     """
     Extended LayoutConfig that loads layout files from board directories (plugins or builtins).
@@ -47,15 +47,19 @@ class BoardLayoutConfig(LayoutConfig):
 class BoardBase(ABC):
     """
     Abstract base class for all board modules.
-    
+
     All board modules (plugins and builtins) must inherit from this class and implement the required methods.
     This ensures a consistent interface for the board loading system.
     """
+
+    # Class attribute: indicates whether this board type requires early initialization
+    # Set to True in subclasses that need to start data fetching before first render
+    requires_early_initialization = False
     
     def __init__(self, data, matrix: Matrix, sleepEvent):
         """
         Initialize the board module.
-        
+
         Args:
             data: Application data object containing config and state
             matrix: Display matrix object for rendering
@@ -64,15 +68,15 @@ class BoardBase(ABC):
         self.data = data
         self.matrix = matrix
         self.sleepEvent = sleepEvent
-        
+
         # Board metadata (should be overridden by subclasses)
         self.board_name = self.__class__.__name__
         self.board_version = "1.0.0"
         self.board_description = "A board module"
-        
+
         # Detect display size
         self.display_width, self.display_height = self._detect_display_size()
-        
+
         # Load board-specific config and layout
         self.board_config = self._load_board_config()
         self.board_layout = self._create_board_layout_config()
@@ -81,7 +85,7 @@ class BoardBase(ABC):
     def render(self):
         """
         Render the board content to the matrix.
-        
+
         This method must be implemented by all board modules.
         It should handle the complete display logic for the board.
         """
@@ -108,9 +112,14 @@ class BoardBase(ABC):
                     board_name = module_parts[2]  # board directory name
                     
                     config_path = Path(__file__).parent / board_type / board_name / 'config.json'
+                    config_sample_path = Path(__file__).parent / board_type / board_name / 'config.sample.json'
                     
                     if config_path.exists():
                         with open(config_path, 'r') as f:
+                            return json.load(f)
+                    elif config_sample_path.exists():
+                        debug.warning(f"{board_name}: Config not found, falling back to sample config")
+                        with open(config_sample_path, 'r') as f:
                             return json.load(f)
         except Exception as e:
             debug.error(f"Error loading board config: {e}")
@@ -249,45 +258,3 @@ class BoardBase(ABC):
         """
         return self.board_layout is not None
 
-
-# class LegacyBoardAdapter(BoardBase):
-#     """
-#     Adapter class to wrap existing legacy boards.
-    
-#     This allows existing boards to work with the board loading system without modification.
-#     """
-    
-#     def __init__(self, data, matrix, sleepEvent, board_class, *args, **kwargs):
-#         """
-#         Initialize the legacy board adapter.
-        
-#         Args:
-#             data: Application data object
-#             matrix: Display matrix object  
-#             sleepEvent: Threading event
-#             board_class: The legacy board class to wrap
-#             *args, **kwargs: Additional arguments to pass to the legacy board
-#         """
-#         super().__init__(data, matrix, sleepEvent)
-        
-#         # Create instance of the legacy board
-#         self.board_instance = board_class(data, matrix, sleepEvent, *args, **kwargs)
-        
-#         # Set board metadata based on the legacy board
-#         self.board_name = board_class.__name__
-#         self.board_description = f"Legacy board: {board_class.__name__}"
-    
-#     def render(self):
-#         """
-#         Delegate rendering to the legacy board instance.
-        
-#         Handles different legacy board interfaces (render() method vs direct execution).
-#         """
-#         if hasattr(self.board_instance, 'render'):
-#             self.board_instance.render()
-#         elif hasattr(self.board_instance, 'draw'):
-#             self.board_instance.draw()
-#         else:
-#             # Some legacy boards execute in their constructor
-#             # In this case, the board has already been "rendered"
-#             pass

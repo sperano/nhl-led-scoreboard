@@ -1,6 +1,8 @@
-import debug
+import logging
 import datetime
 import asyncio
+
+debug = logging.getLogger("scoreboard")
 
 class ecWxAlerts(object):
     def __init__(self, data, scheduler,sleepEvent):
@@ -32,8 +34,7 @@ class ecWxAlerts(object):
         asyncio.run(self.data.ecData.update())
         curr_alerts = self.data.ecData.alerts
         self.network_issues = False
-
-
+        
         debug.info("Last Alert: {0}".format(self.data.wx_alerts))
         # Check if there's more than a length of 5 returned back as if there's
         # No alerts, the dictionary still comes back with empty values for 
@@ -127,7 +128,7 @@ class ecWxAlerts(object):
                 alerts[0][0] = "Frzn Drzl"
 
             #debug.info(alerts)
-
+            
             if self.data.wx_alerts != alerts[0]:
                 self.data.wx_alerts = alerts[0]
                 self.weather_alert = 0

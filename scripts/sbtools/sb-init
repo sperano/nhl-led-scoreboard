@@ -1,9 +1,37 @@
 #!/bin/bash
 
+DEBIAN_VERSION=$(cat /etc/debian_version)
+ARCH=$(uname -m)
 # Functions
 py_ver () {
   pyver="$(command -p python3 -V | sed 's/Python //g')"
   echo $pyver
+}
+# Function to install fastfetch based on Debian version and architecture
+install_fastfetch() {
+    echo "Checking Debian version..."
+    
+    if [[ "$DEBIAN_VERSION" == "13"* ]]; then
+        echo "Debian 13 (trixie) detected. Installing fastfetch from apt..."
+        sudo apt-get install -y fastfetch
+    elif [[ "$DEBIAN_VERSION" == "12"* ]]; then
+        echo "Debian 12 (bookworm) detected. Checking architecture..."
+        if [ "$ARCH" = "aarch64" ]; then
+            echo "64-bit ARM architecture detected. Downloading and installing fastfetch..."
+            wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-aarch64.deb -O /tmp/fastfetch.deb
+            sudo dpkg -i /tmp/fastfetch.deb
+            rm /tmp/fastfetch.deb
+        elif [ "$ARCH" = "armv7l" ]; then
+            echo "32-bit ARM architecture detected. Downloading and installing fastfetch..."
+            wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-armv7l.deb -O /tmp/fastfetch.deb
+            sudo dpkg -i /tmp/fastfetch.deb
+            rm /tmp/fastfetch.deb
+        else
+            echo "Unsupported architecture for Debian 12: $ARCH"
+        fi
+    else
+        echo "Unsupported Debian version: $DEBIAN_VERSION"
+    fi
 }
 
 # Make script work regardless of where it is run from
@@ -18,14 +46,25 @@ fi
 
 tput bold; echo "$(tput setaf 2)Installing required OS dependencies. This may take some time (10-20 minutes-ish)...$(tput setaf 9)" ; tput sgr0
 
+
 #Install all apt requirements using aptfile
 sudo $DIR/aptfile apt-requirements
+# Check the exit code of the command above
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to install all apt requirements. Try rerunning install.sh again." >&2
+    exit 1
+fi
 
-# Update system pip3 to latest version
-if $(dpkg --compare-versions $(py_ver) "gt" "3.10.0"); then
-  sudo python3 -m pip install --upgrade pip --break-system-packages
-else
-  sudo python3 -m pip install --upgrade pip
+install_fastfetch
+
+# Update system pip3 to latest version only if Debian version is lower than 13 (trixie)
+
+if [[ "$DEBIAN_VERSION" == "12"* ]]; then
+  if $(dpkg --compare-versions $(py_ver) "gt" "3.10.0"); then
+    sudo python3 -m pip install --upgrade pip --break-system-packages
+  else
+    sudo python3 -m pip install --upgrade pip
+  fi
 fi
 
 # Check python version, if it's greater than 3.9 (bullseye version), we will create a venv, if not, we will follow normal install but really should push 
@@ -72,6 +111,12 @@ TEXT0
 
   tput bold; echo "$(tput setaf 2)Installing scoreboard python requirements in virtual environment...$(tput setaf 9)" ; tput sgr0
   pip3 install -U -r requirements.txt
+
+  # Check the exit code of the command above
+  if [ $? -ne 0 ]; then
+      echo "❌ Error: Failed to install all python requirements. Try rerunning install.sh again." >&2
+      exit 1
+  fi
   
   tput bold; echo "$(tput setaf 4)...................................................$(tput setaf 9)" ; tput sgr0
   tput bold; echo "$(tput setaf 4)TAKE NOTE OF NEXT LINES...$(tput setaf 9)" ; tput sgr0  
@@ -82,6 +127,11 @@ TEXT0
   tput bold; echo "$(tput setaf 4)...................................................$(tput setaf 9)" ; tput sgr0
 else
   sudo pip3 install -U -r requirements.txt
+   # Check the exit code of the command above
+  if [ $? -ne 0 ]; then
+      echo "❌ Error: Failed to install all python requirements. Try rerunning install.sh again." >&2
+      exit 1
+  fi
 fi
 # Pull submodule and ignore changes from script
 git submodule update --init --recursive
@@ -133,7 +183,7 @@ sudo depmod -a
 
 if ! grep -q isolcpus /boot/firmware/cmdline.txt; then
  tput bold; echo "$(tput setaf 4)Optimizing pi for python (isolating cpus)...$(tput setaf 9)" ; tput sgr0
- sudo sed -i 's/$/ isolcpus=3/' /boot/cmdline.txt
+ sudo sed -i 's/$/ isolcpus=3/' /boot/firmware/cmdline.txt
 fi
 
 git config --global user.email "first@example.com"
@@ -143,6 +193,20 @@ git config pull.rebase false
 git reset --hard
 git fetch origin --prune
 git pull
+
+# Install nhl_setup binary based on architecture
+tput bold; echo "$(tput setaf 2)Installing nhl_setup binary...$(tput setaf 9)" ; tput sgr0
+if [ "$ARCH" = "aarch64" ]; then
+    echo "64-bit ARM architecture detected. Downloading and installing nhl_setup..."
+    wget https://github.com/falkyre/nhl-setup/releases/download/V2025.10.0/nhl_setup.64 -O nhl_setup
+    chmod +x nhl_setup
+elif [ "$ARCH" = "armv7l" ]; then
+    echo "32-bit ARM architecture detected. Downloading and installing nhl_setup..."
+    wget https://github.com/falkyre/nhl-setup/releases/download/V2025.10.0/nhl_setup.32 -O nhl_setup
+    chmod +x nhl_setup
+else
+    echo "Unsupported architecture for nhl_setup: $ARCH"
+fi
 
 tput bold; echo "$(tput setaf 6)If you didn't see any errors above, everything should be installed!"; tput sgr0
 echo "$(tput bold)$(tput smso)$(tput setaf 2)Installation complete!$(tput sgr0) Reboot, then Play around with the examples in nhl-led-scoreboard/submodules/matrix/bindings/python/samples to make sure your matrix is working."

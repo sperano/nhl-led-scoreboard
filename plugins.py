@@ -1,0 +1,564 @@
+#!/usr/bin/env python3
+"""
+Barebones Plugin Manager for NHL LED Scoreboard
+
+Manages board plugins as separate git repositories. Each plugin is cloned,
+copied into src/boards/plugins/<name>, and tracked in plugins.lock.json
+for reproducible installs.
+
+Usage:
+    python plugins.py add NAME URL [--ref REF]
+    python plugins.py rm NAME [--keep-config]
+    python plugins.py list
+    python plugins.py sync
+"""
+
+import argparse
+import fnmatch
+import importlib.util
+import json
+import logging
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Dict, List, Optional
+
+# Environment overrides for flexibility
+PLUGINS_DIR = Path(os.getenv("PLUGINS_DIR", "src/boards/plugins"))
+PLUGINS_JSON_DEFAULT = Path("plugins.json.example")
+PLUGINS_JSON_USER = Path(os.getenv("PLUGINS_JSON", "plugins.json"))
+PLUGINS_LOCK = Path(os.getenv("PLUGINS_LOCK", "plugins.lock.json"))
+
+# Default patterns for files to preserve during updates/removals
+DEFAULT_PRESERVE_PATTERNS = ["config.json", "*.csv", "data/*", "custom_*"]
+
+logger = logging.getLogger(__name__)
+
+
+def get_plugins_json_path() -> Path:
+    """
+    Get the active plugins.json path.
+    Uses plugins.json if it exists (user customization),
+    otherwise falls back to plugins.json.example (defaults).
+    """
+    if PLUGINS_JSON_USER.exists():
+        return PLUGINS_JSON_USER
+    elif PLUGINS_JSON_DEFAULT.exists():
+        logger.debug(f"Using default: {PLUGINS_JSON_DEFAULT}")
+        return PLUGINS_JSON_DEFAULT
+    else:
+        logger.error(f"Neither {PLUGINS_JSON_USER} nor {PLUGINS_JSON_DEFAULT} found!")
+        logger.error(f"Create {PLUGINS_JSON_USER} or copy from {PLUGINS_JSON_DEFAULT}")
+        sys.exit(1)
+
+
+def load_json(path: Path) -> dict:
+    """Load JSON file, returning empty dict if not found."""
+    if not path.exists():
+        return {}
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {path}: {e}")
+        sys.exit(1)
+
+
+def save_json_atomic(path: Path, data: dict):
+    """Save JSON atomically using temp file + rename."""
+    tmp_path = path.with_suffix(".tmp")
+    with open(tmp_path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")  # trailing newline
+    tmp_path.replace(path)
+
+
+def check_git_available():
+    """Ensure git is installed and available."""
+    try:
+        subprocess.run(["git", "--version"], capture_output=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.error("Git is not installed or not in PATH. Please install git.")
+        sys.exit(1)
+
+
+def run_git(args: List[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+    """Run a git command, returning CompletedProcess for inspection."""
+    cmd = ["git"] + args
+    logger.debug(f"Running: {' '.join(cmd)} (cwd={cwd})")
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+
+
+def clone_plugin(url: str, ref: Optional[str], tmp_dir: Path) -> Optional[str]:
+    """
+    Clone a git repo into tmp_dir and optionally checkout a ref.
+    Returns the resolved commit SHA, or None on failure.
+    """
+    # Clone with depth 1 for speed
+    result = run_git(["clone", "--depth", "1", url, str(tmp_dir)])
+    if result.returncode != 0:
+        logger.error(f"Failed to clone {url}")
+        logger.error(result.stderr)
+        return None
+
+    # If a ref is specified, fetch and checkout
+    if ref:
+        # Unshallow first to allow checking out arbitrary refs
+        logger.debug(f"Fetching ref: {ref}")
+        result = run_git(["fetch", "--depth", "1", "origin", ref], cwd=tmp_dir)
+        if result.returncode != 0:
+            logger.warning(f"Could not fetch ref '{ref}', using default branch")
+        else:
+            result = run_git(["checkout", ref], cwd=tmp_dir)
+            if result.returncode != 0:
+                logger.error(f"Failed to checkout ref '{ref}'")
+                logger.error(result.stderr)
+                return None
+
+    # Get resolved commit SHA
+    result = run_git(["rev-parse", "HEAD"], cwd=tmp_dir)
+    if result.returncode != 0:
+        logger.error("Failed to get commit SHA")
+        return None
+
+    commit_sha = result.stdout.strip()
+    logger.debug(f"Resolved commit: {commit_sha}")
+    return commit_sha
+
+
+def copy_plugin_files(src: Path, dest: Path):
+    """
+    Copy plugin files from src to dest, excluding .git directory.
+    Removes dest first if it exists to avoid stale files.
+    """
+    # Remove destination if it exists
+    if dest.exists():
+        logger.debug(f"Removing existing plugin at {dest}")
+        shutil.rmtree(dest)
+
+    # Copy files, ignoring .git
+    def ignore_git(directory, contents):
+        return [".git"] if ".git" in contents else []
+
+    shutil.copytree(src, dest, ignore=ignore_git)
+    logger.debug(f"Copied plugin files to {dest}")
+
+
+def validate_plugin(plugin_path: Path) -> bool:
+    """
+    Check if plugin folder contains expected files.
+    Returns True if valid, False with warning if suspicious.
+    """
+    expected_files = ["board.py", "__init__.py", "config.sample.json"]
+    found = any((plugin_path / f).exists() for f in expected_files)
+
+    if not found:
+        logger.warning(
+            f"Plugin at {plugin_path} doesn't contain expected files "
+            f"({', '.join(expected_files)}). May not work correctly."
+        )
+        return False
+    return True
+
+
+def get_plugin_id_from_repo(repo_path: Path) -> Optional[str]:
+    """
+    Extract the canonical plugin ID from the plugin's __init__.py.
+
+    Args:
+        repo_path: Path to the cloned repository
+
+    Returns:
+        Plugin ID string if found, None if __plugin_id__ not present or error occurs
+    """
+    init_file = repo_path / "__init__.py"
+
+    if not init_file.exists():
+        logger.debug(f"No __init__.py found in {repo_path}")
+        return None
+
+    try:
+        # Load the __init__.py module dynamically
+        spec = importlib.util.spec_from_file_location("temp_plugin_init", init_file)
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            if hasattr(module, "__plugin_id__"):
+                plugin_id = module.__plugin_id__
+                logger.debug(f"Found __plugin_id__: {plugin_id}")
+                return plugin_id
+            else:
+                logger.warning(f"Plugin __init__.py missing required __plugin_id__ attribute")
+                return None
+    except Exception as e:
+        logger.warning(f"Could not read __plugin_id__ from {init_file}: {e}")
+        return None
+
+
+def get_preserve_patterns(plugin_path: Path) -> List[str]:
+    """
+    Get list of file patterns to preserve from plugin's __init__.py.
+    Falls back to DEFAULT_PRESERVE_PATTERNS if not specified.
+    """
+    init_file = plugin_path / "__init__.py"
+
+    if not init_file.exists():
+        logger.debug(f"No __init__.py found, using default preserve patterns")
+        return DEFAULT_PRESERVE_PATTERNS
+
+    try:
+        # Load the __init__.py module dynamically
+        spec = importlib.util.spec_from_file_location("plugin_init", init_file)
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            if hasattr(module, "__preserve_files__"):
+                patterns = module.__preserve_files__
+                logger.debug(f"Using plugin-specified preserve patterns: {patterns}")
+                return patterns
+    except Exception as e:
+        logger.debug(f"Could not read __preserve_files__ from {init_file}: {e}")
+
+    logger.debug(f"Using default preserve patterns")
+    return DEFAULT_PRESERVE_PATTERNS
+
+
+def collect_preserved_files(plugin_path: Path, patterns: List[str]) -> Dict[str, bytes]:
+    """
+    Collect files matching patterns from plugin directory.
+    Returns dict of relative_path -> file_content (bytes).
+    """
+    preserved = {}
+
+    if not plugin_path.exists():
+        return preserved
+
+    for pattern in patterns:
+        # Handle both simple filenames and glob patterns
+        if "/" in pattern:
+            # Pattern with directory (e.g., "data/*")
+            parts = pattern.split("/")
+            base_dir = plugin_path / parts[0]
+            glob_pattern = "/".join(parts[1:])
+
+            if base_dir.exists() and base_dir.is_dir():
+                for file_path in base_dir.rglob(glob_pattern):
+                    if file_path.is_file():
+                        rel_path = file_path.relative_to(plugin_path)
+                        try:
+                            preserved[str(rel_path)] = file_path.read_bytes()
+                            logger.debug(f"Preserved: {rel_path}")
+                        except Exception as e:
+                            logger.warning(f"Could not preserve {rel_path}: {e}")
+        else:
+            # Simple pattern (e.g., "config.json", "*.csv")
+            for file_path in plugin_path.rglob(pattern):
+                if file_path.is_file():
+                    rel_path = file_path.relative_to(plugin_path)
+                    try:
+                        preserved[str(rel_path)] = file_path.read_bytes()
+                        logger.debug(f"Preserved: {rel_path}")
+                    except Exception as e:
+                        logger.warning(f"Could not preserve {rel_path}: {e}")
+
+    return preserved
+
+
+def restore_preserved_files(plugin_path: Path, preserved: Dict[str, bytes]):
+    """Restore preserved files to plugin directory."""
+    if not preserved:
+        return
+
+    logger.info(f"Restoring {len(preserved)} preserved file(s)")
+
+    for rel_path, content in preserved.items():
+        file_path = plugin_path / rel_path
+        try:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            file_path.write_bytes(content)
+            logger.debug(f"Restored: {rel_path}")
+        except Exception as e:
+            logger.warning(f"Could not restore {rel_path}: {e}")
+
+
+def install_plugin(url: str, ref: Optional[str], name_override: Optional[str] = None, preserve_user_files: bool = True) -> Optional[Dict]:
+    """
+    Install or update a single plugin.
+    Auto-detects plugin name from __plugin_id__ in the repo's __init__.py.
+
+    Args:
+        url: Git repository URL
+        ref: Git ref (tag, branch, SHA) to checkout
+        name_override: Optional override for plugin name (ignores __plugin_id__)
+        preserve_user_files: Whether to preserve user files during updates
+
+    Returns:
+        Lock entry dict on success, None on failure
+    """
+    logger.info(f"Installing plugin from {url}")
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+
+        # Clone and get commit SHA
+        commit_sha = clone_plugin(url, ref, tmp_path)
+        if not commit_sha:
+            return None
+
+        # Auto-detect plugin ID from __init__.py
+        if name_override:
+            plugin_name = name_override
+            logger.info(f"Using override name: {plugin_name}")
+        else:
+            plugin_name = get_plugin_id_from_repo(tmp_path)
+            if not plugin_name:
+                logger.error(
+                    f"Could not determine plugin name. Plugin must have __plugin_id__ in __init__.py, "
+                    f"or use --name to specify manually."
+                )
+                return None
+            logger.info(f"Detected plugin ID: {plugin_name}")
+
+        plugin_dest = PLUGINS_DIR / plugin_name
+        preserved_files = {}
+
+        # If updating an existing plugin, preserve user files
+        if preserve_user_files and plugin_dest.exists():
+            patterns = get_preserve_patterns(plugin_dest)
+            preserved_files = collect_preserved_files(plugin_dest, patterns)
+            if preserved_files:
+                logger.info(f"Preserving {len(preserved_files)} user file(s) during update")
+
+        # Copy to plugins directory
+        PLUGINS_DIR.mkdir(parents=True, exist_ok=True)
+        copy_plugin_files(tmp_path, plugin_dest)
+
+        # Restore preserved files
+        if preserved_files:
+            restore_preserved_files(plugin_dest, preserved_files)
+
+        # Validate plugin structure
+        validate_plugin(plugin_dest)
+
+        logger.info(f"✓ Plugin '{plugin_name}' installed successfully (commit: {commit_sha[:7]})")
+
+        # Return lock entry
+        return {
+            "name": plugin_name,
+            "url": url,
+            "ref": ref or "default",
+            "commit": commit_sha,
+        }
+
+
+def cmd_add(args):
+    """Add or update a plugin in plugins.json and install it."""
+    check_git_available()
+
+    # Install the plugin (auto-detects name from __plugin_id__)
+    lock_entry = install_plugin(args.url, args.ref, args.name)
+    if not lock_entry:
+        logger.error(f"Failed to install plugin from {args.url}")
+        sys.exit(1)
+
+    # Get the detected/assigned plugin name
+    plugin_name = lock_entry["name"]
+
+    # Always write to user's plugins.json (create if doesn't exist)
+    plugins_json_path = PLUGINS_JSON_USER
+
+    # Load current plugins.json (may use default as template)
+    plugins_data = load_json(get_plugins_json_path())
+    if "plugins" not in plugins_data:
+        plugins_data["plugins"] = []
+
+    # Remove existing entry if present (by name or URL)
+    plugins_data["plugins"] = [
+        p for p in plugins_data["plugins"]
+        if p["name"] != plugin_name and p["url"] != args.url
+    ]
+
+    # Add new entry
+    new_entry = {"name": plugin_name, "url": args.url}
+    if args.ref:
+        new_entry["ref"] = args.ref
+    plugins_data["plugins"].append(new_entry)
+
+    # Save to user's plugins.json
+    save_json_atomic(plugins_json_path, plugins_data)
+    logger.info(f"Added '{plugin_name}' to {plugins_json_path}")
+
+    # Update lock file
+    lock_data = load_json(PLUGINS_LOCK)
+    if "locked" not in lock_data:
+        lock_data["locked"] = []
+
+    # Remove existing lock entry
+    lock_data["locked"] = [p for p in lock_data["locked"] if p["name"] != plugin_name]
+    lock_data["locked"].append(lock_entry)
+
+    save_json_atomic(PLUGINS_LOCK, lock_data)
+    logger.info(f"Updated {PLUGINS_LOCK}")
+
+
+def cmd_rm(args):
+    """Remove a plugin from plugins.json and delete its files."""
+    # Always write to user's plugins.json
+    plugins_json_path = PLUGINS_JSON_USER
+
+    # Load current plugins.json
+    plugins_data = load_json(get_plugins_json_path())
+    if "plugins" not in plugins_data:
+        plugins_data["plugins"] = []
+
+    # Remove from plugins.json
+    original_count = len(plugins_data["plugins"])
+    plugins_data["plugins"] = [p for p in plugins_data["plugins"] if p["name"] != args.name]
+
+    if len(plugins_data["plugins"]) == original_count:
+        logger.warning(f"Plugin '{args.name}' not found in plugin configuration")
+    else:
+        save_json_atomic(plugins_json_path, plugins_data)
+        logger.info(f"Removed '{args.name}' from {plugins_json_path}")
+
+    # Remove from lock
+    lock_data = load_json(PLUGINS_LOCK)
+    if "locked" in lock_data:
+        lock_data["locked"] = [p for p in lock_data["locked"] if p["name"] != args.name]
+        save_json_atomic(PLUGINS_LOCK, lock_data)
+
+    # Delete plugin files
+    plugin_path = PLUGINS_DIR / args.name
+    if plugin_path.exists():
+        preserved_files = {}
+
+        # Preserve user files if requested
+        if args.keep_config:
+            patterns = get_preserve_patterns(plugin_path)
+            preserved_files = collect_preserved_files(plugin_path, patterns)
+            if preserved_files:
+                logger.info(f"Preserving {len(preserved_files)} user file(s)")
+
+        # Remove plugin directory
+        shutil.rmtree(plugin_path)
+        logger.info(f"Deleted plugin directory: {plugin_path}")
+
+        # Restore preserved files if any
+        if preserved_files:
+            plugin_path.mkdir(parents=True, exist_ok=True)
+            restore_preserved_files(plugin_path, preserved_files)
+            logger.info(f"Preserved files saved to {plugin_path}")
+    else:
+        logger.warning(f"Plugin directory not found: {plugin_path}")
+
+
+def cmd_list(args):
+    """List all plugins with their status."""
+    plugins_json_path = get_plugins_json_path()
+    plugins_data = load_json(plugins_json_path)
+    lock_data = load_json(PLUGINS_LOCK)
+
+    plugins = plugins_data.get("plugins", [])
+    locked = {p["name"]: p for p in lock_data.get("locked", [])}
+
+    if not plugins:
+        print(f"No plugins configured in {plugins_json_path}")
+        return
+
+    # Print table header
+    print(f"{'NAME':<20} {'STATUS':<12} {'COMMIT':<10}")
+    print("-" * 45)
+
+    for plugin in plugins:
+        name = plugin["name"]
+        plugin_path = PLUGINS_DIR / name
+        status = "present" if plugin_path.exists() else "missing"
+        commit = locked.get(name, {}).get("commit", "")[:7] if status == "present" else "-"
+
+        print(f"{name:<20} {status:<12} {commit:<10}")
+
+
+def cmd_sync(args):
+    """Sync all plugins from plugins.json."""
+    check_git_available()
+
+    plugins_json_path = get_plugins_json_path()
+    plugins_data = load_json(plugins_json_path)
+    plugins = plugins_data.get("plugins", [])
+
+    if not plugins:
+        logger.warning(f"No plugins configured in {plugins_json_path}")
+        return
+
+    logger.info(f"Syncing {len(plugins)} plugin(s)...")
+
+    lock_entries = []
+    failed = []
+
+    for plugin in plugins:
+        url = plugin["url"]
+        ref = plugin.get("ref")
+        name_hint = plugin.get("name")  # Use name from config as hint/override
+
+        lock_entry = install_plugin(url, ref, name_hint)
+        if lock_entry:
+            lock_entries.append(lock_entry)
+        else:
+            failed.append(name_hint or url)
+
+    # Update lock file with all successful installs
+    lock_data = {"locked": lock_entries}
+    save_json_atomic(PLUGINS_LOCK, lock_data)
+
+    # Summary
+    print()
+    logger.info(f"✓ Sync complete: {len(lock_entries)} installed, {len(failed)} failed")
+    if failed:
+        logger.error(f"Failed plugins: {', '.join(failed)}")
+        sys.exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Manage board plugins for NHL LED Scoreboard")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose logging")
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Add command
+    add_parser = subparsers.add_parser("add", help="Add or update a plugin")
+    add_parser.add_argument("url", help="Git repository URL")
+    add_parser.add_argument("--ref", help="Git ref (tag, branch, or SHA)")
+    add_parser.add_argument("--name", help="Override plugin name (uses __plugin_id__ from repo by default)")
+    add_parser.set_defaults(func=cmd_add)
+
+    # Remove command
+    rm_parser = subparsers.add_parser("rm", help="Remove a plugin")
+    rm_parser.add_argument("name", help="Plugin name to remove")
+    rm_parser.add_argument("--keep-config", action="store_true", help="Preserve config.json when removing")
+    rm_parser.set_defaults(func=cmd_rm)
+
+    # List command
+    list_parser = subparsers.add_parser("list", help="List all plugins")
+    list_parser.set_defaults(func=cmd_list)
+
+    # Sync command
+    sync_parser = subparsers.add_parser("sync", help="Install/update all plugins from plugins.json")
+    sync_parser.set_defaults(func=cmd_sync)
+
+    args = parser.parse_args()
+
+    # Configure logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
+
+    # Execute command
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

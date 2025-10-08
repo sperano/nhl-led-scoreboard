@@ -9,16 +9,18 @@ else:
 
 import datetime
 import re
-import debug
+import logging
 from time import sleep
 from utils import center_text
 import traceback
+
+debug = logging.getLogger("scoreboard")
 
 class Clock:
     def __init__(self, data, matrix, sleepEvent ,duration=None):
 
         self.data = data
-        self.date = datetime.datetime.today()
+        self.sleepEvent = sleepEvent
         self.time = datetime.datetime.now()
 
         self.matrix = matrix
@@ -40,6 +42,8 @@ class Clock:
         if self.wxdt_color == {'r': 0, 'b': 0, 'g': 0}:
             self.wxdt_color = {'r': 255, 'b': 255, 'g': 255}
 
+    def render(self):
+        self.time = datetime.datetime.now()
         r = r"(\d+),\s*(\d+),\s*(\d+)"
 
         if self.data.config.clock_team_colors:
@@ -84,7 +88,7 @@ class Clock:
             self.clockfill = None
 
         if not self.duration:
-            self.duration = data.config.clock_board_duration
+            self.duration = self.data.config.clock_board_duration
 
         if self.data.config.weather_show_on_clock and self.data.wx_updated:
             self.layout = self.data.config.config.layout.get_board_layout('wx_clock')
@@ -92,7 +96,6 @@ class Clock:
         else:
             self.layout = self.data.config.config.layout.get_board_layout('clock')
 
-        self.sleepEvent = sleepEvent
         self.sleepEvent.clear()
 
         display_time = 0
@@ -124,7 +127,7 @@ class Clock:
 
         self.matrix.draw_text_layout(
             self.layout.date,
-            self.date.strftime("%b %d %Y").upper(),
+            datetime.datetime.today().strftime("%b %d %Y").upper(),
             fillColor=self.wxdtfill
         )
 
