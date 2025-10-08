@@ -1,7 +1,8 @@
 import logging
-from datetime import datetime,date,time,timedelta
-from utils import timeValidator
+from datetime import datetime, timedelta
 from time import sleep
+
+from utils import timeValidator
 
 debug = logging.getLogger("scoreboard")
 
@@ -45,9 +46,9 @@ class screenSaver(object):
             # Check to see if the current time is greater than start time but less than stop time.  If so, change the start time hour and min
             if (self.shifted_time > self.startsaver):
                 scheduler.add_job(self.runSaver, 'cron', hour=self.shifted_time.hour,minute=self.shifted_time.minute,id='screenSaverON',misfire_grace_time=None)
-            else:    
+            else:
                 scheduler.add_job(self.runSaver, 'cron', hour=self.startsaver.hour,minute=self.startsaver.minute,id='screenSaverON',misfire_grace_time=None)
-                
+
             scheduler.add_job(self.stopSaver, 'cron', hour=self.stopsaver.hour, minute=self.stopsaver.minute,id='screenSaverOFF',misfire_grace_time=None)
             startrun = self.scheduler.get_job('screenSaverON').next_run_time
             stoprun = self.scheduler.get_job('screenSaverOFF').next_run_time
@@ -63,7 +64,7 @@ class screenSaver(object):
                 debug.info("Screen saver started.... Currently displayed board " + self.data.curr_board)
             else:
                 debug.info("Screen saver started.... Currently displayed board is not set")
-                
+
             self.data.screensaver = True
             self.sleepEvent.set()
             #Set screen saver back to normal time and reschedule the job
@@ -84,7 +85,7 @@ class screenSaver(object):
             new_run = self.scheduler.get_job('screenSaverON').next_run_time
             debug.error("Screen saver not started.... game is scheduled or live! Will try again @ {}".format(new_run))
 
-        
+
 
     def stopSaver(self):
         #Stop screen saver board, Fade brightness back to last setting

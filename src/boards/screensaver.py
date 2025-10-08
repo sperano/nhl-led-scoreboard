@@ -1,17 +1,18 @@
-from PIL import Image, ImageFont, ImageDraw, ImageSequence
+from PIL import Image
 
 import driver
 
 if driver.is_hardware():
-    from rgbmatrix import graphics
+    pass
 else:
-    from RGBMatrixEmulator import graphics
+    pass
 
-from time import sleep
-import logging
-from utils import center_text,get_file
 import glob
+import logging
 import random
+from time import sleep
+
+from utils import get_file
 
 debug = logging.getLogger("scoreboard")
 
@@ -27,12 +28,12 @@ class screenSaver:
 
         self.brightness = self.matrix.brightness
 
-        self.sleepEvent.clear()
 
-        self.draw_screenSaver()
 
 
     def render(self):
+
+        self.sleepEvent.clear()
 
         self.data.screensaver_displayed = True
         show_gif = self.data.config.screensaver_animations
@@ -79,7 +80,7 @@ class screenSaver:
                 # Fade to black
                 # If user doesn't use dimmer or brightness on command line
                 if b is not None:
-                    while b >=0:
+                    while b >= 0:
                         self.matrix.set_brightness(self.brightness)
                         self.brightness = b
                         self.matrix.render()
