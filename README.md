@@ -32,14 +32,15 @@ Click on button to go to release notes.
 * [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
 ## Only Supported OS (these have been tested)
 * rpi OS Bookworm or higher (32 bit or 64 bit)
-    > [!NOTE]
-    > If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
+> [!NOTE]
+> If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
 * Dietpi V9.9.0 or higher (dietpi V9.17.2 is Debian trixie and the board has been tested under this OS)
-    > [!NOTE]
-    > Make sure when you setup your dietpi installation for the first time, change this setting in the /boot/dietpi.txt:
-    > AUTO_UNMASK_LOGIND=0 to AUTO_UNMASK_LOGIND=1
-    > This makes sure that the systemd-logind is running which provides dbus. 
-    > Or run sudo systemctl unmask systemd-logind.service if you didn't put that in your original setup
+> [!NOTE]
+> Make sure when you setup your dietpi installation for the first time, change this setting in the /boot/dietpi.txt:
+> AUTO_UNMASK_LOGIND=0 to AUTO_UNMASK_LOGIND=1
+> This makes sure that the systemd-logind is running which provides dbus. 
+> Or run sudo systemctl unmask systemd-logind.service if you didn't put that in your original setup
+
 ## Only supported Python
 * Python 3.11 or higher
 * Running in a virtual environment
