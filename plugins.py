@@ -14,8 +14,6 @@ Usage:
 """
 
 import argparse
-import fnmatch
-import importlib.util
 import json
 import logging
 import os
@@ -74,6 +72,29 @@ def save_json_atomic(path: Path, data: dict):
         json.dump(data, f, indent=2)
         f.write("\n")  # trailing newline
     tmp_path.replace(path)
+
+
+def load_plugin_metadata(plugin_path: Path) -> Optional[dict]:
+    """
+    Load plugin.json metadata file.
+
+    Args:
+        plugin_path: Path to the plugin directory
+
+    Returns:
+        Dict with plugin metadata, or None if file not found/invalid
+    """
+    plugin_json = plugin_path / "plugin.json"
+
+    if not plugin_json.exists():
+        logger.debug(f"No plugin.json found in {plugin_path}")
+        return None
+
+    try:
+        return load_json(plugin_json)
+    except Exception as e:
+        logger.warning(f"Could not read plugin.json from {plugin_path}: {e}")
+        return None
 
 
 def check_git_available():
@@ -149,82 +170,92 @@ def copy_plugin_files(src: Path, dest: Path):
 
 def validate_plugin(plugin_path: Path) -> bool:
     """
-    Check if plugin folder contains expected files.
+    Check if plugin folder contains expected files and valid metadata.
     Returns True if valid, False with warning if suspicious.
     """
-    expected_files = ["board.py", "__init__.py", "config.sample.json"]
-    found = any((plugin_path / f).exists() for f in expected_files)
+    plugin_json = plugin_path / "plugin.json"
 
-    if not found:
-        logger.warning(
-            f"Plugin at {plugin_path} doesn't contain expected files "
-            f"({', '.join(expected_files)}). May not work correctly."
-        )
+    if not plugin_json.exists():
+        logger.warning(f"Plugin at {plugin_path} missing plugin.json")
         return False
-    return True
+
+    # Load and validate metadata
+    try:
+        metadata = load_plugin_metadata(plugin_path)
+        if not metadata:
+            logger.warning(f"Plugin at {plugin_path} has invalid plugin.json")
+            return False
+
+        # Check for boards declaration
+        boards = metadata.get("boards", [])
+        if not boards:
+            logger.warning(f"Plugin at {plugin_path} declares no boards")
+            return False
+
+        # Verify each declared board module exists
+        for board in boards:
+            if isinstance(board, dict):
+                module_name = board.get("module", "board")
+            else:
+                # Legacy format support (simple list of board IDs)
+                module_name = "board"
+
+            module_file = plugin_path / f"{module_name}.py"
+
+            if not module_file.exists():
+                logger.warning(
+                    f"Plugin at {plugin_path} declares board module '{module_name}.py' but file not found"
+                )
+                return False
+
+        return True
+
+    except Exception as e:
+        logger.warning(f"Could not validate plugin at {plugin_path}: {e}")
+        return False
 
 
 def get_plugin_id_from_repo(repo_path: Path) -> Optional[str]:
     """
-    Extract the canonical plugin ID from the plugin's __init__.py.
+    Extract the canonical plugin ID from the plugin's plugin.json.
 
     Args:
         repo_path: Path to the cloned repository
 
     Returns:
-        Plugin ID string if found, None if __plugin_id__ not present or error occurs
+        Plugin ID string if found, None if plugin.json not present or error occurs
     """
-    init_file = repo_path / "__init__.py"
+    metadata = load_plugin_metadata(repo_path)
 
-    if not init_file.exists():
-        logger.debug(f"No __init__.py found in {repo_path}")
+    if not metadata:
         return None
 
-    try:
-        # Load the __init__.py module dynamically
-        spec = importlib.util.spec_from_file_location("temp_plugin_init", init_file)
-        if spec and spec.loader:
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-
-            if hasattr(module, "__plugin_id__"):
-                plugin_id = module.__plugin_id__
-                logger.debug(f"Found __plugin_id__: {plugin_id}")
-                return plugin_id
-            else:
-                logger.warning(f"Plugin __init__.py missing required __plugin_id__ attribute")
-                return None
-    except Exception as e:
-        logger.warning(f"Could not read __plugin_id__ from {init_file}: {e}")
+    if "name" not in metadata:
+        logger.warning("Plugin metadata missing required 'name' field")
         return None
+
+    plugin_id = metadata["name"]
+    logger.debug(f"Found plugin name: {plugin_id}")
+    return plugin_id
 
 
 def get_preserve_patterns(plugin_path: Path) -> List[str]:
     """
-    Get list of file patterns to preserve from plugin's __init__.py.
+    Get list of file patterns to preserve from plugin's plugin.json.
     Falls back to DEFAULT_PRESERVE_PATTERNS if not specified.
     """
-    init_file = plugin_path / "__init__.py"
+    metadata = load_plugin_metadata(plugin_path)
 
-    if not init_file.exists():
-        logger.debug(f"No __init__.py found, using default preserve patterns")
+    if not metadata:
+        logger.debug("No plugin.json found, using default preserve patterns")
         return DEFAULT_PRESERVE_PATTERNS
 
-    try:
-        # Load the __init__.py module dynamically
-        spec = importlib.util.spec_from_file_location("plugin_init", init_file)
-        if spec and spec.loader:
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
+    if "preserve_files" in metadata:
+        patterns = metadata["preserve_files"]
+        logger.debug(f"Using plugin-specified preserve patterns: {patterns}")
+        return patterns
 
-            if hasattr(module, "__preserve_files__"):
-                patterns = module.__preserve_files__
-                logger.debug(f"Using plugin-specified preserve patterns: {patterns}")
-                return patterns
-    except Exception as e:
-        logger.debug(f"Could not read __preserve_files__ from {init_file}: {e}")
-
-    logger.debug(f"Using default preserve patterns")
+    logger.debug("Using default preserve patterns")
     return DEFAULT_PRESERVE_PATTERNS
 
 
@@ -318,8 +349,8 @@ def install_plugin(url: str, ref: Optional[str], name_override: Optional[str] = 
             plugin_name = get_plugin_id_from_repo(tmp_path)
             if not plugin_name:
                 logger.error(
-                    f"Could not determine plugin name. Plugin must have __plugin_id__ in __init__.py, "
-                    f"or use --name to specify manually."
+                    "Could not determine plugin name. Plugin must have 'name' field in plugin.json, "
+                    "or use --name to specify manually."
                 )
                 return None
             logger.info(f"Detected plugin ID: {plugin_name}")

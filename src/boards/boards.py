@@ -4,7 +4,9 @@ Board modules can be added by placing them in the src/boards/plugins/ or src/boa
 """
 import importlib
 import inspect
+import json
 import logging
+import sys
 from pathlib import Path
 
 from boards.christmas import Christmas
@@ -72,65 +74,141 @@ class Boards:
 
     def _load_single_board(self, board_name: str, board_dir: Path, directory_name: str, board_type: str):
         """
-        Load a single board from its directory.
-        
+        Load a single board from its directory using metadata-driven approach.
+
         Args:
             board_name: Name of the board (directory name)
             board_dir: Path to the board directory
             directory_name: Parent directory name ('plugins' or 'builtins')
             board_type: Type description for logging ('plugin' or 'builtin')
         """
-        # Check for required files
-        init_file = board_dir / '__init__.py'
-        board_file = board_dir / 'board.py'
-
-        if not init_file.exists():
-            debug.warning(f"{board_type.capitalize()} '{board_name}' missing __init__.py, skipping")
+        # 1. Load and validate plugin.json (REQUIRED)
+        plugin_json = board_dir / 'plugin.json'
+        if not plugin_json.exists():
+            debug.warning(f"{board_type.capitalize()} '{board_name}' missing plugin.json, skipping")
             return
 
-        if not board_file.exists():
-            debug.warning(f"{board_type.capitalize()} '{board_name}' missing board.py, skipping")
-            return
-
-        # Import the board module
-        module_name = f'boards.{directory_name}.{board_name}.board'
         try:
-            module = importlib.import_module(module_name)
+            with open(plugin_json) as f:
+                metadata = json.load(f)
+        except json.JSONDecodeError as e:
+            debug.error(f"Invalid plugin.json in '{board_name}': {e}")
+            return
+
+        # 2. Check if enabled
+        if not metadata.get("enabled", True):
+            debug.info(f"{board_type.capitalize()} '{board_name}' is disabled")
+            return
+
+        # 3. Validate requirements
+        if not self._validate_requirements(metadata.get("requirements", {}), board_name):
+            debug.warning(f"{board_type.capitalize()} '{board_name}' requirements not met, skipping")
+            return
+
+        # 4. Load each board declared in metadata
+        boards_list = metadata.get("boards", [])
+        if not boards_list:
+            debug.warning(f"{board_type.capitalize()} '{board_name}' declares no boards")
+            return
+
+        for board_config in boards_list:
+            self._load_board_from_metadata(board_config, board_dir, directory_name, board_name, board_type)
+
+    def _validate_requirements(self, requirements: dict, plugin_name: str) -> bool:
+        """
+        Validate plugin requirements before loading.
+
+        Args:
+            requirements: Dict with requirement specifications
+            plugin_name: Name of the plugin being validated
+
+        Returns:
+            True if all requirements met, False otherwise.
+        """
+        # Check Python version
+        if "python" in requirements:
+            python_req = requirements["python"]
+            current_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+            # Basic version check (simple string comparison for now)
+            # TODO: Implement proper version comparison with packaging.version
+            debug.debug(f"Plugin '{plugin_name}' requires Python {python_req}, current: {current_version}")
+
+        # Check app version
+        if "app_version" in requirements:
+            # TODO: Compare against current app version when available
+            debug.debug(f"Plugin '{plugin_name}' requires app version {requirements['app_version']}")
+
+        # Check Python dependencies
+        if "python_dependencies" in requirements:
+            for dep in requirements["python_dependencies"]:
+                # Extract package name (handle versions like "holidays>=0.35")
+                pkg_name = dep.split('>=')[0].split('==')[0].split('<')[0].strip()
+                try:
+                    importlib.import_module(pkg_name)
+                    debug.debug(f"Plugin '{plugin_name}' dependency '{pkg_name}' is available")
+                except ImportError:
+                    debug.error(f"Plugin '{plugin_name}' requires '{dep}' but it's not installed")
+                    return False
+
+        return True
+
+    def _load_board_from_metadata(self, board_config: dict, board_dir: Path,
+                                    directory_name: str, plugin_name: str, board_type: str):
+        """
+        Load a specific board using metadata configuration.
+
+        Args:
+            board_config: Dict with board metadata (id, class_name, module)
+            board_dir: Path to plugin directory
+            directory_name: 'plugins' or 'builtins'
+            plugin_name: Name of the plugin
+            board_type: Type description for logging ('plugin' or 'builtin')
+        """
+        board_id = board_config.get("id")
+        class_name = board_config.get("class_name")
+        module_name_short = board_config.get("module", "board")
+
+        if not board_id or not class_name:
+            debug.error(f"Board config missing 'id' or 'class_name' in {board_type} '{plugin_name}'")
+            return
+
+        # Import the module
+        module_path = f'boards.{directory_name}.{plugin_name}.{module_name_short}'
+        try:
+            module = importlib.import_module(module_path)
         except ImportError as e:
-            debug.warning(f"Failed to import {board_type} module '{module_name}': {e}")
+            debug.error(f"Failed to import {module_path}: {e}")
             return
 
-        # Find board class (should inherit from BoardBase)
-        board_class = None
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-            if (obj != BoardBase and
-                issubclass(obj, BoardBase) and
-                obj.__module__ == module_name):
-                board_class = obj
-                break
-
-        if not board_class:
-            debug.warning(f"No valid board class found in '{module_name}'")
+        # Get the specific class by name
+        if not hasattr(module, class_name):
+            debug.error(f"Class '{class_name}' not found in {module_path}")
             return
 
-        # Register the board (both plugins and builtins go in same registry)
-        self._boards[board_name] = board_class
+        board_class = getattr(module, class_name)
 
-        # Dynamically add method to this class with caching
+        # Validate it's a BoardBase subclass
+        if not (inspect.isclass(board_class) and
+                issubclass(board_class, BoardBase) and
+                board_class != BoardBase):
+            debug.error(f"'{class_name}' is not a valid BoardBase subclass")
+            return
+
+        # Register the board
+        self._boards[board_id] = board_class
+
+        # Create dynamic method with caching
         def create_board_method(name, cls):
             def board_method(data, matrix, sleepEvent):
-                # Check if instance already exists in cache
                 if name not in self._board_instances:
-                    # Create new instance and cache it
                     self._board_instances[name] = cls(data, matrix, sleepEvent)
                     debug.info(f"Created new instance for board: {name}")
-                # Call render on cached instance
                 return self._board_instances[name].render()
             return board_method
 
-        setattr(self, board_name, create_board_method(board_name, board_class))
+        setattr(self, board_id, create_board_method(board_id, board_class))
 
-        debug.info(f"Loaded {board_type}: {board_name} ({board_class.__name__})")
+        debug.info(f"Loaded {board_type} board: {board_id} from '{plugin_name}' ({class_name})")
 
     def get_available_boards(self) -> dict:
         """
