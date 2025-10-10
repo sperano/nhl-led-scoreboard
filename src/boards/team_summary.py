@@ -2,21 +2,20 @@
     Show a summary of the favorite team. (previous game, next game, stats,)
 
 """
-from PIL import Image, ImageFont, ImageDraw, ImageOps
+from PIL import Image, ImageDraw
 
 import driver
 
 if driver.is_hardware():
-    from rgbmatrix import graphics
+    pass
 else:
-    from RGBMatrixEmulator import graphics
+    pass
 
-import nhl_api
+
 from data.scoreboard import GameSummaryBoard
-from data.team import Team
-from time import sleep
-from utils import convert_date_format, get_file
 from renderer.logos import LogoRenderer
+from utils import get_file
+
 
 class TeamSummary:
     def __init__(self, data, matrix,sleepEvent):
@@ -26,7 +25,6 @@ class TeamSummary:
                 and then taking that info here would make sense
         '''
         self.data = data
-        self.teams_info = data.teams_info
         self.preferred_teams = data.pref_teams
         self.matrix = matrix
         self.team_colors = data.config.team_colors
@@ -38,6 +36,8 @@ class TeamSummary:
         self.sleepEvent.clear()
 
     def render(self):
+        self.teams_info = self.data.teams_info
+
         self.matrix.clear()
         for team_id in self.preferred_teams:
             self.team_id = team_id
@@ -110,8 +110,8 @@ class TeamSummary:
                 #   For 128x64 use the bigger gradient image.
                 if self.matrix.height == 64:
                     gradient = Image.open(get_file('assets/images/128x64_scoreboard_center_gradient.png'))
-                
-                
+
+
                 logo_renderer.render()
                 self.matrix.draw_image((25,0), gradient, align="center")
                 self.matrix.draw_image_layout(
@@ -153,7 +153,7 @@ class TeamSummary:
 
     def draw_team_summary(self, stats, prev_game_scoreboard, next_game_scoreboard, bg_color, txt_color, im_height):
 
-        
+
 
         image = Image.new('RGB', (37, im_height))
         draw = ImageDraw.Draw(image)
@@ -162,15 +162,19 @@ class TeamSummary:
 
         draw.rectangle([0, -1, 26, 6], fill=(bg_color['r'], bg_color['g'], bg_color['b']))
 
-        
-        
+
+
         draw.text((1, 0), "RECORD:".format(), fill=(txt_color['r'], txt_color['g'], txt_color['b']),
                 font=self.font)
         if stats:
             draw.text((0, 7), "GP:{} P:{}".format(stats["gamesPlayed"], stats["points"]), fill=(255, 255, 255),
                 font=self.font)
-            draw.text((0, 13), "{}-{}-{}".format(stats["wins"], stats["losses"], stats["otLosses"]), fill=(255, 255, 255),
-                font=self.font)
+            draw.text(
+                (0, 13),
+                "{}-{}-{}".format(stats["wins"], stats["losses"], stats["otLosses"]),
+                fill=(255, 255, 255),
+                font=self.font
+            )
         else:
             draw.text((1, 7), "--------", fill=(200, 200, 200), font=self.font)
 
