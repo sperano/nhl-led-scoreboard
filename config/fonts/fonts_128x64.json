@@ -36,11 +36,11 @@
     "size": 24
   },
   "wx_medium": {
-    "file": "04B_03B_.TTF",
-    "size": 14
+    "file": "press2p.ttf",
+    "size": 8
   },
    "wx_small": {
-    "file": "04B_03B_.TTF",
+    "file": "Gameboy.ttf",
     "size": 8
   },
   "wx_large": {
