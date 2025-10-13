@@ -23,6 +23,7 @@ class wxForecast(object):
         self.apikey = data.config.weather_owm_apikey
 
         self.max_days = data.config.weather_forecast_days
+        self.show_today = data.config.weather_forecast_show_today
 
         #if self.data.config.weather_data_feed.lower() == "owm":
         #    self.owm = OWM(self.apikey)
@@ -77,7 +78,7 @@ class wxForecast(object):
 
             forecasts = []
             forecasts = self.data.ecData.daily_forecasts
-            debug.warning(f"EC forecast raw: {forecasts}")
+            debug.debug(f"EC forecast raw: {forecasts}")
 
             if len(forecasts) > 0:
                 forecasts_updated = True
@@ -87,8 +88,12 @@ class wxForecast(object):
 
             #Loop through the data and create the forecast
             #Number of days to add to current day for the date string, this will be incremented
-            index = 1
-            forecast_day = 1
+            if self.show_today:
+                index = 0
+                forecast_day = 0
+            else:
+                index = 1
+                forecast_day = 1
             while index <= self.max_days and forecasts_updated:
             #Create the date
                 nextdate = self.currdate + timedelta(days=forecast_day)
@@ -144,7 +149,7 @@ class wxForecast(object):
                 url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={self.data.config.weather_units}&appid={self.apikey}&exclude=alerts,minutely,hourly,current"
                 response = requests.get(url)
                 one_call = response.json()
-                debug.warning(f"OWM forecast raw: {one_call}")
+                debug.debug(f"OWM forecast raw: {one_call}")
 
             except Exception as e:
                 debug.error("Unable to get OWM data error:{0}".format(e))
@@ -152,13 +157,19 @@ class wxForecast(object):
                 self.network_issues = True
                 return
 
-            index=1
-            forecast = []
+            if self.show_today:
+                index = 0
+            else:
+                index=1
+
+            #forecast = []
             while index <= self.max_days:
                 nextdate = self.currdate + timedelta(days=index)
                 nextdate = nextdate.strftime("%a %m/%d")
                 icon_code = int(one_call.get("daily")[index].get("weather")[0].get("id"))
-                summary = one_call.get("daily")[index].get("summary")
+                summary = one_call.get("daily")[index].get("weather")[0].get("description")
+                # This is a long descriptive summary, not sure if will add this as an option yet
+                #summary = one_call.get("daily")[index].get("summary")
 
                 temp_high = one_call.get("daily")[index].get("temp").get('max', None)
                 temp_low = one_call.get("daily")[index].get("temp").get('min', None)

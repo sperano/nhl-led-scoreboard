@@ -69,8 +69,8 @@
 			"owm_apikey": "",
 			"update_freq": 5,
 			"show_on_clock": true,
-			"forecast_enabled": false,
-			"forecast_days": 3,
+			            "forecast_enabled": false,
+			            "forecast_show_today": false,			"forecast_days": 3,
 			"forecast_update": 1
 		},
         "wxalert": {

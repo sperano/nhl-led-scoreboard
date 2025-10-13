@@ -37,7 +37,7 @@ class ecWxWorker(object):
                 debug.error("Unable to get EC current observations. Error {}".format(e))
 
             curr_cond = self.data.ecData.conditions
-            debug.warning(f"EC curr condition: {curr_cond}")
+            debug.debug(f"EC curr condition: {curr_cond}")
 
 
             if len(curr_cond) == 0:
