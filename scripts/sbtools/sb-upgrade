@@ -4,6 +4,7 @@
 
 #cd /home/pi/nhl-led-scoreboard
 #Uncomment for running out of the repository scripts/sbtools directory
+ARCH=$(uname -m)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "${DIR}"
 
@@ -117,6 +118,29 @@ if git pull --rebase --stat origin master; then
       fi
     else
           printf "${RED}%s${RESET}\n" "No apt-requirements found"
+    fi
+
+    #Check to see if the nhl_setup has changed, if so, download the newest version
+    if [[ -a ../../nhl_setup ]]; then
+      printf "${GREEN}%s${RESET}\n" "Checking for new version of nhl_setup..."
+      LATEST_NHL_SETUP_VERSION=$(curl -s https://lastversion-api.getpagespeed.com/falkyre/nhl-setup?version)
+      CURRENT_NHL_SETUP_VERSION=$(../../nhl_setup -v | awk '{print $2}')
+      if [[ "$LATEST_NHL_SETUP_VERSION" != "$CURRENT_NHL_SETUP_VERSION" ]]; then
+        printf "${GREEN}%s${RESET}\n" "Newer version of nhl_setup found. Downloading..."
+        if [ "$ARCH" = "aarch64" ]; then
+            wget -q https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.64 -O ../../nhl_setup
+            chmod +x ../../nhl_setup
+            printf "${GREEN}%s${RESET}\n" "nhl_setup updated to version $LATEST_NHL_SETUP_VERSION"
+        elif [ "$ARCH" = "armv7l" ]; then
+            wget -q https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.32 -O ../../nhl_setup
+            chmod +x ../../nhl_setup
+            printf "${GREEN}%s${RESET}\n" "nhl_setup updated to version $LATEST_NHL_SETUP_VERSION"
+        else
+            printf "${RED}%s${RESET}\n" "Unsupported architecture for nhl_setup: $ARCH"
+        fi
+      else
+        printf "${YELLOW}%s${RESET}\n" "nhl_setup is already at the latest version."
+      fi
     fi
   fi
   fi

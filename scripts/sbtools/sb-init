@@ -18,12 +18,12 @@ install_fastfetch() {
         echo "Debian 12 (bookworm) detected. Checking architecture..."
         if [ "$ARCH" = "aarch64" ]; then
             echo "64-bit ARM architecture detected. Downloading and installing fastfetch..."
-            wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-aarch64.deb -O /tmp/fastfetch.deb
+            wget https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-aarch64.deb -O /tmp/fastfetch.deb
             sudo dpkg -i /tmp/fastfetch.deb
             rm /tmp/fastfetch.deb
         elif [ "$ARCH" = "armv7l" ]; then
             echo "32-bit ARM architecture detected. Downloading and installing fastfetch..."
-            wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.53.0/fastfetch-linux-armv7l.deb -O /tmp/fastfetch.deb
+            wget https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-armv7l.deb -O /tmp/fastfetch.deb
             sudo dpkg -i /tmp/fastfetch.deb
             rm /tmp/fastfetch.deb
         else
@@ -198,11 +198,11 @@ git pull
 tput bold; echo "$(tput setaf 2)Installing nhl_setup binary...$(tput setaf 9)" ; tput sgr0
 if [ "$ARCH" = "aarch64" ]; then
     echo "64-bit ARM architecture detected. Downloading and installing nhl_setup..."
-    wget https://github.com/falkyre/nhl-setup/releases/download/V2025.10.0/nhl_setup.64 -O nhl_setup
+    wget https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.64 -O nhl_setup
     chmod +x nhl_setup
 elif [ "$ARCH" = "armv7l" ]; then
     echo "32-bit ARM architecture detected. Downloading and installing nhl_setup..."
-    wget https://github.com/falkyre/nhl-setup/releases/download/V2025.10.0/nhl_setup.32 -O nhl_setup
+    wget https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.32 -O nhl_setup
     chmod +x nhl_setup
 else
     echo "Unsupported architecture for nhl_setup: $ARCH"
