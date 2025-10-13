@@ -129,9 +129,19 @@ def clone_plugin(url: str, ref: Optional[str], tmp_dir: Path) -> Optional[str]:
     if ref:
         # Unshallow first to allow checking out arbitrary refs
         logger.debug(f"Fetching ref: {ref}")
-        result = run_git(["fetch", "--depth", "1", "origin", ref], cwd=tmp_dir)
+        # Try fetching as a branch first (refs/heads/...)
+        result = run_git(["fetch", "--depth", "1", "origin", f"{ref}:refs/remotes/origin/{ref}"], cwd=tmp_dir)
         if result.returncode != 0:
-            logger.warning(f"Could not fetch ref '{ref}', using default branch")
+            # If that fails, try fetching as a tag or direct ref
+            result = run_git(["fetch", "--depth", "1", "origin", ref], cwd=tmp_dir)
+            if result.returncode != 0:
+                logger.warning(f"Could not fetch ref '{ref}', using default branch")
+            else:
+                result = run_git(["checkout", ref], cwd=tmp_dir)
+                if result.returncode != 0:
+                    logger.error(f"Failed to checkout ref '{ref}'")
+                    logger.error(result.stderr)
+                    return None
         else:
             result = run_git(["checkout", ref], cwd=tmp_dir)
             if result.returncode != 0:
