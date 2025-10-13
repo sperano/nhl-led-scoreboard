@@ -389,22 +389,20 @@ wheels = [
 
 [[package]]
 name = "env-canada"
-version = "0.8.0"
+version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "geopy" },
-    { name = "imageio" },
     { name = "lxml" },
-    { name = "numpy" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "python-dateutil" },
     { name = "voluptuous" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/2c/53cd5b0b2765561ebff4cdbae5c0f9746c265d4cce2f232a33e036270404/env_canada-0.8.0.tar.gz", hash = "sha256:1e7cb4f6d2a894ab7fe57e03e652834435933953ecfa44b7f65510e25e9a6f69", size = 27728 }
+sdist = { url = "https://files.pythonhosted.org/packages/0e/3e/097bc24c42c24982bfad7b6a3f25039f2536393fa44f061f14e6d7277c7d/env_canada-0.12.1.tar.gz", hash = "sha256:31400e4acf2672510400b38a1e6bff33f7b1e2291d30b61a8aad4c0e963c6ac3", size = 32233 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/67/75503ecff75dfaf4fcc29741170b8ba5148a9f45be9129f90e39164808c9/env_canada-0.8.0-py3-none-any.whl", hash = "sha256:bee099d9d7c237f0352d3511fca823b3a862a4293001a9f25642d20ed7bf13b7", size = 27425 },
+    { url = "https://files.pythonhosted.org/packages/51/ad/c92db048d20502f915119fc8986af2a4221f93261641c361494ee558628d/env_canada-0.12.1-py3-none-any.whl", hash = "sha256:51b123bb6836e46fdbb0f89ca7daf014a90132da878b6538a7b274344f8d7352", size = 31339 },
 ]
 
 [[package]]
@@ -615,19 +613,6 @@ wheels = [
 ]
 
 [[package]]
-name = "imageio"
-version = "2.37.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/47/57e897fb7094afb2d26e8b2e4af9a45c7cf1a405acdeeca001fdf2c98501/imageio-2.37.0.tar.gz", hash = "sha256:71b57b3669666272c818497aebba2b4c5f20d5b37c81720e5e1a56d59c492996", size = 389963 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/bd/b394387b598ed84d8d0fa90611a90bee0adc2021820ad5729f7ced74a8e2/imageio-2.37.0-py3-none-any.whl", hash = "sha256:11efa15b87bc7871b61590326b2d635439acc321cf7f8ce996f812543ce10eed", size = 315796 },
-]
-
-[[package]]
 name = "ipinfo"
 version = "5.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -735,6 +720,27 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b6/17/71e9984cf0570cd202ac0a1c9ed5c1b8889b0fc8dc736f5ef0ffb181c284/lxml-5.3.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:df5c7333167b9674aa8ae1d4008fa4bc17a313cc490b2cca27838bbdcc6bb15b", size = 5011053 },
     { url = "https://files.pythonhosted.org/packages/69/68/9f7e6d3312a91e30829368c2b3217e750adef12a6f8eb10498249f4e8d72/lxml-5.3.0-cp313-cp313-win32.whl", hash = "sha256:c802e1c2ed9f0c06a65bc4ed0189d000ada8049312cfeab6ca635e39c9608957", size = 3485634 },
     { url = "https://files.pythonhosted.org/packages/7d/db/214290d58ad68c587bd5d6af3d34e56830438733d0d0856c0275fde43652/lxml-5.3.0-cp313-cp313-win_amd64.whl", hash = "sha256:406246b96d552e0503e17a1006fd27edac678b3fcc9f1be71a2f94b4ff61528d", size = 3814417 },
+]
+
+[[package]]
+name = "markdown-it-py"
+version = "4.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mdurl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5b/f5/4ec618ed16cc4f8fb3b701563655a69816155e79e24a17b651541804721d/markdown_it_py-4.0.0.tar.gz", hash = "sha256:cb0a2b4aa34f932c007117b194e945bd74e0ec24133ceb5bac59009cda1cb9f3", size = 73070 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/54/e7d793b573f298e1c9013b8c4dade17d481164aa517d1d7148619c2cedbf/markdown_it_py-4.0.0-py3-none-any.whl", hash = "sha256:87327c59b172c5011896038353a81343b6754500a08cd7a4973bb48c6d578147", size = 87321 },
+]
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979 },
 ]
 
 [[package]]
@@ -880,7 +886,10 @@ dependencies = [
     { name = "regex" },
     { name = "rgbmatrix", marker = "sys_platform == 'linux'" },
     { name = "rgbmatrixemulator", marker = "sys_platform != 'linux'" },
+    { name = "rich" },
+    { name = "richcolorlog" },
     { name = "tk", marker = "sys_platform == 'linux'" },
+    { name = "tzlocal" },
 ]
 
 [package.metadata]
@@ -890,7 +899,7 @@ requires-dist = [
     { name = "cairosvg", specifier = ">=2.6.0" },
     { name = "dbus-python", marker = "sys_platform == 'linux'", specifier = ">=1.3.2" },
     { name = "diskcache", specifier = ">=5.6.3" },
-    { name = "env-canada", specifier = ">=0.6.1" },
+    { name = "env-canada", specifier = ">=0.11.3" },
     { name = "ephem", specifier = ">=4.1.6" },
     { name = "fastjsonschema", specifier = ">=2.14.4" },
     { name = "geopy", specifier = ">=2.4.1" },
@@ -902,12 +911,15 @@ requires-dist = [
     { name = "nhl-api-py", specifier = ">=2.18.0" },
     { name = "noaa-sdk", specifier = ">=0.1.18" },
     { name = "paho-mqtt", specifier = ">=2.1.0" },
-    { name = "pillow", specifier = ">=10.0.0" },
+    { name = "pillow", specifier = ">=11.0.0" },
     { name = "python-tsl2591", marker = "sys_platform == 'linux'", specifier = "==0.2.0" },
     { name = "regex", specifier = ">=2020.4.4" },
     { name = "rgbmatrix", marker = "sys_platform == 'linux'", directory = "submodules/matrix/bindings/python" },
-    { name = "rgbmatrixemulator", marker = "sys_platform != 'linux'", specifier = ">=0.12.1" },
+    { name = "rgbmatrixemulator", marker = "sys_platform != 'linux'", specifier = ">=0.13.5" },
+    { name = "rich", specifier = ">=13.9.4" },
+    { name = "richcolorlog", specifier = "==1.44.12" },
     { name = "tk", marker = "sys_platform == 'linux'", specifier = ">=0.1.0" },
+    { name = "tzlocal", specifier = ">=5.2" },
 ]
 
 [[package]]
@@ -1165,6 +1177,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pygments"
+version = "2.19.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217 },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -1307,7 +1328,7 @@ source = { directory = "submodules/matrix/bindings/python" }
 
 [[package]]
 name = "rgbmatrixemulator"
-version = "0.12.1"
+version = "0.13.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bdfparser" },
@@ -1317,9 +1338,34 @@ dependencies = [
     { name = "pygame" },
     { name = "tornado" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/20/92fcce1fbbc2dd28de980c3c2fb1cfcea32bea3456475c32f531798174d0/rgbmatrixemulator-0.12.1.tar.gz", hash = "sha256:8673d33f41112df67ba5e7e886461f343a8c9382dd9233280f14693bd4806824", size = 4811 }
+sdist = { url = "https://files.pythonhosted.org/packages/72/a2/e9f6fdf96086a1f6a962def8f9ae5ec876440728250dc12a208c148e0e55/rgbmatrixemulator-0.13.5.tar.gz", hash = "sha256:9d61138c176a4a038f8e0bc95b469de83b5659a8f056f16301ee83b16401f990", size = 34134 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/74/a2f44e10a2da4c9092f1388e984fafc67026dbb45000518f2d222414ab63/rgbmatrixemulator-0.12.1-py2.py3-none-any.whl", hash = "sha256:4fbce86e81d0fadcbd7923d48eb4668c7f823de048c84595aa7ec5bbbb65135b", size = 57667 },
+    { url = "https://files.pythonhosted.org/packages/66/8e/ec26c1eff2a63d251e47d04d2978362a74d79ae08ad65ce978e9d1500b15/rgbmatrixemulator-0.13.5-py2.py3-none-any.whl", hash = "sha256:86bb1398b48944645d3ab9a20e0458eeb96ef5bca6e49f39791c86c8ce06aaac", size = 61857 },
+]
+
+[[package]]
+name = "rich"
+version = "14.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fb/d2/8920e102050a0de7bfabeb4c4614a49248cf8d5d7a8d01885fbb24dc767a/rich-14.2.0.tar.gz", hash = "sha256:73ff50c7c0c1c77c8243079283f4edb376f0f6442433aecb8ce7e6d0b92d1fe4", size = 219990 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/25/7a/b0178788f8dc6cafce37a212c99565fa1fe7872c70c6c9c1e1a372d9d88f/rich-14.2.0-py3-none-any.whl", hash = "sha256:76bc51fe2e57d2b1be1f96c524b890b816e334ab4c1e45888799bfaab0021edd", size = 243393 },
+]
+
+[[package]]
+name = "richcolorlog"
+version = "1.44.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "rich" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a7/06/cd17ae30041d8f95774bb8225daf66803557c91bd8d5c5731b05c8e98d1c/richcolorlog-1.44.12.tar.gz", hash = "sha256:fa8f61031d960f8db0c29b5bd60afa556da5019cdf55bb083a373f4757c01af0", size = 479132 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9f/85/6ebc4b69d7a88bf5fafbe86d44afcbde250f46ca42d4ab434d7ae90d18c0/richcolorlog-1.44.12-py3-none-any.whl", hash = "sha256:51bdf1a3cd189b3cdb2668023e264f6e8778cb3a85500fca6ef54fb6ddd12d2f", size = 258074 },
 ]
 
 [[package]]
