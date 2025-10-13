@@ -114,7 +114,7 @@ class wxForecast(object):
                             temp_low = str(night_forecast['temperature']) + self.data.wx_units[0]
                             break
 
-                if icon_code == None:
+                if icon_code is None:
                     wx_icon = '\uf07b'
                     wx_summary = "N/A"
                     #debug.warning("Forecasts returned: {}".format(forecasts))
@@ -200,7 +200,7 @@ class wxForecast(object):
                     owm_icon = icon_code
 
                 #Get the icon, only for the day
-                if icon_code == None:
+                if icon_code is None:
                     wx_icon = '\uf07b'
                     wx_summary = "N/A"
                 else:
