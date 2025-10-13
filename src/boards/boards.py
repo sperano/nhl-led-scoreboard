@@ -6,8 +6,11 @@ import importlib
 import inspect
 import json
 import logging
+import os
+import re
 import sys
 from pathlib import Path
+from packaging import version
 
 from boards.christmas import Christmas
 from boards.clock import Clock
@@ -31,7 +34,23 @@ class Boards:
     def __init__(self):
         self._boards = {}
         self._board_instances = {}  # Cache for board instances
+        self._app_version = self._get_app_version()
         self._load_boards()
+
+    def _get_app_version(self) -> str:
+        """
+        Get the application version from VERSION file.
+
+        Returns:
+            Version string, or "0.0.0" if not found
+        """
+        version_file = Path(os.getcwd()) / "VERSION"
+        if version_file.exists():
+            try:
+                return version_file.read_text().strip()
+            except Exception as e:
+                debug.warning(f"Could not read VERSION file: {e}")
+        return "0.0.0"
 
     def _load_boards(self):
         """
@@ -128,15 +147,29 @@ class Boards:
         # Check Python version
         if "python" in requirements:
             python_req = requirements["python"]
-            current_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-            # Basic version check (simple string comparison for now)
-            # TODO: Implement proper version comparison with packaging.version
-            debug.debug(f"Plugin '{plugin_name}' requires Python {python_req}, current: {current_version}")
+            current_python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+
+            if not self._check_version_requirement(current_python, python_req):
+                debug.error(
+                    f"Plugin '{plugin_name}' requires Python {python_req}, "
+                    f"but current version is {current_python}"
+                )
+                return False
+
+            debug.debug(f"Plugin '{plugin_name}' Python requirement {python_req} satisfied (current: {current_python})")
 
         # Check app version
         if "app_version" in requirements:
-            # TODO: Compare against current app version when available
-            debug.debug(f"Plugin '{plugin_name}' requires app version {requirements['app_version']}")
+            app_req = requirements["app_version"]
+
+            if not self._check_version_requirement(self._app_version, app_req):
+                debug.error(
+                    f"Plugin '{plugin_name}' requires app version {app_req}, "
+                    f"but current version is {self._app_version}"
+                )
+                return False
+
+            debug.debug(f"Plugin '{plugin_name}' app requirement {app_req} satisfied (current: {self._app_version})")
 
         # Check Python dependencies
         if "python_dependencies" in requirements:
@@ -151,6 +184,50 @@ class Boards:
                     return False
 
         return True
+
+    def _check_version_requirement(self, current: str, requirement: str) -> bool:
+        """
+        Check if current version meets requirement.
+
+        Args:
+            current: Current version string (e.g., "2025.10.1")
+            requirement: Requirement string (e.g., ">=2025.09.00", "==1.0.0")
+
+        Returns:
+            True if requirement is met, False otherwise
+        """
+        try:
+            current_ver = version.parse(current)
+
+            # Parse requirement (e.g., ">=2025.09.00")
+            match = re.match(r'^\s*(>=|>|<=|<|==|!=)\s*(.+)$', requirement)
+            if not match:
+                debug.warning(f"Invalid version requirement format: {requirement}")
+                return True  # Don't block if format is invalid
+
+            operator, required_version = match.groups()
+            required_ver = version.parse(required_version.strip())
+
+            # Check based on operator
+            if operator == ">=":
+                return current_ver >= required_ver
+            elif operator == ">":
+                return current_ver > required_ver
+            elif operator == "<=":
+                return current_ver <= required_ver
+            elif operator == "<":
+                return current_ver < required_ver
+            elif operator == "==":
+                return current_ver == required_ver
+            elif operator == "!=":
+                return current_ver != required_ver
+            else:
+                debug.warning(f"Unknown operator in requirement: {requirement}")
+                return True
+
+        except Exception as e:
+            debug.warning(f"Could not parse version requirement '{requirement}': {e}")
+            return True  # Don't block on parsing errors
 
     def _load_board_from_metadata(self, board_config: dict, board_dir: Path,
                                     directory_name: str, plugin_name: str, board_type: str):
