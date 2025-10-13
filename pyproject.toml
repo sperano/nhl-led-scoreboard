@@ -20,9 +20,12 @@ dependencies = [
     "nhl-api-py>=2.18.0",
     "noaa-sdk>=0.1.18",
     "paho-mqtt>=2.1.0",
-    "pillow>=10.0.0",
+    "pillow>=11.0.0",
     "regex>=2020.4.4",
-    "rgbmatrixemulator>=0.12.1 ; platform_system != 'Linux'",
+    "rich>=13.9.4",
+    "richcolorlog==1.44.12",
+    "tzlocal>=5.2",
+    "rgbmatrixemulator>=0.13.5 ; platform_system != 'Linux'",
 
     # Pi/Linux-only packages:
     "gpiozero==1.6.2 ; platform_system == 'Linux'",
