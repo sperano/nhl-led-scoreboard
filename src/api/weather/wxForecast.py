@@ -1,11 +1,11 @@
 #from pyowm.owm import OWM
-import requests
-from env_canada import ECWeather
-import logging
-from datetime import datetime,timedelta
-from time import sleep
-from api.weather.wx_utils import cadhumidex, wind_chill, get_csv, degrees_to_direction, temp_f, wind_mph
 import asyncio
+import logging
+from datetime import datetime, timedelta
+
+import requests
+
+from api.weather.wx_utils import get_csv
 
 debug = logging.getLogger("scoreboard")
 
@@ -45,7 +45,7 @@ class wxForecast(object):
         if self.data.config.weather_units.lower() not in ("metric", "imperial"):
             debug.info("Weather units not set correctly, defaulting to imperial")
             self.data.config.weather_units="imperial"
-            
+
         if self.data.config.weather_units == "metric":
             self.data.wx_units = ["C","kph","mm","miles","hPa","ca"]
         else:
@@ -66,7 +66,7 @@ class wxForecast(object):
         self.currdate = datetime.now()
 
         # For testing
-        #self.data.wx_forecast = [['Tue 08/25', 'Mainly Clear', '\uf02e', '-29C', '-14C'], ['Wed 08/26', 'Light Rain Shower', '\uf02b', '27C', '18C'], ['Thu 08/27', 'Clear', '\uf02e', '23C', '13C']]
+        #self.data.wx_forecast = [['Tue 08/25', 'Mainly Clear', '\uf02e', '-29C', '-14C'], ['Wed 08/26', 'Light Rain Shower', '\uf02b', '27C', '18C'], ['Thu 08/27', 'Clear', '\uf02e', '23C', '13C']]  # noqa: E501
 
         if self.data.config.weather_data_feed.lower() == "ec":
             debug.info("Refreshing EC daily weather forecast")
@@ -77,7 +77,7 @@ class wxForecast(object):
 
             forecasts = []
             forecasts = self.data.ecData.daily_forecasts
-            #debug.warning(forecasts)
+            debug.warning(f"EC forecast raw: {forecasts}")
 
             if len(forecasts) > 0:
                 forecasts_updated = True
@@ -93,7 +93,7 @@ class wxForecast(object):
             #Create the date
                 nextdate = self.currdate + timedelta(days=forecast_day)
                 nextdate_name = nextdate.strftime("%A")
-                nextdate = nextdate.strftime("%a %m/%d")  
+                nextdate = nextdate.strftime("%a %m/%d")
                 forecast_day += 1
 
                 #Loop through forecast and get the day equal to nextdate_name
@@ -139,11 +139,12 @@ class wxForecast(object):
             lat = self.data.latlng[0]
             lon = self.data.latlng[1]
             one_call = None
-            
+
             try:
                 url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={self.data.config.weather_units}&appid={self.apikey}&exclude=alerts,minutely,hourly,current"
                 response = requests.get(url)
                 one_call = response.json()
+                debug.warning(f"OWM forecast raw: {one_call}")
 
             except Exception as e:
                 debug.error("Unable to get OWM data error:{0}".format(e))
@@ -158,9 +159,9 @@ class wxForecast(object):
                 nextdate = nextdate.strftime("%a %m/%d")
                 icon_code = int(one_call.get("daily")[index].get("weather")[0].get("id"))
                 summary = one_call.get("daily")[index].get("summary")
-                
-                temp_high = one_call.get("daily")[index].get("temp").get('max', None) 
-                temp_low = one_call.get("daily")[index].get("temp").get('min', None) 
+
+                temp_high = one_call.get("daily")[index].get("temp").get('max', None)
+                temp_low = one_call.get("daily")[index].get("temp").get('min', None)
 
                 #Round high and low temps to two digits only (ie 25 and not 25.61)
                 temp_hi = str(round(float(temp_high))) + self.data.wx_units[0]
@@ -185,7 +186,7 @@ class wxForecast(object):
                     # Rain Class
                     owm_icon = 801
                 else:
-                    owm_icon = icon_code 
+                    owm_icon = icon_code
 
                 #Get the icon, only for the day
                 if icon_code == None:

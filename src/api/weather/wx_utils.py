@@ -1,5 +1,6 @@
-import math
 import csv
+import math
+
 
 def get_csv(csvfile):
     #Load csv to get data into a list
@@ -8,7 +9,7 @@ def get_csv(csvfile):
     return list(csv.DictReader(open(csv_path)))
 
 
-#Take a degree (float) and convert to text and icon   
+#Take a degree (float) and convert to text and icon
 def degrees_to_direction(degrees):
         try:
             degrees = float(degrees)
