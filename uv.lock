@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -388,22 +389,20 @@ wheels = [
 
 [[package]]
 name = "env-canada"
-version = "0.8.0"
+version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "geopy" },
-    { name = "imageio" },
     { name = "lxml" },
-    { name = "numpy" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "python-dateutil" },
     { name = "voluptuous" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/2c/53cd5b0b2765561ebff4cdbae5c0f9746c265d4cce2f232a33e036270404/env_canada-0.8.0.tar.gz", hash = "sha256:1e7cb4f6d2a894ab7fe57e03e652834435933953ecfa44b7f65510e25e9a6f69", size = 27728 }
+sdist = { url = "https://files.pythonhosted.org/packages/0e/3e/097bc24c42c24982bfad7b6a3f25039f2536393fa44f061f14e6d7277c7d/env_canada-0.12.1.tar.gz", hash = "sha256:31400e4acf2672510400b38a1e6bff33f7b1e2291d30b61a8aad4c0e963c6ac3", size = 32233 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/67/75503ecff75dfaf4fcc29741170b8ba5148a9f45be9129f90e39164808c9/env_canada-0.8.0-py3-none-any.whl", hash = "sha256:bee099d9d7c237f0352d3511fca823b3a862a4293001a9f25642d20ed7bf13b7", size = 27425 },
+    { url = "https://files.pythonhosted.org/packages/51/ad/c92db048d20502f915119fc8986af2a4221f93261641c361494ee558628d/env_canada-0.12.1-py3-none-any.whl", hash = "sha256:51b123bb6836e46fdbb0f89ca7daf014a90132da878b6538a7b274344f8d7352", size = 31339 },
 ]
 
 [[package]]
@@ -614,19 +613,6 @@ wheels = [
 ]
 
 [[package]]
-name = "imageio"
-version = "2.37.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/47/57e897fb7094afb2d26e8b2e4af9a45c7cf1a405acdeeca001fdf2c98501/imageio-2.37.0.tar.gz", hash = "sha256:71b57b3669666272c818497aebba2b4c5f20d5b37c81720e5e1a56d59c492996", size = 389963 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/bd/b394387b598ed84d8d0fa90611a90bee0adc2021820ad5729f7ced74a8e2/imageio-2.37.0-py3-none-any.whl", hash = "sha256:11efa15b87bc7871b61590326b2d635439acc321cf7f8ce996f812543ce10eed", size = 315796 },
-]
-
-[[package]]
 name = "ipinfo"
 version = "5.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -738,14 +724,14 @@ wheels = [
 
 [[package]]
 name = "markdown-it-py"
-version = "3.0.0"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mdurl" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/71/3b932df36c1a044d397a1f92d1cf91ee0a503d91e470cbd670aa66b07ed0/markdown-it-py-3.0.0.tar.gz", hash = "sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb", size = 74596 }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/f5/4ec618ed16cc4f8fb3b701563655a69816155e79e24a17b651541804721d/markdown_it_py-4.0.0.tar.gz", hash = "sha256:cb0a2b4aa34f932c007117b194e945bd74e0ec24133ceb5bac59009cda1cb9f3", size = 73070 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/d7/1ec15b46af6af88f19b8e5ffea08fa375d433c998b8a7639e76935c14f1f/markdown_it_py-3.0.0-py3-none-any.whl", hash = "sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1", size = 87528 },
+    { url = "https://files.pythonhosted.org/packages/94/54/e7d793b573f298e1c9013b8c4dade17d481164aa517d1d7148619c2cedbf/markdown_it_py-4.0.0-py3-none-any.whl", hash = "sha256:87327c59b172c5011896038353a81343b6754500a08cd7a4973bb48c6d578147", size = 87321 },
 ]
 
 [[package]]
@@ -875,19 +861,19 @@ wheels = [
 
 [[package]]
 name = "nhl-led-scoreboard"
-version = "2025.1.0"
+version = "2025.10.1"
 source = { virtual = "." }
 dependencies = [
     { name = "apscheduler" },
     { name = "backoff" },
     { name = "cairosvg" },
-    { name = "dbus-python" },
+    { name = "dbus-python", marker = "sys_platform == 'linux'" },
     { name = "diskcache" },
     { name = "env-canada" },
     { name = "ephem" },
     { name = "fastjsonschema" },
     { name = "geopy" },
-    { name = "gpiozero" },
+    { name = "gpiozero", marker = "sys_platform == 'linux'" },
     { name = "ipinfo" },
     { name = "iso6709" },
     { name = "lastversion" },
@@ -896,12 +882,13 @@ dependencies = [
     { name = "noaa-sdk" },
     { name = "paho-mqtt" },
     { name = "pillow" },
-    { name = "python-tsl2591" },
+    { name = "python-tsl2591", marker = "sys_platform == 'linux'" },
     { name = "regex" },
-    { name = "rgbmatrix" },
-    { name = "rgbmatrixemulator" },
+    { name = "rgbmatrix", marker = "sys_platform == 'linux'" },
+    { name = "rgbmatrixemulator", marker = "sys_platform != 'linux'" },
     { name = "rich" },
-    { name = "tk" },
+    { name = "richcolorlog" },
+    { name = "tk", marker = "sys_platform == 'linux'" },
     { name = "tzlocal" },
 ]
 
@@ -910,13 +897,13 @@ requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.0" },
     { name = "backoff", specifier = ">=2.2.1" },
     { name = "cairosvg", specifier = ">=2.6.0" },
-    { name = "dbus-python", specifier = ">=1.3.2" },
+    { name = "dbus-python", marker = "sys_platform == 'linux'", specifier = ">=1.3.2" },
     { name = "diskcache", specifier = ">=5.6.3" },
-    { name = "env-canada", specifier = ">=0.6.1" },
+    { name = "env-canada", specifier = ">=0.11.3" },
     { name = "ephem", specifier = ">=4.1.6" },
     { name = "fastjsonschema", specifier = ">=2.14.4" },
     { name = "geopy", specifier = ">=2.4.1" },
-    { name = "gpiozero", specifier = "==1.6.2" },
+    { name = "gpiozero", marker = "sys_platform == 'linux'", specifier = "==1.6.2" },
     { name = "ipinfo", specifier = ">=5.1.1" },
     { name = "iso6709", specifier = ">=0.1.5" },
     { name = "lastversion", specifier = ">=1.1.6" },
@@ -924,13 +911,14 @@ requires-dist = [
     { name = "nhl-api-py", specifier = ">=2.18.0" },
     { name = "noaa-sdk", specifier = ">=0.1.18" },
     { name = "paho-mqtt", specifier = ">=2.1.0" },
-    { name = "pillow", specifier = ">=10.0.0" },
-    { name = "python-tsl2591", specifier = "==0.2.0" },
+    { name = "pillow", specifier = ">=11.0.0" },
+    { name = "python-tsl2591", marker = "sys_platform == 'linux'", specifier = "==0.2.0" },
     { name = "regex", specifier = ">=2020.4.4" },
-    { name = "rgbmatrix", directory = "submodules/matrix/bindings/python" },
-    { name = "rgbmatrixemulator", specifier = ">=0.12.1" },
+    { name = "rgbmatrix", marker = "sys_platform == 'linux'", directory = "submodules/matrix/bindings/python" },
+    { name = "rgbmatrixemulator", marker = "sys_platform != 'linux'", specifier = ">=0.13.5" },
     { name = "rich", specifier = ">=13.9.4" },
-    { name = "tk", specifier = ">=0.1.0" },
+    { name = "richcolorlog", specifier = "==1.44.12" },
+    { name = "tk", marker = "sys_platform == 'linux'", specifier = ">=0.1.0" },
     { name = "tzlocal", specifier = ">=5.2" },
 ]
 
@@ -1176,34 +1164,25 @@ sdist = { url = "https://files.pythonhosted.org/packages/49/cc/08bba60f00541f62a
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c4/ca/8f367cb9fe734c4f6f6400e045593beea2635cd736158f9fabf58ee14e3c/pygame-2.6.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:20349195326a5e82a16e351ed93465a7845a7e2a9af55b7bc1b2110ea3e344e1", size = 13113753 },
     { url = "https://files.pythonhosted.org/packages/83/47/6edf2f890139616b3219be9cfcc8f0cb8f42eb15efd59597927e390538cb/pygame-2.6.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f3935459109da4bb0b3901da9904f0a3e52028a3332a355d298b1673a334cf21", size = 12378146 },
-    { url = "https://files.pythonhosted.org/packages/00/9e/0d8aa8cf93db2d2ee38ebaf1c7b61d0df36ded27eb726221719c150c673d/pygame-2.6.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c31dbdb5d0217f32764797d21c2752e258e5fb7e895326538d82b5f75a0cd856", size = 13611760 },
-    { url = "https://files.pythonhosted.org/packages/d7/9e/d06adaa5cc65876bcd7a24f59f67e07f7e4194e6298130024ed3fb22c456/pygame-2.6.1-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:173badf82fa198e6888017bea40f511cb28e69ecdd5a72b214e81e4dcd66c3b1", size = 14298054 },
-    { url = "https://files.pythonhosted.org/packages/7a/a1/9ae2852ebd3a7cc7d9ae7ff7919ab983e4a5c1b7a14e840732f23b2b48f6/pygame-2.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ce8cc108b92de9b149b344ad2e25eedbe773af0dc41dfb24d1f07f679b558c60", size = 13977107 },
     { url = "https://files.pythonhosted.org/packages/31/df/6788fd2e9a864d0496a77670e44a7c012184b7a5382866ab0e60c55c0f28/pygame-2.6.1-cp311-cp311-win32.whl", hash = "sha256:811e7b925146d8149d79193652cbb83e0eca0aae66476b1cb310f0f4226b8b5c", size = 10250863 },
     { url = "https://files.pythonhosted.org/packages/d2/55/ca3eb851aeef4f6f2e98a360c201f0d00bd1ba2eb98e2c7850d80aabc526/pygame-2.6.1-cp311-cp311-win_amd64.whl", hash = "sha256:91476902426facd4bb0dad4dc3b2573bc82c95c71b135e0daaea072ed528d299", size = 10622016 },
     { url = "https://files.pythonhosted.org/packages/92/16/2c602c332f45ff9526d61f6bd764db5096ff9035433e2172e2d2cadae8db/pygame-2.6.1-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:4ee7f2771f588c966fa2fa8b829be26698c9b4836f82ede5e4edc1a68594942e", size = 13118279 },
     { url = "https://files.pythonhosted.org/packages/cd/53/77ccbc384b251c6e34bfd2e734c638233922449a7844e3c7a11ef91cee39/pygame-2.6.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:c8040ea2ab18c6b255af706ec01355c8a6b08dc48d77fd4ee783f8fc46a843bf", size = 12384524 },
-    { url = "https://files.pythonhosted.org/packages/06/be/3ed337583f010696c3b3435e89a74fb29d0c74d0931e8f33c0a4246307a9/pygame-2.6.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c47a6938de93fa610accd4969e638c2aebcb29b2fca518a84c3a39d91ab47116", size = 13587123 },
-    { url = "https://files.pythonhosted.org/packages/fd/ca/b015586a450db59313535662991b34d24c1f0c0dc149cc5f496573900f4e/pygame-2.6.1-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:33006f784e1c7d7e466fcb61d5489da59cc5f7eb098712f792a225df1d4e229d", size = 14275532 },
-    { url = "https://files.pythonhosted.org/packages/b9/f2/d31e6ad42d657af07be2ffd779190353f759a07b51232b9e1d724f2cda46/pygame-2.6.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1206125f14cae22c44565c9d333607f1d9f59487b1f1432945dfc809aeaa3e88", size = 13952653 },
     { url = "https://files.pythonhosted.org/packages/f3/42/8ea2a6979e6fa971702fece1747e862e2256d4a8558fe0da6364dd946c53/pygame-2.6.1-cp312-cp312-win32.whl", hash = "sha256:84fc4054e25262140d09d39e094f6880d730199710829902f0d8ceae0213379e", size = 10252421 },
     { url = "https://files.pythonhosted.org/packages/5f/90/7d766d54bb95939725e9a9361f9c06b0cfbe3fe100aa35400f0a461a278a/pygame-2.6.1-cp312-cp312-win_amd64.whl", hash = "sha256:3a9e7396be0d9633831c3f8d5d82dd63ba373ad65599628294b7a4f8a5a01a65", size = 10624591 },
     { url = "https://files.pythonhosted.org/packages/e1/91/718acf3e2a9d08a6ddcc96bd02a6f63c99ee7ba14afeaff2a51c987df0b9/pygame-2.6.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:ae6039f3a55d800db80e8010f387557b528d34d534435e0871326804df2a62f2", size = 13090765 },
     { url = "https://files.pythonhosted.org/packages/0e/c6/9cb315de851a7682d9c7568a41ea042ee98d668cb8deadc1dafcab6116f0/pygame-2.6.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:2a3a1288e2e9b1e5834e425bedd5ba01a3cd4902b5c2bff8ed4a740ccfe98171", size = 12381704 },
-    { url = "https://files.pythonhosted.org/packages/9f/8f/617a1196e31ae3b46be6949fbaa95b8c93ce15e0544266198c2266cc1b4d/pygame-2.6.1-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:27eb17e3dc9640e4b4683074f1890e2e879827447770470c2aba9f125f74510b", size = 13581091 },
-    { url = "https://files.pythonhosted.org/packages/3b/87/2851a564e40a2dad353f1c6e143465d445dab18a95281f9ea458b94f3608/pygame-2.6.1-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4c1623180e70a03c4a734deb9bac50fc9c82942ae84a3a220779062128e75f3b", size = 14273844 },
-    { url = "https://files.pythonhosted.org/packages/85/b5/aa23aa2e70bcba42c989c02e7228273c30f3b44b9b264abb93eaeff43ad7/pygame-2.6.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ef07c0103d79492c21fced9ad68c11c32efa6801ca1920ebfd0f15fb46c78b1c", size = 13951197 },
     { url = "https://files.pythonhosted.org/packages/a6/06/29e939b34d3f1354738c7d201c51c250ad7abefefaf6f8332d962ff67c4b/pygame-2.6.1-cp313-cp313-win32.whl", hash = "sha256:3acd8c009317190c2bfd81db681ecef47d5eb108c2151d09596d9c7ea9df5c0e", size = 10249309 },
     { url = "https://files.pythonhosted.org/packages/7e/11/17f7f319ca91824b86557e9303e3b7a71991ef17fd45286bf47d7f0a38e6/pygame-2.6.1-cp313-cp313-win_amd64.whl", hash = "sha256:813af4fba5d0b2cb8e58f5d95f7910295c34067dcc290d34f1be59c48bd1ea6a", size = 10620084 },
 ]
 
 [[package]]
 name = "pygments"
-version = "2.19.1"
+version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7c/2d/c3338d48ea6cc0feb8446d8e6937e1408088a72a39937982cc6111d17f84/pygments-2.19.1.tar.gz", hash = "sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f", size = 4968581 }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/0b/9fcc47d19c48b59121088dd6da2488a49d5f72dacf8262e2790a1d2c7d15/pygments-2.19.1-py3-none-any.whl", hash = "sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c", size = 1225293 },
+    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217 },
 ]
 
 [[package]]
@@ -1349,7 +1328,7 @@ source = { directory = "submodules/matrix/bindings/python" }
 
 [[package]]
 name = "rgbmatrixemulator"
-version = "0.12.1"
+version = "0.13.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bdfparser" },
@@ -1359,22 +1338,34 @@ dependencies = [
     { name = "pygame" },
     { name = "tornado" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/20/92fcce1fbbc2dd28de980c3c2fb1cfcea32bea3456475c32f531798174d0/rgbmatrixemulator-0.12.1.tar.gz", hash = "sha256:8673d33f41112df67ba5e7e886461f343a8c9382dd9233280f14693bd4806824", size = 4811 }
+sdist = { url = "https://files.pythonhosted.org/packages/72/a2/e9f6fdf96086a1f6a962def8f9ae5ec876440728250dc12a208c148e0e55/rgbmatrixemulator-0.13.5.tar.gz", hash = "sha256:9d61138c176a4a038f8e0bc95b469de83b5659a8f056f16301ee83b16401f990", size = 34134 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/74/a2f44e10a2da4c9092f1388e984fafc67026dbb45000518f2d222414ab63/rgbmatrixemulator-0.12.1-py2.py3-none-any.whl", hash = "sha256:4fbce86e81d0fadcbd7923d48eb4668c7f823de048c84595aa7ec5bbbb65135b", size = 57667 },
+    { url = "https://files.pythonhosted.org/packages/66/8e/ec26c1eff2a63d251e47d04d2978362a74d79ae08ad65ce978e9d1500b15/rgbmatrixemulator-0.13.5-py2.py3-none-any.whl", hash = "sha256:86bb1398b48944645d3ab9a20e0458eeb96ef5bca6e49f39791c86c8ce06aaac", size = 61857 },
 ]
 
 [[package]]
 name = "rich"
-version = "13.9.4"
+version = "14.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markdown-it-py" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ab/3a/0316b28d0761c6734d6bc14e770d85506c986c85ffb239e688eeaab2c2bc/rich-13.9.4.tar.gz", hash = "sha256:439594978a49a09530cff7ebc4b5c7103ef57baf48d5ea3184f21d9a2befa098", size = 223149 }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/d2/8920e102050a0de7bfabeb4c4614a49248cf8d5d7a8d01885fbb24dc767a/rich-14.2.0.tar.gz", hash = "sha256:73ff50c7c0c1c77c8243079283f4edb376f0f6442433aecb8ce7e6d0b92d1fe4", size = 219990 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/71/39c7c0d87f8d4e6c020a393182060eaefeeae6c01dab6a84ec346f2567df/rich-13.9.4-py3-none-any.whl", hash = "sha256:6049d5e6ec054bf2779ab3358186963bac2ea89175919d699e378b99738c2a90", size = 242424 },
+    { url = "https://files.pythonhosted.org/packages/25/7a/b0178788f8dc6cafce37a212c99565fa1fe7872c70c6c9c1e1a372d9d88f/rich-14.2.0-py3-none-any.whl", hash = "sha256:76bc51fe2e57d2b1be1f96c524b890b816e334ab4c1e45888799bfaab0021edd", size = 243393 },
+]
+
+[[package]]
+name = "richcolorlog"
+version = "1.44.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "rich" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a7/06/cd17ae30041d8f95774bb8225daf66803557c91bd8d5c5731b05c8e98d1c/richcolorlog-1.44.12.tar.gz", hash = "sha256:fa8f61031d960f8db0c29b5bd60afa556da5019cdf55bb083a373f4757c01af0", size = 479132 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9f/85/6ebc4b69d7a88bf5fafbe86d44afcbde250f46ca42d4ab434d7ae90d18c0/richcolorlog-1.44.12-py3-none-any.whl", hash = "sha256:51bdf1a3cd189b3cdb2668023e264f6e8778cb3a85500fca6ef54fb6ddd12d2f", size = 258074 },
 ]
 
 [[package]]
@@ -1457,12 +1448,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/59/45/a0daf161f7d6f36c3
 wheels = [
     { url = "https://files.pythonhosted.org/packages/26/7e/71f604d8cea1b58f82ba3590290b66da1e72d840aeb37e0d5f7291bd30db/tornado-6.4.2-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:e828cce1123e9e44ae2a50a9de3055497ab1d0aeb440c5ac23064d9e44880da1", size = 436299 },
     { url = "https://files.pythonhosted.org/packages/96/44/87543a3b99016d0bf54fdaab30d24bf0af2e848f1d13d34a3a5380aabe16/tornado-6.4.2-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:072ce12ada169c5b00b7d92a99ba089447ccc993ea2143c9ede887e0937aa803", size = 434253 },
-    { url = "https://files.pythonhosted.org/packages/cb/fb/fdf679b4ce51bcb7210801ef4f11fdac96e9885daa402861751353beea6e/tornado-6.4.2-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1a017d239bd1bb0919f72af256a970624241f070496635784d9bf0db640d3fec", size = 437602 },
-    { url = "https://files.pythonhosted.org/packages/4f/3b/e31aeffffc22b475a64dbeb273026a21b5b566f74dee48742817626c47dc/tornado-6.4.2-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c36e62ce8f63409301537222faffcef7dfc5284f27eec227389f2ad11b09d946", size = 436972 },
-    { url = "https://files.pythonhosted.org/packages/22/55/b78a464de78051a30599ceb6983b01d8f732e6f69bf37b4ed07f642ac0fc/tornado-6.4.2-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bca9eb02196e789c9cb5c3c7c0f04fb447dc2adffd95265b2c7223a8a615ccbf", size = 437173 },
-    { url = "https://files.pythonhosted.org/packages/79/5e/be4fb0d1684eb822c9a62fb18a3e44a06188f78aa466b2ad991d2ee31104/tornado-6.4.2-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:304463bd0772442ff4d0f5149c6f1c2135a1fae045adf070821c6cdc76980634", size = 437892 },
-    { url = "https://files.pythonhosted.org/packages/f5/33/4f91fdd94ea36e1d796147003b490fe60a0215ac5737b6f9c65e160d4fe0/tornado-6.4.2-cp38-abi3-musllinux_1_2_i686.whl", hash = "sha256:c82c46813ba483a385ab2a99caeaedf92585a1f90defb5693351fa7e4ea0bf73", size = 437334 },
-    { url = "https://files.pythonhosted.org/packages/2b/ae/c1b22d4524b0e10da2f29a176fb2890386f7bd1f63aacf186444873a88a0/tornado-6.4.2-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:932d195ca9015956fa502c6b56af9eb06106140d844a335590c1ec7f5277d10c", size = 437261 },
     { url = "https://files.pythonhosted.org/packages/b5/25/36dbd49ab6d179bcfc4c6c093a51795a4f3bed380543a8242ac3517a1751/tornado-6.4.2-cp38-abi3-win32.whl", hash = "sha256:2876cef82e6c5978fde1e0d5b1f919d756968d5b4282418f3146b79b58556482", size = 438463 },
     { url = "https://files.pythonhosted.org/packages/61/cc/58b1adeb1bb46228442081e746fcdbc4540905c87e8add7c277540934edb/tornado-6.4.2-cp38-abi3-win_amd64.whl", hash = "sha256:908b71bf3ff37d81073356a5fadcc660eb10c1476ee6e2725588626ce7e5ca38", size = 438907 },
 ]
