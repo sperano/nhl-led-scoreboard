@@ -9,6 +9,8 @@ import logging
 import os
 import re
 import sys
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as get_package_version
 from pathlib import Path
 from packaging import version
 
@@ -177,9 +179,10 @@ class Boards:
                 # Extract package name (handle versions like "holidays>=0.35")
                 pkg_name = dep.split('>=')[0].split('==')[0].split('<')[0].strip()
                 try:
-                    importlib.import_module(pkg_name)
+                    # Check if package is installed using pip package name (e.g., "pillow" not "PIL")
+                    get_package_version(pkg_name)
                     debug.debug(f"Plugin '{plugin_name}' dependency '{pkg_name}' is available")
-                except ImportError:
+                except PackageNotFoundError:
                     debug.error(f"Plugin '{plugin_name}' requires '{dep}' but it's not installed")
                     return False
 
