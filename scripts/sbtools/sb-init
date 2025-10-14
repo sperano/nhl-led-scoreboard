@@ -38,6 +38,12 @@ install_fastfetch() {
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "${DIR}/../.."
 
+# Check for armv6l architecture
+if [ "$ARCH" = "armv6l" ]; then
+  tput bold; echo "$(tput setaf 9)Sorry, This project will only run on a Raspberry Pi Zero 2w to a Raspberry Pi 4. Raspberry Pi Zero is not supported.$(tput setaf 9)" ; tput sgr0
+  exit 1
+fi
+
 # Don't run as root
 if [ $(id -u) -eq 0 ]; then
   tput bold; echo "$(tput setaf 9)You do not need to run this script using sudo, it will handle sudo as required$(tput setaf 9)" ; tput sgr0

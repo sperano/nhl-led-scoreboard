@@ -70,7 +70,7 @@ local ret=0
 # Update nhl-led-scoreboard
 printf "${GREEN}%s${RESET}\n" "Seeing if we can update the NHL LED Scoreboard"
 last_commit=$(git rev-parse HEAD)
-if git pull --rebase --stat origin master; then
+if git pull --rebase --stat origin main; then
   # Check if it was really updated or not
   if [[ "$(git rev-parse HEAD)" = "$last_commit" ]]; then
     message="NHL LED Scoreboard is already at the latest version."
