@@ -118,36 +118,39 @@ def clone_plugin(url: str, ref: Optional[str], tmp_dir: Path) -> Optional[str]:
     Clone a git repo into tmp_dir and optionally checkout a ref.
     Returns the resolved commit SHA, or None on failure.
     """
-    # Clone with depth 1 for speed
-    result = run_git(["clone", "--depth", "1", url, str(tmp_dir)])
-    if result.returncode != 0:
-        logger.error(f"Failed to clone {url}")
-        logger.error(result.stderr)
-        return None
-
-    # If a ref is specified, fetch and checkout
+    # If a ref is specified, try to clone that branch/tag directly
     if ref:
-        # Unshallow first to allow checking out arbitrary refs
-        logger.debug(f"Fetching ref: {ref}")
-        # Try fetching as a branch first (refs/heads/...)
-        result = run_git(["fetch", "--depth", "1", "origin", f"{ref}:refs/remotes/origin/{ref}"], cwd=tmp_dir)
+        logger.debug(f"Cloning branch/ref: {ref}")
+        result = run_git(["clone", "--depth", "1", "--branch", ref, url, str(tmp_dir)])
         if result.returncode != 0:
-            # If that fails, try fetching as a tag or direct ref
+            # --branch doesn't work with commit SHAs, so clone default and checkout
+            logger.debug(f"Could not clone ref '{ref}' directly, trying checkout method")
+            result = run_git(["clone", "--depth", "1", url, str(tmp_dir)])
+            if result.returncode != 0:
+                logger.error(f"Failed to clone {url}")
+                logger.error(result.stderr)
+                return None
+
+            # Fetch the specific commit
             result = run_git(["fetch", "--depth", "1", "origin", ref], cwd=tmp_dir)
             if result.returncode != 0:
-                logger.warning(f"Could not fetch ref '{ref}', using default branch")
-            else:
-                result = run_git(["checkout", ref], cwd=tmp_dir)
-                if result.returncode != 0:
-                    logger.error(f"Failed to checkout ref '{ref}'")
-                    logger.error(result.stderr)
-                    return None
-        else:
+                logger.error(f"Failed to fetch ref '{ref}' from {url}")
+                logger.error(result.stderr)
+                return None
+
+            # Checkout the commit
             result = run_git(["checkout", ref], cwd=tmp_dir)
             if result.returncode != 0:
                 logger.error(f"Failed to checkout ref '{ref}'")
                 logger.error(result.stderr)
                 return None
+    else:
+        # Clone with depth 1 for speed (default branch)
+        result = run_git(["clone", "--depth", "1", url, str(tmp_dir)])
+        if result.returncode != 0:
+            logger.error(f"Failed to clone {url}")
+            logger.error(result.stderr)
+            return None
 
     # Get resolved commit SHA
     result = run_git(["rev-parse", "HEAD"], cwd=tmp_dir)
