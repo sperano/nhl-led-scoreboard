@@ -97,6 +97,7 @@ class wxForecast(object):
             while index <= self.max_days and forecasts_updated:
             #Create the date
                 nextdate = self.currdate + timedelta(days=forecast_day)
+                currdate_name = self.currdate.strftime("%A")
                 nextdate_name = nextdate.strftime("%A")
                 nextdate = nextdate.strftime("%a %m/%d")
                 forecast_day += 1
@@ -105,14 +106,24 @@ class wxForecast(object):
                 for day_forecast in forecasts:
                     for k,v in day_forecast.items():
                         if k == "period" and v == nextdate_name:
-                            #print(day_forecast)
                             summary = day_forecast['text_summary']
                             icon_code = day_forecast['icon_code']
                             temp_high = str(day_forecast['temperature']) + self.data.wx_units[0]
                             # Get the nextdate_name + " night"
+
                             night_forecast = next((sub for sub in forecasts if sub['period'] == nextdate_name + " night"), None)
+
                             temp_low = str(night_forecast['temperature']) + self.data.wx_units[0]
                             break
+                        else:
+                            if k == "period" and v == f"{currdate_name} night" and self.show_today:
+                                debug.debug(f"Not {nextdate_name}, it's {v}")
+                                summary = day_forecast['text_summary']
+                                icon_code = day_forecast['icon_code']
+                                temp_low = str(day_forecast['temperature']) + self.data.wx_units[0]
+                                temp_high = "--" + self.data.wx_units[0]
+                                debug.debug(f"Tonight's low temp: {temp_low}")
+                                break
 
                 if icon_code is None:
                     wx_icon = '\uf07b'
@@ -132,6 +143,12 @@ class wxForecast(object):
 
                 if wx_summary == "N/A":
                     debug.error("Icon not found in icon spreadsheet:  EC icon code: {} : EC Summary {}.".format(icon_code,summary))
+
+                if self.show_today  and index == 0:
+                    if self.currdate.hour > 18:
+                        nextdate = "* Night *"
+                    else:
+                        nextdate = "* Today *"
 
 
                 wx_forecast.append([nextdate,wx_summary,wx_icon,temp_high,temp_low])
@@ -213,6 +230,9 @@ class wxForecast(object):
                         else:
                             wx_icon = '\uf07b'
                             wx_summary = "N/A"
+
+                if self.show_today and index == 0:
+                    nextdate = "* Today *"
 
                 wx_forecast.append([nextdate,summary,wx_icon,temp_hi,temp_lo])
                 index += 1
