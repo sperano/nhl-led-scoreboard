@@ -5,6 +5,7 @@
 #cd /home/pi/nhl-led-scoreboard
 #Uncomment for running out of the repository scripts/sbtools directory
 ARCH=$(uname -m)
+DEBIAN_VERSION=$(cat /etc/debian_version)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "${DIR}"
 
@@ -127,16 +128,36 @@ if git pull --rebase --stat origin main; then
       CURRENT_NHL_SETUP_VERSION=$(../../nhl_setup -v | awk '{print $2}')
       if [[ "$LATEST_NHL_SETUP_VERSION" != "$CURRENT_NHL_SETUP_VERSION" ]]; then
         printf "${GREEN}%s${RESET}\n" "Newer version of nhl_setup found. Downloading..."
-        if [ "$ARCH" = "aarch64" ]; then
-            wget -q https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.64 -O ../../nhl_setup
-            chmod +x ../../nhl_setup
-            printf "${GREEN}%s${RESET}\n" "nhl_setup updated to version $LATEST_NHL_SETUP_VERSION"
-        elif [ "$ARCH" = "armv7l" ]; then
-            wget -q https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.32 -O ../../nhl_setup
-            chmod +x ../../nhl_setup
+        if [[ "$DEBIAN_VERSION" == "13"* ]]; then
+            if [ "$ARCH" = "aarch64" ]; then
+                echo "64-bit ARM architecture detected. Downloading and installing nhl_setup..."
+                wget https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.64 -O ../../nhl_setup
+                chmod +x ../../nhl_setup
+            elif [ "$ARCH" = "armv7l" ]; then
+                echo "32-bit ARM architecture detected. Downloading and installing nhl_setup..."
+                wget https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.32 -O ../../nhl_setup
+                chmod +x ../../nhl_setup
+            else
+                echo "Unsupported architecture for nhl_setup: $ARCH"
+            fi
+        elif [[ "$DEBIAN_VERSION" == "12"* ]]; then
+            if [ "$ARCH" = "aarch64" ]; then
+                echo "64-bit ARM architecture detected. Downloading and installing nhl_setup..."
+                wget https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.bookworm.64 -O ../../nhl_setup
+                chmod +x ../../nhl_setup
+            elif [ "$ARCH" = "armv7l" ]; then
+                echo "32-bit ARM architecture detected. Downloading and installing nhl_setup..."
+                wget https://github.com/falkyre/nhl-setup/releases/latest/download/nhl_setup.bookworm.32 -O ../../nhl_setup
+                chmod +x ../../nhl_setup
+            else
+                echo "Unsupported architecture for nhl_setup: $ARCH"
+            fi
+        fi
+        CURRENT_NHL_SETUP_VERSION=$(../../nhl_setup -v | awk '{print $2}')
+        if [[ "$LATEST_NHL_SETUP_VERSION" == "$CURRENT_NHL_SETUP_VERSION" ]]; then
             printf "${GREEN}%s${RESET}\n" "nhl_setup updated to version $LATEST_NHL_SETUP_VERSION"
         else
-            printf "${RED}%s${RESET}\n" "Unsupported architecture for nhl_setup: $ARCH"
+            printf "${RED}%s${RESET}\n" "nhl_setup update failed. Please run sb-upgrade again."
         fi
       else
         printf "${YELLOW}%s${RESET}\n" "nhl_setup is already at the latest version."
