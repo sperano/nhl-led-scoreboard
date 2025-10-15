@@ -228,6 +228,51 @@ def validate_plugin(plugin_path: Path) -> bool:
         return False
 
 
+def install_plugin_dependencies(plugin_path: Path) -> bool:
+    """
+    Install Python dependencies for a plugin from its requirements.txt.
+
+    Args:
+        plugin_path: Path to the plugin directory
+
+    Returns:
+        True if dependencies were installed successfully or no dependencies exist,
+        False if installation failed
+    """
+    requirements_file = plugin_path / "requirements.txt"
+
+    if not requirements_file.exists():
+        logger.debug(f"No requirements.txt found for plugin at {plugin_path}")
+        return True
+
+    plugin_name = plugin_path.name
+    logger.info(f"Installing dependencies for plugin '{plugin_name}'...")
+
+    # Determine pip command based on environment
+    pip_cmd = [sys.executable, "-m", "pip", "install", "-r", str(requirements_file)]
+
+    try:
+        result = subprocess.run(
+            pip_cmd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        if result.returncode == 0:
+            logger.info(f"✓ Dependencies installed for '{plugin_name}'")
+            return True
+        else:
+            logger.error(f"Failed to install dependencies for '{plugin_name}'")
+            if result.stderr:
+                logger.debug(f"pip error: {result.stderr}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Error installing dependencies for '{plugin_name}': {e}")
+        return False
+
+
 def get_plugin_id_from_repo(repo_path: Path) -> Optional[str]:
     """
     Extract the canonical plugin ID from the plugin's plugin.json.
@@ -388,6 +433,11 @@ def install_plugin(url: str, ref: Optional[str], name_override: Optional[str] = 
 
         # Validate plugin structure
         validate_plugin(plugin_dest)
+
+        # Install plugin dependencies
+        if not install_plugin_dependencies(plugin_dest):
+            logger.warning(f"Plugin '{plugin_name}' installed but dependency installation failed")
+            logger.warning(f"You may need to manually install dependencies from: {plugin_dest}/requirements.txt")
 
         logger.info(f"✓ Plugin '{plugin_name}' installed successfully (commit: {commit_sha[:7]})")
 
