@@ -183,3 +183,4 @@ plugins.lock.json
 *.ori
 .devcontainer.json
 nhl_setup
+RELEASE_NOTE.md
