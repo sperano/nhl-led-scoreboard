@@ -230,7 +230,10 @@ def validate_plugin(plugin_path: Path) -> bool:
 
 def install_plugin_dependencies(plugin_path: Path) -> bool:
     """
-    Install Python dependencies for a plugin from its requirements.txt.
+    Install Python dependencies for a plugin.
+
+    Checks plugin.json for python_dependencies first, falls back to requirements.txt
+    for backward compatibility.
 
     Args:
         plugin_path: Path to the plugin directory
@@ -239,38 +242,68 @@ def install_plugin_dependencies(plugin_path: Path) -> bool:
         True if dependencies were installed successfully or no dependencies exist,
         False if installation failed
     """
-    requirements_file = plugin_path / "requirements.txt"
+    plugin_name = plugin_path.name
+    dependencies = []
 
-    if not requirements_file.exists():
-        logger.debug(f"No requirements.txt found for plugin at {plugin_path}")
+    # First, try to get dependencies from plugin.json
+    metadata = load_plugin_metadata(plugin_path)
+    if metadata:
+        deps = metadata.get("requirements", {}).get("python_dependencies", [])
+        if deps:
+            logger.debug(f"Found {len(deps)} dependencies in plugin.json")
+            dependencies = deps
+
+    # Fallback to requirements.txt if no dependencies in metadata
+    if not dependencies:
+        requirements_file = plugin_path / "requirements.txt"
+        if requirements_file.exists():
+            logger.debug(f"Using requirements.txt for dependencies")
+            try:
+                with open(requirements_file) as f:
+                    # Read dependencies, skip comments and empty lines
+                    dependencies = [
+                        line.strip()
+                        for line in f
+                        if line.strip() and not line.strip().startswith("#")
+                    ]
+            except Exception as e:
+                logger.error(f"Failed to read requirements.txt: {e}")
+                return False
+        else:
+            logger.debug(f"No dependencies found for plugin at {plugin_path}")
+            return True
+
+    if not dependencies:
+        logger.debug(f"No dependencies to install for plugin '{plugin_name}'")
         return True
 
-    plugin_name = plugin_path.name
-    logger.info(f"Installing dependencies for plugin '{plugin_name}'...")
+    logger.info(f"Installing {len(dependencies)} dependenc(y/ies) for plugin '{plugin_name}'...")
 
-    # Determine pip command based on environment
-    pip_cmd = [sys.executable, "-m", "pip", "install", "-r", str(requirements_file)]
+    # Install each dependency
+    for dep in dependencies:
+        logger.debug(f"  Installing: {dep}")
+        pip_cmd = [sys.executable, "-m", "pip", "install", dep]
 
-    try:
-        result = subprocess.run(
-            pip_cmd,
-            capture_output=True,
-            text=True,
-            check=False
-        )
+        try:
+            result = subprocess.run(
+                pip_cmd,
+                capture_output=True,
+                text=True,
+                check=False
+            )
 
-        if result.returncode == 0:
-            logger.info(f"✓ Dependencies installed for '{plugin_name}'")
-            return True
-        else:
-            logger.error(f"Failed to install dependencies for '{plugin_name}'")
-            if result.stderr:
-                logger.debug(f"pip error: {result.stderr}")
+            if result.returncode != 0:
+                logger.error(f"Failed to install '{dep}' for '{plugin_name}'")
+                if result.stderr:
+                    logger.debug(f"pip error: {result.stderr}")
+                return False
+
+        except Exception as e:
+            logger.error(f"Error installing '{dep}' for '{plugin_name}': {e}")
             return False
 
-    except Exception as e:
-        logger.error(f"Error installing dependencies for '{plugin_name}': {e}")
-        return False
+    logger.info(f"✓ Dependencies installed for '{plugin_name}'")
+    return True
 
 
 def get_plugin_id_from_repo(repo_path: Path) -> Optional[str]:
@@ -437,7 +470,7 @@ def install_plugin(url: str, ref: Optional[str], name_override: Optional[str] = 
         # Install plugin dependencies
         if not install_plugin_dependencies(plugin_dest):
             logger.warning(f"Plugin '{plugin_name}' installed but dependency installation failed")
-            logger.warning(f"You may need to manually install dependencies from: {plugin_dest}/requirements.txt")
+            logger.warning(f"Check plugin.json or requirements.txt in: {plugin_dest}")
 
         logger.info(f"✓ Plugin '{plugin_name}' installed successfully (commit: {commit_sha[:7]})")
 
