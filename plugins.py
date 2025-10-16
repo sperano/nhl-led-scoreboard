@@ -565,8 +565,8 @@ def cmd_list(args):
         return
 
     # Print table header
-    print(f"{'NAME':<20} {'STATUS':<12} {'COMMIT':<10}")
-    print("-" * 45)
+    print(f"{'NAME':<20} {'VERSION':<12} {'STATUS':<12} {'COMMIT':<10}")
+    print("-" * 57)
 
     for plugin in plugins:
         name = plugin["name"]
@@ -574,7 +574,14 @@ def cmd_list(args):
         status = "present" if plugin_path.exists() else "missing"
         commit = locked.get(name, {}).get("commit", "")[:7] if status == "present" else "-"
 
-        print(f"{name:<20} {status:<12} {commit:<10}")
+        # Get version from plugin.json
+        version = "-"
+        if status == "present":
+            metadata = load_plugin_metadata(plugin_path)
+            if metadata and "version" in metadata:
+                version = metadata["version"]
+
+        print(f"{name:<20} {version:<12} {status:<12} {commit:<10}")
 
 
 def cmd_sync(args):
@@ -623,25 +630,25 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # Add command
-    add_parser = subparsers.add_parser("add", help="Add or update a plugin")
+    # Add command (aliases: install)
+    add_parser = subparsers.add_parser("add", aliases=["install"], help="Add or update a plugin")
     add_parser.add_argument("url", help="Git repository URL")
     add_parser.add_argument("--ref", help="Git ref (tag, branch, or SHA)")
     add_parser.add_argument("--name", help="Override plugin name (uses __plugin_id__ from repo by default)")
     add_parser.set_defaults(func=cmd_add)
 
-    # Remove command
-    rm_parser = subparsers.add_parser("rm", help="Remove a plugin")
-    rm_parser.add_argument("name", help="Plugin name to remove")
-    rm_parser.add_argument("--keep-config", action="store_true", help="Preserve config.json when removing")
-    rm_parser.set_defaults(func=cmd_rm)
+    # Remove command (aliases: rm, delete, uninstall)
+    remove_parser = subparsers.add_parser("remove", aliases=["rm", "delete", "uninstall"], help="Remove a plugin")
+    remove_parser.add_argument("name", help="Plugin name to remove")
+    remove_parser.add_argument("--keep-config", action="store_true", help="Preserve config.json when removing")
+    remove_parser.set_defaults(func=cmd_rm)
 
-    # List command
-    list_parser = subparsers.add_parser("list", help="List all plugins")
+    # List command (aliases: ls, show)
+    list_parser = subparsers.add_parser("list", aliases=["ls", "show"], help="List all plugins")
     list_parser.set_defaults(func=cmd_list)
 
-    # Sync command
-    sync_parser = subparsers.add_parser("sync", help="Install/update all plugins from plugins.json")
+    # Sync command (aliases: update)
+    sync_parser = subparsers.add_parser("sync", aliases=["update"], help="Install/update all plugins from plugins.json")
     sync_parser.set_defaults(func=cmd_sync)
 
     args = parser.parse_args()
