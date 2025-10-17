@@ -29,6 +29,8 @@ import debug
 from rich.logging import RichHandler
 from rich.traceback import install
 from richcolorlog import setup_logging
+import time
+import threading
 
 install(show_locals=True) 
 
@@ -207,10 +209,16 @@ def run():
             sbmqttThread = threading.Thread(target=sbmqtt.run, args=())
             sbmqttThread.daemon = True
             sbmqttThread.start()
+
+    thread = threading.Thread(target=background_task, daemon=True, args=(matrix,))
+    thread.start()
     
     MainRenderer(matrix, data, sleepEvent,sbQueue).render()
 
-
+def background_task():
+    while True:
+        print("Running in the background")
+        time.sleep(2)
 if __name__ == "__main__":
     try:
         run()
