@@ -212,13 +212,17 @@ def run():
 
     thread = threading.Thread(target=background_task, daemon=True, args=(matrix,))
     thread.start()
-    
+
     MainRenderer(matrix, data, sleepEvent,sbQueue).render()
 
-def background_task():
+
+def background_task(matrix: Matrix):
     while True:
         print("Running in the background")
         time.sleep(2)
+        _ = matrix
+
+
 if __name__ == "__main__":
     try:
         run()
