@@ -221,7 +221,7 @@ def background_task(matrix: Matrix):
     while True:
         n = random.randint(0, 255)
         print(f"Setting brightness to {n}")
-        matrix.brightness = n
+        matrix.set_brightness(n)
         time.sleep(2)
 
 
