@@ -219,10 +219,10 @@ def run():
 
 def background_task(matrix: Matrix):
     while True:
-        print("Running in the background")
-        matrix.brightness = random.randint(0, 255)
+        n = random.randint(0, 255)
+        print("Setting brightness to {n}")
+        matrix.brightness = n
         time.sleep(2)
-        _ = matrix
 
 
 if __name__ == "__main__":
