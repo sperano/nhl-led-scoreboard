@@ -2,6 +2,7 @@ tzlocal
 cairoSVG>=2.6.0
 ephem
 fastjsonschema>=2.14.4
+flask
 geopy
 ipinfo
 gpiozero

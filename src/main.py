@@ -32,6 +32,19 @@ from richcolorlog import setup_logging
 import random
 import time
 import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route("/matrix/brightness", methods=["POST", "PUT"])
+def matrix_brightness():
+    data = request.get_json(force=True)
+    # Your logic here
+    print("Brightness data received:", data)
+    return jsonify(status="ok")
+
 
 install(show_locals=True) 
 
@@ -218,12 +231,14 @@ def run():
 
 
 def background_task(matrix: Matrix):
-    while True:
-        n = random.randint(0, 255)
-        print(f"Setting brightness to {n}")
-        matrix.set_brightness(n)
-        time.sleep(2)
+    app.run(host="0.0.0.0", port=8080)
+    # while True:
+    #     n = random.randint(0, 255)
+    #     print(f"Setting brightness to {n}")
+    #     matrix.set_brightness(n)
+    #     time.sleep(2)
 
+if __name__ == "__main__":
 
 if __name__ == "__main__":
     try:
