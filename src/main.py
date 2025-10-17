@@ -3,6 +3,7 @@ from pathlib import Path
 import driver
 from sbio.screensaver import screenSaver
 from sbio.dimmer import Dimmer
+from importlib import metadata
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_MISSED
 from data.scoreboard_config import ScoreboardConfig
@@ -34,7 +35,11 @@ install(show_locals=True)
 
 SCRIPT_NAME = "NHL-LED-SCOREBOARD"
 
-SCRIPT_VERSION = "2025.10.0"
+try:
+    SCRIPT_VERSION = metadata.version(SCRIPT_NAME)
+except metadata.PackageNotFoundError:
+    with open(Path(__file__).parent / ".." / "VERSION") as f:
+        SCRIPT_VERSION = f.read().strip()
 
 # Initialize the logger with default settings
 debug.setup_logger(logtofile=args().logtofile)

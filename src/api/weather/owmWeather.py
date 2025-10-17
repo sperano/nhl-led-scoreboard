@@ -1,9 +1,11 @@
-import requests
 import json
 import logging
 from datetime import datetime
+
+import requests
+
+from api.weather.wx_utils import degrees_to_direction, dew_point, get_csv, temp_f, usaheatindex, wind_chill, wind_kmph
 from utils import sb_cache
-from api.weather.wx_utils import wind_chill, get_csv, degrees_to_direction, dew_point, wind_kmph, usaheatindex, temp_f
 
 debug = logging.getLogger("scoreboard")
 
@@ -37,7 +39,7 @@ class owmWxWorker(object):
             wx_cache, expiration_time = sb_cache.get("weather", expire_time=True)
             if wx_cache is None:
                 debug.info("Refreshing OWM current observations weather")
-                
+
                 # Fetch weather data using requests
                 url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={self.data.config.weather_units}&appid={self.apikey}&exclude=minutely,hourly,daily,alerts"
                 response = requests.get(url)
@@ -72,17 +74,17 @@ class owmWxWorker(object):
             wx_timestamp = datetime.now().strftime("%m/%d %H:%M" if self.time_format == "%H:%M" else "%m/%d %I:%M %p")
             wx_code = wx.get("current").get("weather")[0].get("id")
             owm_icon = self.getWeatherIcon(wx_code)
-            
+
             #Get condition and icon from dictionary
             for row in range(len(self.icons)):
                 if int(self.icons[row]["OWMCode"]) == owm_icon:
                     wx_icon = self.icons[row]['font']
                     break
                 else:
-                    wx_icon = '\uf07b' 
+                    wx_icon = '\uf07b'
 
             wx_summary = wx.get("current").get("weather")[0].get("description")
-            
+
             owm_windspeed = wx.get("current").get("wind_speed")
             owm_windgust = wx.get("current").get("wind_gust", 0)
 
@@ -161,4 +163,4 @@ class owmWxWorker(object):
         elif wx_code == 801:
             return 801  # Few Clouds
         else:
-            return wx_code  # Default icon for other conditions 
+            return wx_code  # Default icon for other conditions

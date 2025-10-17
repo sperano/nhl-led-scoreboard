@@ -29,7 +29,7 @@
                         "stanley_cup_champions",
                         "christmas",
                         "holiday_countdown",
-                        "seasoncountdown",
+                        "season_countdown",
                         "clock",
                         "weather",
                         "player_stats",
@@ -719,6 +719,7 @@
                         "update_freq",
                         "show_on_clock",
                         "forecast_enabled",
+                        "forecast_show_today",
                         "forecast_days",
                         "forecast_update"
                     ],
@@ -808,6 +809,16 @@
                             "type": "boolean",
                             "title": "forecast_enabled",
                             "description": "Enable the weather forecast thread to get your local weather forecast up to 3 days.",
+                            "default": false,
+                            "examples": [
+                                true
+                            ]
+                        },
+                        "forecast_show_today": {
+                            "$id": "#/properties/boards/properties/weather/properties/forecast_show_today",
+                            "type": "boolean",
+                            "title": "forecast_show_today",
+                            "description": "Show today in the forecast.",
                             "default": false,
                             "examples": [
                                 true

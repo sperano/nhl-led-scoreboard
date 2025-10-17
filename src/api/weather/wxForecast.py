@@ -1,11 +1,11 @@
 #from pyowm.owm import OWM
-import requests
-from env_canada import ECWeather
-import logging
-from datetime import datetime,timedelta
-from time import sleep
-from api.weather.wx_utils import cadhumidex, wind_chill, get_csv, degrees_to_direction, temp_f, wind_mph
 import asyncio
+import logging
+from datetime import datetime, timedelta
+
+import requests
+
+from api.weather.wx_utils import get_csv
 
 debug = logging.getLogger("scoreboard")
 
@@ -23,6 +23,7 @@ class wxForecast(object):
         self.apikey = data.config.weather_owm_apikey
 
         self.max_days = data.config.weather_forecast_days
+        self.show_today = data.config.weather_forecast_show_today
 
         #if self.data.config.weather_data_feed.lower() == "owm":
         #    self.owm = OWM(self.apikey)
@@ -45,7 +46,7 @@ class wxForecast(object):
         if self.data.config.weather_units.lower() not in ("metric", "imperial"):
             debug.info("Weather units not set correctly, defaulting to imperial")
             self.data.config.weather_units="imperial"
-            
+
         if self.data.config.weather_units == "metric":
             self.data.wx_units = ["C","kph","mm","miles","hPa","ca"]
         else:
@@ -66,7 +67,7 @@ class wxForecast(object):
         self.currdate = datetime.now()
 
         # For testing
-        #self.data.wx_forecast = [['Tue 08/25', 'Mainly Clear', '\uf02e', '-29C', '-14C'], ['Wed 08/26', 'Light Rain Shower', '\uf02b', '27C', '18C'], ['Thu 08/27', 'Clear', '\uf02e', '23C', '13C']]
+        #self.data.wx_forecast = [['Tue 08/25', 'Mainly Clear', '\uf02e', '-29C', '-14C'], ['Wed 08/26', 'Light Rain Shower', '\uf02b', '27C', '18C'], ['Thu 08/27', 'Clear', '\uf02e', '23C', '13C']]  # noqa: E501
 
         if self.data.config.weather_data_feed.lower() == "ec":
             debug.info("Refreshing EC daily weather forecast")
@@ -77,7 +78,7 @@ class wxForecast(object):
 
             forecasts = []
             forecasts = self.data.ecData.daily_forecasts
-            #debug.warning(forecasts)
+            debug.debug(f"EC forecast raw: {forecasts}")
 
             if len(forecasts) > 0:
                 forecasts_updated = True
@@ -87,29 +88,44 @@ class wxForecast(object):
 
             #Loop through the data and create the forecast
             #Number of days to add to current day for the date string, this will be incremented
-            index = 1
-            forecast_day = 1
+            if self.show_today:
+                index = 0
+                forecast_day = 0
+            else:
+                index = 1
+                forecast_day = 1
             while index <= self.max_days and forecasts_updated:
             #Create the date
                 nextdate = self.currdate + timedelta(days=forecast_day)
+                currdate_name = self.currdate.strftime("%A")
                 nextdate_name = nextdate.strftime("%A")
-                nextdate = nextdate.strftime("%a %m/%d")  
+                nextdate = nextdate.strftime("%a %m/%d")
                 forecast_day += 1
 
                 #Loop through forecast and get the day equal to nextdate_name
                 for day_forecast in forecasts:
                     for k,v in day_forecast.items():
                         if k == "period" and v == nextdate_name:
-                            #print(day_forecast)
                             summary = day_forecast['text_summary']
                             icon_code = day_forecast['icon_code']
                             temp_high = str(day_forecast['temperature']) + self.data.wx_units[0]
                             # Get the nextdate_name + " night"
+
                             night_forecast = next((sub for sub in forecasts if sub['period'] == nextdate_name + " night"), None)
+
                             temp_low = str(night_forecast['temperature']) + self.data.wx_units[0]
                             break
+                        else:
+                            if k == "period" and v == f"{currdate_name} night" and self.show_today:
+                                debug.debug(f"Not {nextdate_name}, it's {v}")
+                                summary = day_forecast['text_summary']
+                                icon_code = day_forecast['icon_code']
+                                temp_low = str(day_forecast['temperature']) + self.data.wx_units[0]
+                                temp_high = "--" + self.data.wx_units[0]
+                                debug.debug(f"Tonight's low temp: {temp_low}")
+                                break
 
-                if icon_code == None:
+                if icon_code is None:
                     wx_icon = '\uf07b'
                     wx_summary = "N/A"
                     #debug.warning("Forecasts returned: {}".format(forecasts))
@@ -128,6 +144,12 @@ class wxForecast(object):
                 if wx_summary == "N/A":
                     debug.error("Icon not found in icon spreadsheet:  EC icon code: {} : EC Summary {}.".format(icon_code,summary))
 
+                if self.show_today  and index == 0:
+                    if self.currdate.hour > 18:
+                        nextdate = "* Night *"
+                    else:
+                        nextdate = "* Today *"
+
 
                 wx_forecast.append([nextdate,wx_summary,wx_icon,temp_high,temp_low])
                 index += 1
@@ -139,11 +161,12 @@ class wxForecast(object):
             lat = self.data.latlng[0]
             lon = self.data.latlng[1]
             one_call = None
-            
+
             try:
                 url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&units={self.data.config.weather_units}&appid={self.apikey}&exclude=alerts,minutely,hourly,current"
                 response = requests.get(url)
                 one_call = response.json()
+                debug.debug(f"OWM forecast raw: {one_call}")
 
             except Exception as e:
                 debug.error("Unable to get OWM data error:{0}".format(e))
@@ -151,16 +174,22 @@ class wxForecast(object):
                 self.network_issues = True
                 return
 
-            index=1
-            forecast = []
+            if self.show_today:
+                index = 0
+            else:
+                index=1
+
+            #forecast = []
             while index <= self.max_days:
                 nextdate = self.currdate + timedelta(days=index)
                 nextdate = nextdate.strftime("%a %m/%d")
                 icon_code = int(one_call.get("daily")[index].get("weather")[0].get("id"))
-                summary = one_call.get("daily")[index].get("summary")
-                
-                temp_high = one_call.get("daily")[index].get("temp").get('max', None) 
-                temp_low = one_call.get("daily")[index].get("temp").get('min', None) 
+                summary = one_call.get("daily")[index].get("weather")[0].get("description")
+                # This is a long descriptive summary, not sure if will add this as an option yet
+                #summary = one_call.get("daily")[index].get("summary")
+
+                temp_high = one_call.get("daily")[index].get("temp").get('max', None)
+                temp_low = one_call.get("daily")[index].get("temp").get('min', None)
 
                 #Round high and low temps to two digits only (ie 25 and not 25.61)
                 temp_hi = str(round(float(temp_high))) + self.data.wx_units[0]
@@ -185,10 +214,10 @@ class wxForecast(object):
                     # Rain Class
                     owm_icon = 801
                 else:
-                    owm_icon = icon_code 
+                    owm_icon = icon_code
 
                 #Get the icon, only for the day
-                if icon_code == None:
+                if icon_code is None:
                     wx_icon = '\uf07b'
                     wx_summary = "N/A"
                 else:
@@ -201,6 +230,9 @@ class wxForecast(object):
                         else:
                             wx_icon = '\uf07b'
                             wx_summary = "N/A"
+
+                if self.show_today and index == 0:
+                    nextdate = "* Today *"
 
                 wx_forecast.append([nextdate,summary,wx_icon,temp_hi,temp_lo])
                 index += 1

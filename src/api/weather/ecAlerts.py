@@ -1,12 +1,12 @@
-import logging
-import datetime
 import asyncio
+import datetime
+import logging
 
 debug = logging.getLogger("scoreboard")
 
 class ecWxAlerts(object):
     def __init__(self, data, scheduler,sleepEvent):
-        
+
         self.data = data
         self.time_format = data.config.time_format
         self.alert_frequency = data.config.wxalert_update_freq
@@ -34,22 +34,22 @@ class ecWxAlerts(object):
         asyncio.run(self.data.ecData.update())
         curr_alerts = self.data.ecData.alerts
         self.network_issues = False
-        
+
         debug.info("Last Alert: {0}".format(self.data.wx_alerts))
         # Check if there's more than a length of 5 returned back as if there's
-        # No alerts, the dictionary still comes back with empty values for 
+        # No alerts, the dictionary still comes back with empty values for
         # warning, watch, advisory, statements and endings
         # Currently don't do anything with a statement
         # debug.info(curr_alerts)
 
         #Find the latest date in the curr_alerts
 
-        
+
         len_warn = len(curr_alerts.get("warnings").get("value","0"))
         len_watch = len(curr_alerts.get("watches").get("value","0"))
         len_advisory = len(curr_alerts.get("advisories").get("value","0"))
         debug.info(f"Warnings: {len_warn} Watches: {len_watch} Advisories: {len_advisory}")
-        
+
         num_alerts = len_warn + len_watch + len_advisory
 
         if num_alerts > 0:
@@ -128,7 +128,7 @@ class ecWxAlerts(object):
                 alerts[0][0] = "Frzn Drzl"
 
             #debug.info(alerts)
-            
+
             if self.data.wx_alerts != alerts[0]:
                 self.data.wx_alerts = alerts[0]
                 self.weather_alert = 0

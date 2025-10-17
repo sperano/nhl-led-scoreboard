@@ -31,7 +31,7 @@ Click on button to go to release notes.
 * Adafruit RGB Bonnet or HAT
 * [Electrodragon RGB Matrix Panel Drive board](https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/)
 ## Only Supported OS (these have been tested)
-* rpi OS Bookworm or higher (32 bit or 64 bit) - **lite vesion only**
+* rpi OS Bookworm (32 bit only, 64 bit not tested) or higher (Trixie 32 bit or 64 bit) - **lite vesion only**
 > [!NOTE]
 > If you get a segmentation fault on using apt to install packages, reboot your pi and try again.  There maybe some locked files
 * Dietpi V9.9.0 or higher (dietpi V9.17.2 is Debian trixie and the board has been tested under this OS)
@@ -61,6 +61,7 @@ The following makes the assumption that you are comfortable with a Linux termina
 4. Change to the nhl-led-scoreboard directory
 5. Run the scripts/install.sh script.  Pay attention to it's output as there is critical information if there are any errors.
 6. If the install.sh script has no failures, you can try the samples to see if your board works.  If the samples don't work, the scoreboard code won't either.  
+   
 > [!NOTE]
 > Under Debian 13 Trxie, you will get this error from the install script.  It can be safely ignored
 
@@ -68,6 +69,19 @@ The following makes the assumption that you are comfortable with a Linux termina
 types-requests 2.32 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
 types-docker 7.1 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.
 types-influxdb-client 1.45 requires urllib3>=2, but you have urllib3 1.26.20 which is incompatible.`
+
+## To run the sample code 
+The commands below will show you which python to use, how to run a sample code that is included with the matrix submodule.  The --led* options are specific to this one board so you will need to adjust them accordingly.
+
+```
+rpi@nhl-led-scoreboard-office:~ $ cd nhl-led-scoreboard/
+(nhlsb-venv) rpi@nhl-led-scoreboard-office:~/nhl-led-scoreboard $ which python
+/home/rpi/nhlsb-venv/bin/python
+(nhlsb-venv) rpi@nhl-led-scoreboard-office:~/nhl-led-scoreboard $ cd submodules/matrix/bindings/python/samples/
+(nhlsb-venv) rpi@nhl-led-scoreboard-office:~/nhl-led-scoreboard/submodules/matrix/bindings/python/samples $ sudo env "PATH=$PATH" python runtext.py --led-gpio-mapping=adafruit-hat-pwm --led-brightness=60 --led-slowdown-gpio=3 --led-rgb-sequence=rgb --led-rows=64 --led-cols=128 --led-pwm-bits=10
+Press CTRL-C to stop sample
+```
+
 
    
 ## Upgrade

@@ -640,7 +640,7 @@
       "align": "top"
     },
     "tendency": {
-      "position": ["80%", "10%"],
+      "position": ["90%", "15%"],
       "font": "wxicons_full",
       "align": "right"
     },

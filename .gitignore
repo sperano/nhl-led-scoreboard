@@ -182,3 +182,5 @@ plugins.lock.json
 # Ignore all ori files
 *.ori
 .devcontainer.json
+nhl_setup
+RELEASE_NOTE.md

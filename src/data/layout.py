@@ -8,6 +8,7 @@ class Layout:
         self.font_pb = ImageFont.truetype(get_file("assets/fonts/score_large.otf"), 22)
         self.font = ImageFont.truetype(get_file("assets/fonts/04B_24__.TTF"), 8)
         self.wxfont = ImageFont.truetype(get_file("assets/fonts/04B_03B_.TTF"), 8)
+        self.wxfont_wide = ImageFont.truetype(get_file("assets/fonts/press2p.ttf"), 8)
         self.wxalert_font = ImageFont.truetype(get_file("assets/fonts/vcr_mono.ttf"), 20)
         self.wxalert_font2 = ImageFont.truetype(get_file("assets/fonts/VGA.ttf"), 24)
         self.font_large_2 = ImageFont.truetype(get_file("assets/fonts/04B_24__.TTF"), 24)

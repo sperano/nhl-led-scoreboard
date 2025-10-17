@@ -1,12 +1,13 @@
-from utils import get_file
-from data.layout import Layout
-from data.colors import Color
-from config.main import Config  
-from .validate_json import validateConf
 import json
-import os
-import sys
 import logging
+import sys
+
+from config.main import Config
+from data.colors import Color
+from data.layout import Layout
+from utils import get_file
+
+from .validate_json import validateConf
 
 debug = logging.getLogger("scoreboard")
 
@@ -43,11 +44,11 @@ class ScoreboardConfig:
         except KeyError:
             self.mqtt_enabled = False
 
-              
+
         self.mqtt_main_topic = ""
         self.mqtt_username = ""
         self.mqtt_password = ""
-        
+
         if self.mqtt_enabled:
             self.mqtt_broker = json["sbio"]["mqtt"]["broker"]
             self.mqtt_port = json["sbio"]["mqtt"]["port"]
@@ -113,8 +114,11 @@ class ScoreboardConfig:
         self.weather_show_on_clock = json["boards"]["weather"]["show_on_clock"]
         # Forecast settings
         self.weather_forecast_enabled = json["boards"]["weather"]["forecast_enabled"]
+        self.weather_forecast_show_today = json["boards"]["weather"]["forecast_show_today"]
         #Number of days up to 3 for forecast
         self.weather_forecast_days = json["boards"]["weather"]["forecast_days"]
+        if self.weather_forecast_show_today:
+            self.weather_forecast_days += 1
         #How frequent, in hours, to update the forecast
         self.weather_forecast_update = json["boards"]["weather"]["forecast_update"]
 
@@ -122,7 +126,7 @@ class ScoreboardConfig:
         self.wxalert_alert_feed = json["boards"]["wxalert"]["alert_feed"]
         #Allow the weather thread to interrupt the current flow of the display loop and show an alert if it shows up
         #Similar to how a pushbutton interrupts the flow
-        self.wxalert_show_alerts = json["boards"]["wxalert"]["show_alerts"]  
+        self.wxalert_show_alerts = json["boards"]["wxalert"]["show_alerts"]
         #Show expire time instead of effective time of NWS alerts
         self.wxalert_nws_show_expire = json["boards"]["wxalert"]["nws_show_expire"]
         # Display on top and bottom bar the severity (for US) and type
@@ -163,7 +167,7 @@ class ScoreboardConfig:
         self.standing_type = json["boards"]["standings"]["standing_type"]
         self.preferred_divisions = json["boards"]["standings"]["divisions"]
         self.preferred_conference = json["boards"]["standings"]["conference"]
-        
+
         try:
             self.wildcard_limit = json["boards"]["standings"]["wildcard_limit"]
         except KeyError:
@@ -198,8 +202,8 @@ class ScoreboardConfig:
 
         # Fonts
         self.layout = Layout()
-        
-        # load colors 
+
+        # load colors
         self.team_colors = Color(self.__get_config(
             "colors/teams"
         ))
@@ -211,10 +215,10 @@ class ScoreboardConfig:
 
         if args.testing_mode :
             self.testing_mode = True
-        
+
         if args.test_goal_animation :
             self.test_goal_animation = True
-            
+
 
     def read_json(self, filename):
         # Find and return a json file
