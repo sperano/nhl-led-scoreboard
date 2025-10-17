@@ -29,6 +29,7 @@ import debug
 from rich.logging import RichHandler
 from rich.traceback import install
 from richcolorlog import setup_logging
+import random
 import time
 import threading
 
@@ -219,6 +220,7 @@ def run():
 def background_task(matrix: Matrix):
     while True:
         print("Running in the background")
+        matrix.brightness = random.randint(0, 255)
         time.sleep(2)
         _ = matrix
 
