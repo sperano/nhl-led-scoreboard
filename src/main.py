@@ -37,12 +37,14 @@ import json
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
+app.matrix = None
 
 @app.route("/matrix/brightness", methods=["POST", "PUT"])
 def matrix_brightness():
     data = request.get_json(force=True)
     # Your logic here
     print("Brightness data received:", data)
+    app.matrix.set_brightness(data['brightness'])
     return jsonify(status="ok")
 
 
@@ -231,6 +233,7 @@ def run():
 
 
 def background_task(matrix: Matrix):
+    app.matrix = matrix 
     app.run(host="0.0.0.0", port=8080)
     # while True:
     #     n = random.randint(0, 255)
