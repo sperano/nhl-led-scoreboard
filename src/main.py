@@ -239,8 +239,6 @@ def background_task(matrix: Matrix):
     #     time.sleep(2)
 
 if __name__ == "__main__":
-
-if __name__ == "__main__":
     try:
         run()
 
